@@ -6,11 +6,50 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+:root {
+  --bg-primary: #0a0f1d;
+  --text-primary: #e2e8f0;
+}
+
+html.light {
+  --color-white: #000000;
+  --color-black: #ffffff;
+
+  --color-slate-950: #f8fafc;
+  --color-slate-900: #f1f5f9;
+  --color-slate-800: #e2e8f0;
+  --color-slate-700: #cbd5e1;
+  --color-slate-600: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-400: #475569;
+  --color-slate-300: #334155;
+  --color-slate-200: #1e293b;
+  --color-slate-100: #0f172a;
+  --color-slate-50: #020617;
+
+  --color-cyan-500: #0284c7;
+  --color-cyan-400: #0369a1;
+  --color-cyan-300: #075985;
+
+  --color-indigo-500: #4f46e5;
+  --color-emerald-500: #059669;
+
+  --bg-primary: #f8fafc;
+  --text-primary: #0f172a;
+}
+
+
 /* Base custom classes */
 body {
   font-family: var(--font-sans);
-  background-color: #0a0f1d; /* Nexus Theme Background */
-  color: #e2e8f0; /* slate-200 */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Fix specific hardcoded backgrounds mapped back to CSS variables */
+.bg-\[\#0a0f1d\] {
+  background-color: var(--bg-primary) !important;
 }
 
 /* Custom scrollbar aesthetics for professional look */

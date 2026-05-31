@@ -93,6 +93,7 @@ export interface Revision {
   projectStart: string;
   createdAt: string;
   isBaseline: boolean;
+  approvedAt?: string | null;
 }
 
 export interface ChatMessage {
