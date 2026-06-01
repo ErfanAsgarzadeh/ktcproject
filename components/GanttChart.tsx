@@ -376,7 +376,7 @@ export default function GanttChart({
 
               return (
                 <div 
-                  key={node.id} 
+                  key={`${node.type}-${node.id}`}
                   onClick={() => onSelectNode(node.id)}
                   className={`h-10 border-b border-white/5 relative w-full flex items-center shrink-0 cursor-pointer transition-colors ${
                     isSelected ? 'bg-cyan-500/5' : 'hover:bg-white/5'

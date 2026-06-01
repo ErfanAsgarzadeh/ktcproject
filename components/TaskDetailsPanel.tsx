@@ -189,19 +189,61 @@ export default function TaskDetailsPanel({
                     className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 disabled:bg-white/[0.02]/50 focus:border-cyan-400 focus:outline-none"
                 />
               </div>
-              <div className="col-span-2">
-                <label className="block text-[10px] text-slate-400 font-medium mb-1">
-                  Duration (Days): <span className="text-cyan-400 font-bold font-mono">{selectedNode.duration} working days</span>
-                </label>
-                <input
-                    type="number"
-                    disabled={!isEditMode || isWbs}
-                    min="1"
-                    value={selectedNode.duration}
-                    onChange={(e) => handleAddField('duration', parseInt(e.target.value) || 1)}
-                    className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
-                />
-              </div>
+                <div className="col-span-2">
+                    {(() => {
+                        // تبدیل عدد اعشاری بک‌اند به ساعت و دقیقه برای نمایش در UI
+                        const totalDuration = Number(selectedNode.duration) || 0;
+                        const currentHours = Math.floor(totalDuration);
+                        const currentMins = Math.round((totalDuration - currentHours) * 60);
+
+                        return (
+                            <>
+                                <label className="block text-[10px] text-slate-400 font-medium mb-1">
+                                    Duration (HH:MM): <span className="text-cyan-400 font-bold font-mono">
+            {String(currentHours).padStart(2, '0')}:{String(currentMins).padStart(2, '0')}
+          </span>
+                                </label>
+                                <div className="flex gap-2 items-center">
+                                    {/* ورودی ساعت */}
+                                    <input
+                                        type="number"
+                                        disabled={!isEditMode || isWbs}
+                                        min="0"
+                                        placeholder="ساعت"
+                                        value={currentHours}
+                                        onChange={(e) => {
+                                            const newHours = parseInt(e.target.value) || 0;
+                                            // ترکیب ساعت جدید با دقیقه فعلی و تبدیل به عدد اعشاری
+                                            const newDurationFloat = newHours + (currentMins / 60);
+                                            // ارسال به بک‌اند با حداکثر 4 رقم اعشار
+                                            handleAddField('duration', Number(newDurationFloat.toFixed(4)));
+                                        }}
+                                        className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
+                                    />
+                                    <span className="text-slate-400 font-bold">:</span>
+                                    {/* ورودی دقیقه */}
+                                    <input
+                                        type="number"
+                                        disabled={!isEditMode || isWbs}
+                                        min="0"
+                                        max="59"
+                                        placeholder="دقیقه"
+                                        value={currentMins}
+                                        onChange={(e) => {
+                                            let newMins = parseInt(e.target.value) || 0;
+                                            if (newMins > 59) newMins = 59; // محدودسازی دقیقه
+                                            // ترکیب ساعت فعلی با دقیقه جدید و تبدیل به عدد اعشاری
+                                            const newDurationFloat = currentHours + (newMins / 60);
+                                            // ارسال به بک‌اند
+                                            handleAddField('duration', Number(newDurationFloat.toFixed(4)));
+                                        }}
+                                        className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
+                                    />
+                                </div>
+                            </>
+                        );
+                    })()}
+                </div>
             </div>
           </div>
 

@@ -201,7 +201,7 @@ export default function WbsTable({
 
           return (
             <div 
-              key={node.id} 
+              key={`${node.type}-${node.id}`}
               onClick={() => onSelectNode(node.id)}
               className={`grid grid-cols-[minmax(180px,280px)_80px_100px_100px_60px_60px_120px_100px_50px] items-center h-10 text-xs text-slate-300 ${rowBgClass} transition-colors cursor-pointer border-b border-white/5`}
             >
