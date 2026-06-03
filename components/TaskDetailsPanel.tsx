@@ -73,8 +73,16 @@ export default function TaskDetailsPanel({
   }
 
   const isWbs = selectedNode.type === 'wbs';
-  const isCritical = (selectedNode as any).isCritical;
+
   const cpmData = (selectedNode as any).cpmData;
+  const metrics = (selectedNode as any).metrics; // اضافه شدن متریک‌ها
+  const isCritical = metrics?.isCritical ?? (selectedNode as any).isCritical;
+
+  // تابع کمکی برای فرمت کردن تاریخ و نمایش تمیزتر
+  const formatMetricDate = (dateStr?: string) => {
+    if (!dateStr) return '—';
+    return dateStr.split('T')[0] || dateStr.split(' ')[0];
+  };
 
   // Find direct predecessors for selected activity
   const predecessors = dependencies.filter(d => d.toId === selectedNode.id);
@@ -189,61 +197,61 @@ export default function TaskDetailsPanel({
                     className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 disabled:bg-white/[0.02]/50 focus:border-cyan-400 focus:outline-none"
                 />
               </div>
-                <div className="col-span-2">
-                    {(() => {
-                        // تبدیل عدد اعشاری بک‌اند به ساعت و دقیقه برای نمایش در UI
-                        const totalDuration = Number(selectedNode.duration) || 0;
-                        const currentHours = Math.floor(totalDuration);
-                        const currentMins = Math.round((totalDuration - currentHours) * 60);
+              <div className="col-span-2">
+                {(() => {
+                  // تبدیل عدد اعشاری بک‌اند به ساعت و دقیقه برای نمایش در UI
+                  const totalDuration = Number(selectedNode.duration) || 0;
+                  const currentHours = Math.floor(totalDuration);
+                  const currentMins = Math.round((totalDuration - currentHours) * 60);
 
-                        return (
-                            <>
-                                <label className="block text-[10px] text-slate-400 font-medium mb-1">
-                                    Duration (HH:MM): <span className="text-cyan-400 font-bold font-mono">
+                  return (
+                      <>
+                        <label className="block text-[10px] text-slate-400 font-medium mb-1">
+                          Duration (HH:MM): <span className="text-cyan-400 font-bold font-mono">
             {String(currentHours).padStart(2, '0')}:{String(currentMins).padStart(2, '0')}
           </span>
-                                </label>
-                                <div className="flex gap-2 items-center">
-                                    {/* ورودی ساعت */}
-                                    <input
-                                        type="number"
-                                        disabled={!isEditMode || isWbs}
-                                        min="0"
-                                        placeholder="ساعت"
-                                        value={currentHours}
-                                        onChange={(e) => {
-                                            const newHours = parseInt(e.target.value) || 0;
-                                            // ترکیب ساعت جدید با دقیقه فعلی و تبدیل به عدد اعشاری
-                                            const newDurationFloat = newHours + (currentMins / 60);
-                                            // ارسال به بک‌اند با حداکثر 4 رقم اعشار
-                                            handleAddField('duration', Number(newDurationFloat.toFixed(4)));
-                                        }}
-                                        className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
-                                    />
-                                    <span className="text-slate-400 font-bold">:</span>
-                                    {/* ورودی دقیقه */}
-                                    <input
-                                        type="number"
-                                        disabled={!isEditMode || isWbs}
-                                        min="0"
-                                        max="59"
-                                        placeholder="دقیقه"
-                                        value={currentMins}
-                                        onChange={(e) => {
-                                            let newMins = parseInt(e.target.value) || 0;
-                                            if (newMins > 59) newMins = 59; // محدودسازی دقیقه
-                                            // ترکیب ساعت فعلی با دقیقه جدید و تبدیل به عدد اعشاری
-                                            const newDurationFloat = currentHours + (newMins / 60);
-                                            // ارسال به بک‌اند
-                                            handleAddField('duration', Number(newDurationFloat.toFixed(4)));
-                                        }}
-                                        className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
-                                    />
-                                </div>
-                            </>
-                        );
-                    })()}
-                </div>
+                        </label>
+                        <div className="flex gap-2 items-center">
+                          {/* ورودی ساعت */}
+                          <input
+                              type="number"
+                              disabled={!isEditMode || isWbs}
+                              min="0"
+                              placeholder="ساعت"
+                              value={currentHours}
+                              onChange={(e) => {
+                                const newHours = parseInt(e.target.value) || 0;
+                                // ترکیب ساعت جدید با دقیقه فعلی و تبدیل به عدد اعشاری
+                                const newDurationFloat = newHours + (currentMins / 60);
+                                // ارسال به بک‌اند با حداکثر 4 رقم اعشار
+                                handleAddField('duration', Number(newDurationFloat.toFixed(4)));
+                              }}
+                              className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
+                          />
+                          <span className="text-slate-400 font-bold">:</span>
+                          {/* ورودی دقیقه */}
+                          <input
+                              type="number"
+                              disabled={!isEditMode || isWbs}
+                              min="0"
+                              max="59"
+                              placeholder="دقیقه"
+                              value={currentMins}
+                              onChange={(e) => {
+                                let newMins = parseInt(e.target.value) || 0;
+                                if (newMins > 59) newMins = 59; // محدودسازی دقیقه
+                                // ترکیب ساعت فعلی با دقیقه جدید و تبدیل به عدد اعشاری
+                                const newDurationFloat = currentHours + (newMins / 60);
+                                // ارسال به بک‌اند
+                                handleAddField('duration', Number(newDurationFloat.toFixed(4)));
+                              }}
+                              className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
+                          />
+                        </div>
+                      </>
+                  );
+                })()}
+              </div>
             </div>
           </div>
 
@@ -278,7 +286,6 @@ export default function TaskDetailsPanel({
             </div>
           </div>
 
-          {/* Wbs CPM Telemetry Stats or Resources */}
           {/* Task Roles Assignments (New) */}
           {!isWbs && (
               <div className="space-y-2.5">
@@ -299,7 +306,7 @@ export default function TaskDetailsPanel({
                       );
                     }
                     return assignedRoles.map(role => {
-                      const assignee = users.find(u => u.id === role.userId);
+                      const assignee = users.find(u => String(u.id) === String(role.userId));
                       let badgeStyle = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
                       if (role.role === 'reviewer') badgeStyle = 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
                       if (role.role === 'executor') badgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
@@ -421,19 +428,27 @@ export default function TaskDetailsPanel({
                 <div className="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1">
                   <div className="flex items-center justify-between text-slate-400">
                     <span>Early Start:</span>
-                    <span className="text-cyan-400 font-semibold">{cpmData ? `Day ${cpmData.earlyStart}` : '—'}</span>
+                    <span className="text-cyan-400 font-semibold">
+                      {metrics?.earlyStart ? formatMetricDate(metrics.earlyStart) : (cpmData ? `Day ${cpmData.earlyStart}` : '—')}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-400">
                     <span>Early Finish:</span>
-                    <span className="text-cyan-400 font-semibold">{cpmData ? `Day ${cpmData.earlyFinish}` : '—'}</span>
+                    <span className="text-cyan-400 font-semibold">
+                      {metrics?.earlyFinish ? formatMetricDate(metrics.earlyFinish) : (cpmData ? `Day ${cpmData.earlyFinish}` : '—')}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-400 border-t border-white/5 pt-1.5">
                     <span>Late Start:</span>
-                    <span className="text-indigo-400 font-semibold">{cpmData ? `Day ${cpmData.lateStart}` : '—'}</span>
+                    <span className="text-indigo-400 font-semibold">
+                      {metrics?.lateStart ? formatMetricDate(metrics.lateStart) : (cpmData ? `Day ${cpmData.lateStart}` : '—')}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-400 border-t border-white/5 pt-1.5">
                     <span>Late Finish:</span>
-                    <span className="text-indigo-400 font-semibold">{cpmData ? `Day ${cpmData.lateFinish}` : '—'}</span>
+                    <span className="text-indigo-400 font-semibold">
+                      {metrics?.lateFinish ? formatMetricDate(metrics.lateFinish) : (cpmData ? `Day ${cpmData.lateFinish}` : '—')}
+                    </span>
                   </div>
                 </div>
 
@@ -442,7 +457,7 @@ export default function TaskDetailsPanel({
                 <Scale className="w-3.5 h-3.5 text-cyan-400" /> Total Float (Slack):
               </span>
                   <span className={`font-bold px-2 py-0.5 rounded ${isCritical ? 'bg-rose-500/10 text-rose-405 text-rose-400 border border-rose-500/35 font-mono text-[11px]' : 'bg-cyan-550/10 text-cyan-400 border border-cyan-500/20'}`}>
-                {cpmData ? `${cpmData.totalFloat} days` : '0 days'}
+                {metrics ? `${metrics.totalFloatHours} Hours` : (cpmData ? `${cpmData.totalFloat} days` : '0 days')}
               </span>
                 </div>
               </div>

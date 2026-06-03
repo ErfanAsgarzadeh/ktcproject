@@ -99,7 +99,11 @@ export default function App() {
             setSelectedNodeId(root ? root.id : cpmMapped[0]?.id || null);
           })
           .catch(err => console.error('Failed to fetch Gantt data:', err));
+      apiClient.get(`/planning/task-roles/?revision_id=${activeRevisionId}`)
+          .then(res => setTaskRoles(res.data))
+          .catch(err => console.error('Failed to fetch task roles:', err));
     }
+
   }, [activeRevisionId, currentView]);
 
 
@@ -111,10 +115,13 @@ export default function App() {
     return currentNodes.map(node => {
       if (node.type === 'activity') {
         const data = cpm[node.id];
+        const backendMetrics = (node as any).metrics; // گرفتن متریک‌های سمت بک‌اند
+
         return {
           ...node,
-          isCritical: data ? data.isCritical : false,
-          totalFloat: data ? data.totalFloat : 0,
+          // اولویت با دیتای بک‌اند است، اگر نبود از فرمول لوکال استفاده کن
+          isCritical: backendMetrics ? backendMetrics.isCritical : (data ? data.isCritical : false),
+          totalFloat: backendMetrics ? (backendMetrics.totalFloatHours / 8) : (data ? data.totalFloat : 0),
           cpmData: data || null
         } as any;
       }
@@ -432,11 +439,38 @@ export default function App() {
 
   const handleAddUser = (username: string, jobTitle: string, employeeCode: string) => setUsers([...users, { id: `user-${Date.now()}`, username, jobTitle, employeeCode }]);
   const handleDeleteUser = (id: string) => setUsers(users.filter(u => u.id !== id));
-  const handleAddTaskRole = (taskId: string, userId: string, role: any) => {
-    if (activeRevisionId && effectiveEditMode) setTaskRoles([...taskRoles, { id: `tr-${Date.now()}`, revisionId: activeRevisionId, taskId, userId, role }]);
+  const handleAddTaskRole = async (taskId: string, userId: string, role: any) => {
+    if (activeRevisionId && effectiveEditMode) {
+      try {
+        // ارسال دیتا به بک‌اند
+        const res =await apiClient.post('/planning/task-roles/', {
+          revisionId: activeRevisionId,
+          taskId: taskId,
+          userId: userId,
+          role: role
+        });
+
+        // جایگذاری دیتای برگشتی (که دارای id واقعی دیتابیس است) در فرانت‌اند
+        setTaskRoles([...taskRoles, res.data]);
+      } catch (err) {
+        console.error("Error saving task role:", err);
+        alert("خطا در تخصیص کاربر! ممکن است این نقش قبلاً برای کاربر انتخاب شده باشد.");
+      }
+    }
   };
-  const handleDeleteTaskRole = (id: string) => {
-    if(effectiveEditMode) setTaskRoles(taskRoles.filter(tr => tr.id !== id));
+  const handleDeleteTaskRole = async (id: string) => {
+    if(effectiveEditMode) {
+      try {
+        // حذف مستقیم از دیتابیس بک‌اند
+        await apiClient.delete(`/planning/task-roles/${id}/`);
+
+        // آپدیت کردن لیست در ظاهر سایت
+        setTaskRoles(taskRoles.filter(tr => tr.id !== id));
+      } catch (err) {
+        console.error("Error deleting task role:", err);
+        alert("خطا در حذف تخصیص کاربر.");
+      }
+    }
   };
 
   const handleExportCsv = () => { alert("Export logic executed."); };

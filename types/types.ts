@@ -103,3 +103,21 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
 }
+
+export interface TaskReport {
+  id: string;
+  taskId: string;
+  userId: string;
+  timestamp: string;
+  status: 'on-track' | 'at-risk' | 'blocked' | 'completed' | string;
+  timeSpentHours?: number;
+  progressPercent: number;
+  blockers?: string;
+  notes?: string;
+
+  // فیلدهای مربوط به سیستم تاییدات (Approvals)
+  isApproved?: boolean;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectionReason?: string; // <--- این خط را اضافه کنید
+}

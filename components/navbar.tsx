@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { ThemeToggle } from './themeChangeToggle';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { apiClient } from '../lib/api'; // کلاینت API که در مرحله قبل ساختیم
 import { CustomUser } from '../types/types';
-import { User } from 'lucide-react';
+import { User,Settings,LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
     const [user, setUser] = useState<CustomUser | null>(null);
@@ -28,15 +28,12 @@ export default function Navbar() {
     }, []);
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 transition-colors">
-            <div className="container mx-auto px-4  flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                    <Link href="/" className="font-bold text-xl text-gray-900 dark:text-white">
-                        Apex WBS
-                    </Link>
-                    <nav className="hidden md:flex gap-4 text-sm font-medium text-gray-600 dark:text-gray-300">
-                        <Link href="/dashboard" className="hover:text-cyan-600 dark:hover:text-cyan-400">داشبورد</Link>
-                        <Link href="/settings" className="hover:text-cyan-600 dark:hover:text-cyan-400">تنظیمات</Link>
+        <header className="sticky top-0 z-50 w-full  bg-[#0a0f1d] font-sans text-slate-200 transition-colors">
+            <div className=" mx-auto w-full  flex items-center justify-between">
+                <div className="p-4 flex items-center ">
+                    <nav className="hidden md:flex gap-4 text-sm font-medium ">
+                        <Link href="/DashBoard" className=""><LayoutDashboard/></Link>
+                        <Link href="/settings" className=""><Settings/></Link>
                     </nav>
                 </div>
 
@@ -45,13 +42,18 @@ export default function Navbar() {
 
                     {/* نمایش پروفایل کاربر با دیتای واقعی */}
                     <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800">
-                            <User className="w-5 h-5" />
-                        </div>
+
                         {user && (
                             <div className="hidden sm:flex flex-col text-xs">
-                                <span className="font-bold text-gray-800 dark:text-gray-200">{user.username}</span>
-                                <span className="text-gray-500 dark:text-gray-400">{user.jobTitle || 'کاربر سیستم'}</span>
+                                <div className="flex items-center gap-2.5 px-3 py-1.5 bg-amber-550/5 bg-amber-500/5 border border-amber-500/15 rounded-xl text-xs">
+                                    <div className="w-4 h-4 rounded bg-amber-500/20 text-amber-300 flex items-center justify-center text-[8px] font-black font-mono">
+                                        {user.username.substring(0, 2).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-200 font-semibold text-xs leading-none">{user.username}</span>
+                                        <span className="text-[9px] text-amber-400 block font-mono">{user.jobTitle || 'Manager'}</span>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

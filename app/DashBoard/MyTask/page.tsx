@@ -1,118 +1,117 @@
-
-
 'use client'
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import  MyTasks from '../../../components/MyTasks'
-import { ProjectNode, ActivityNode, Dependency, ZoomLevel, Project, Revision, CustomUser, TaskRole, ChatMessage } from './types';
+import React, { useState, useEffect } from 'react';
+import MyTasks from '../../../components/MyTasks'
+import { Project, Revision, CustomUser, TaskRole, ChatMessage } from '../../../types/types';
+import { apiClient } from '../../../lib/api'
 
+export default function MyTasksUser() {
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [revisions, setRevisions] = useState<Revision[]>([]);
+    const [users, setUsers] = useState<CustomUser[]>([]);
+    const [currentUser, setCurrentUser] = useState<CustomUser | null>(null); // اضافه شدن استیت کاربر فعلی
+    const [taskRoles, setTaskRoles] = useState<TaskRole[]>([]);
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [tasks, setTasks] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isLightMode, setIsLightMode] = useState(false);
 
-const DEFAULT_PROJECTS: Project[] = [
-    {
-        id: 'proj-1',
-        name: 'Substructure & Superstructure Construction',
-        description: 'An enterprise-level substructure and superstructure building schedule with nested WBS layers, structural dependencies, and critical path branches.',
-        createdAt: new Date('2026-05-20T08:00:00Z').toISOString()
-    },
-    {
-        id: 'proj-2',
-        name: 'Enterprise Cloud App Release V2',
-        description: 'Software launch and engineering plan outlining sprint grooming, core infrastructure development, QA cycles, multi-stage deployments, and legal compliance.',
-        createdAt: new Date('2026-05-24T08:00:00Z').toISOString()
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                // ۱. ابتدا مشخصات کاربر لاگین شده را دریافت می‌کنیم
+                const profileRes = await apiClient.get('/auth/profile/');
+
+                // بر اساس ساختار بک‌اند شما، ممکن است دیتا داخل آرایه باشد یا یک آبجکت مستقیم
+                const loggedInUser = profileRes.data.results ? profileRes.data.results[0] : profileRes.data;
+
+                if (!loggedInUser || !loggedInUser.id) {
+                    console.error("اطلاعات کاربری یافت نشد!");
+                    setIsLoading(false);
+                    return;
+                }
+
+                // ست کردن کاربر لاگین شده و قرار دادن او به عنوان لیست یوزرها
+                setCurrentUser(loggedInUser);
+                setUsers([loggedInUser]);
+
+                // ۲. حالا تسک‌ها و رول‌ها را فقط برای این کاربر فراخوانی می‌کنیم
+                // دقت کنید: نام کوئری‌پارامتر (?user_id=) ممکن است در بک‌اند شما (?user=) باشد
+                const [projRes, revRes, rolesRes, chatsRes,tasksRes] = await Promise.all([
+                    apiClient.get('/planning/projects/'),
+                    apiClient.get('/planning/revisions/'),
+                    apiClient.get(`/planning/task-roles/?user_id=${loggedInUser.id}`), // فیلتر بر اساس کاربر
+                    apiClient.get(`/planning/task-chats/`), // در صورت نیاز این را هم میتوانید با ?user_id فیلتر کنید
+                    apiClient.get(`/planning/activities/?user_id=${loggedInUser.id}`)
+                ]);
+
+                setProjects(projRes.data.results || projRes.data);
+                setRevisions(revRes.data.results || revRes.data);
+                setTaskRoles(rolesRes.data.results || rolesRes.data);
+                setTasks(tasksRes.data.results || tasksRes.data);
+                const formattedChats = (chatsRes.data.results || chatsRes.data).map((chat: any) => ({
+                    id: chat.id,
+                    taskId: chat.task,
+                    userId: chat.user,
+                    text: chat.text,
+                    timestamp: chat.timestamp
+                }));
+                setChatMessages(formattedChats);
+
+            } catch (error) {
+                console.error("خطا در دریافت اطلاعات از سرور:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchInitialData();
+    }, []);
+
+    const handleAddChatMessage = async (taskId: string, userId: string, text: string) => {
+        try {
+            const res = await apiClient.post('/planning/task-chats/', {
+                task: taskId,
+                text: text
+            });
+
+            const newMsg: ChatMessage = {
+                id: res.data.id,
+                taskId: res.data.task,
+                userId: res.data.user,
+                text: res.data.text,
+                timestamp: res.data.timestamp
+            };
+            setChatMessages(prev => [...prev, newMsg]);
+        } catch (error) {
+            console.error("خطا در ارسال پیام:", error);
+        }
+    };
+
+    const handleGlobalProgressUpdate = (revisionId: string, taskId: string, progress: number) => {
+        console.log(`Global Task Progress Updated: Task ${taskId} is now at ${progress}%`);
+    };
+
+    if (isLoading) {
+        return <div className="h-screen w-screen flex items-center justify-center bg-[#0a0f1d] text-cyan-400 font-mono text-sm">در حال برقراری ارتباط با سرور...</div>;
     }
-];
-
-const DEFAULT_REVISIONS: Revision[] = [
-    {
-        id: 'rev-1',
-        projectId: 'proj-1',
-        number: 1,
-        description: 'Approved Baseline Schedule Level-2',
-        projectStart: '2026-06-01',
-        createdAt: new Date('2026-05-20T09:00:00Z').toISOString(),
-        isBaseline: true
-    },
-    {
-        id: 'rev-2',
-        projectId: 'proj-2',
-        number: 1,
-        description: 'Primary Multi-Cloud Rollout Strategy',
-        projectStart: '2026-06-01',
-        createdAt: new Date('2026-05-24T09:00:00Z').toISOString(),
-        isBaseline: true
-    }
-];
-
-const DEFAULT_USERS: CustomUser[] = [
-    { id: 'user-1', username: 'Alice Green', jobTitle: 'Principal Planner & PM', employeeCode: 'EMP-111' },
-    { id: 'user-2', username: 'Bob Peterson', jobTitle: 'Structural Subcontractor', employeeCode: 'EMP-112' },
-    { id: 'user-3', username: 'Carlos Santana', jobTitle: 'Lead SRE Architect', employeeCode: 'EMP-113' },
-    { id: 'user-4', username: 'Diana Prince', jobTitle: 'QA Compliance Officer', employeeCode: 'EMP-114' },
-    { id: 'user-5', username: 'Evan Wright', jobTitle: 'Legal Assessor', employeeCode: 'EMP-115' }
-];
-
-const DEFAULT_TASK_ROLES: TaskRole[] = [
-    { id: 'tr-1', revisionId: 'rev-1', taskId: 'act-blueprints', userId: 'user-1', role: 'project manager' },
-    { id: 'tr-2', revisionId: 'rev-1', taskId: 'act-structural', userId: 'user-2', role: 'executor' },
-    { id: 'tr-3', revisionId: 'rev-1', taskId: 'act-permits', userId: 'user-1', role: 'reviewer' },
-    { id: 'tr-4', revisionId: 'rev-2', taskId: 'sw-figma', userId: 'user-1', role: 'owner' },
-    { id: 'tr-5', revisionId: 'rev-2', taskId: 'sw-backend-api', userId: 'user-3', role: 'executor' },
-    { id: 'tr-6', revisionId: 'rev-2', taskId: 'sw-frontend-ui', userId: 'user-3', role: 'project manager' },
-    { id: 'tr-7', revisionId: 'rev-2', taskId: 'sw-qa-test', userId: 'user-4', role: 'reviewer' },
-];
-
-
-export default function MyTasksUser(){
-
-    const [projects, setProjects] = useState<Project[]>(() => {
-        const saved = localStorage.getItem('nexus_projects');
-        if (saved) return JSON.parse(saved);
-        localStorage.setItem('nexus_projects', JSON.stringify(DEFAULT_PROJECTS));
-        return DEFAULT_PROJECTS;
-    });
-
-    const [revisions, setRevisions] = useState<Revision[]>(() => {
-        const saved = localStorage.getItem('nexus_revisions');
-        if (saved) return JSON.parse(saved);
-        localStorage.setItem('nexus_revisions', JSON.stringify(DEFAULT_REVISIONS));
-        return DEFAULT_REVISIONS;
-    });
-
-    const [users, setUsers] = useState<CustomUser[]>(() => {
-        const saved = localStorage.getItem('nexus_users');
-        if (saved) return JSON.parse(saved);
-        localStorage.setItem('nexus_users', JSON.stringify(DEFAULT_USERS));
-        return DEFAULT_USERS;
-    });
-
-    const [taskRoles, setTaskRoles] = useState<TaskRole[]>(() => {
-        const saved = localStorage.getItem('nexus_task_roles');
-        if (saved) return JSON.parse(saved);
-        localStorage.setItem('nexus_task_roles', JSON.stringify(DEFAULT_TASK_ROLES));
-        return DEFAULT_TASK_ROLES;
-    });
-
-    const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
-        const saved = localStorage.getItem('nexus_chat_messages');
-        if (saved) return JSON.parse(saved);
-        return [];
-    });
-
 
     return(
-        <div>
+        <div className="h-screen w-screen overflow-hidden">
             <MyTasks
-                users={users}
+                users={users} // فقط یک کاربر (کاربر لاگین شده) پاس داده می‌شود
+                currentUser={currentUser} // پاس دادن کاربر فعلی به کامپوننت فرزند
                 projects={projects}
                 revisions={revisions}
-                taskRoles={taskRoles}
+                taskRoles={taskRoles} // تسک‌های فیلتر شده
+                tasks={tasks}
                 chatMessages={chatMessages}
-
+                onExit={() => window.history.back()}
                 onAddChatMessage={handleAddChatMessage}
                 onGlobalProgressUpdate={handleGlobalProgressUpdate}
-
+                isLightMode={isLightMode}
                 onToggleTheme={() => setIsLightMode(!isLightMode)}
+
             />
         </div>
-
     )
 }
