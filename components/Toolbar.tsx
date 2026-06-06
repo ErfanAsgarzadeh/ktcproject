@@ -33,6 +33,8 @@ import { ZoomLevel, ProjectNode, Dependency } from '../types/types';
 interface ToolbarProps {
   projectName: string;
   revisionNumber: number;
+  revisionStart?: string; // اضافه شد
+  revisionEnd?: string;   // اضافه شد
   onExitToHub: () => void;
   zoomLevel: ZoomLevel;
   onSelectZoom: (zoom: ZoomLevel) => void;
@@ -57,7 +59,6 @@ interface ToolbarProps {
   onToggleEditMode: () => void;
   onLaunchToBackend: () => void;
 
-  // پراپ‌های جدید برای مکانیزم قفل
   isRevisionLocked: boolean;
   onApproveRevision: () => void;
   onCreateDraft: () => void;
@@ -66,6 +67,8 @@ interface ToolbarProps {
 export default function Toolbar({
                                   projectName,
                                   revisionNumber,
+                                  revisionStart,
+                                  revisionEnd,
                                   onExitToHub,
                                   zoomLevel,
                                   onSelectZoom,
@@ -100,11 +103,22 @@ export default function Toolbar({
   const totalActivities = nodes.filter(n => n.type === 'activity').length;
   const projectRoot = nodes.find(n => n.parentId === null && n.type === 'wbs') || nodes[0];
 
-  const projectStart = projectRoot?.startDate || '—';
-  const projectEnd = projectRoot?.endDate || '—';
-  const projectDuration = projectRoot?.duration || 0;
-  const projectProgress = projectRoot?.progress || 0;
+  // خواندن اطلاعات مستقیما از دیتابیس ریویژن به جای گره‌های جدول
+  const displayStart = revisionStart ? revisionStart.split('T')[0] : (projectRoot?.startDate || '—');
+  const displayEnd = revisionEnd ? revisionEnd.split('T')[0] : (projectRoot?.endDate || '—');
 
+  // محاسبه مدت زمان (Duration) بر اساس تاریخ شروع و پایان ریویژن
+  let displayDuration = projectRoot?.duration || 0;
+  if (revisionStart && revisionEnd) {
+    const sDate = new Date(revisionStart);
+    const eDate = new Date(revisionEnd);
+    if (!isNaN(sDate.getTime()) && !isNaN(eDate.getTime())) {
+      const diffTime = eDate.getTime() - sDate.getTime();
+      displayDuration = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+    }
+  }
+
+  const projectProgress = projectRoot?.progress || 0;
   const isCriticalCount = nodes.filter(n => n.type === 'activity' && (n as any).isCritical).length;
   const criticalPercent = totalActivities > 0 ? Math.round((isCriticalCount / totalActivities) * 100) : 0;
 
@@ -152,14 +166,12 @@ export default function Toolbar({
 
           {/* TimeScale Zoom & Active Critical Actions */}
           <div className="flex items-center gap-3.5 flex-wrap">
-            {/* Dark Mode Theme Badge */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-slate-400 bg-black/20 rounded-lg border border-white/10 shadow-inner backdrop-blur-sm cursor-default select-none" title="Cosmic Slate Dark Theme Active">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-slate-400 bg-black/20 rounded-lg border border-white/10 shadow-inner backdrop-blur-sm cursor-default select-none">
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               <span className="hidden sm:inline">Dark Theme</span>
             </div>
 
-            {/* Gantt View Scope */}
-            <div className="flex items-center bg-black/20 rounded-lg border border-white/10 p-0.5 shadow-inner backdrop-blur-sm" title="Filters left table and Gantt grid view scope">
+            <div className="flex items-center bg-black/20 rounded-lg border border-white/10 p-0.5 shadow-inner backdrop-blur-sm">
               {[
                 { id: 'both', label: 'WBS & Tasks' },
                 { id: 'wbs', label: 'WBS Only' },
@@ -179,7 +191,6 @@ export default function Toolbar({
               ))}
             </div>
 
-            {/* Zoom scale */}
             <div className="flex items-center bg-black/20 rounded-lg border border-white/10 p-0.5 shadow-inner backdrop-blur-sm">
               {(['day', 'week', 'month'] as ZoomLevel[]).map(level => (
                   <button
@@ -196,10 +207,8 @@ export default function Toolbar({
               ))}
             </div>
 
-            {/* Critical Path Toggle */}
             <button
                 onClick={onToggleCriticalPath}
-                title="Highlights activities with zero total float in red on the Gantt timeline."
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all backdrop-blur-sm ${
                     showCriticalPath
                         ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 hover:bg-rose-500/30 font-semibold'
@@ -210,10 +219,8 @@ export default function Toolbar({
               <span>Critical Path</span>
             </button>
 
-            {/* Primavera F9 Solve Network dates */}
             <button
                 onClick={onRunF9Scheduler}
-                title="Primavera F9: Solves CPM forward/backward passes and pushes dates to respect Finish-to-Start lags."
                 className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-205 border border-cyan-500/30 shadow transition-all active:scale-95 cursor-pointer backdrop-blur-sm"
             >
               <RefreshCw className="w-3.5 h-3.5 text-cyan-400 animate-spin-hover" />
@@ -235,13 +242,13 @@ export default function Toolbar({
           <div className="flex flex-col gap-1 border-r border-white/5 px-2 last:border-0 overflow-hidden truncate">
             <span className="text-slate-400 font-mono text-[10px] uppercase tracking-wider">Project Bounds</span>
             <span className="font-mono text-slate-300 mt-0.5">
-            {projectStart} <span className="text-slate-500">to</span> {projectEnd}
+            {displayStart} <span className="text-slate-500">to</span> {displayEnd}
           </span>
           </div>
           <div className="flex flex-col gap-1 border-r border-white/5 px-2 last:border-0 overflow-hidden truncate">
             <span className="text-slate-400 font-mono text-[10px] uppercase tracking-wider">Total Duration</span>
             <span className="font-semibold text-slate-200 mt-0.5">
-            <span className="text-cyan-400 font-mono font-bold text-[13px]">{projectDuration}</span> Days
+            <span className="text-cyan-400 font-mono font-bold text-[13px]">{displayDuration}</span> Days
           </span>
           </div>
           <div className="flex flex-col gap-1 border-r border-white/5 px-2 last:border-0 overflow-hidden truncate">
@@ -320,7 +327,6 @@ export default function Toolbar({
                 <>
                   <button
                       onClick={onAddWbs}
-                      title="Adds a new Work Breakdown Structure node under the selected row, or at the root standard layout."
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg transition-all cursor-pointer backdrop-blur-sm"
                   >
                     <FolderPlus className="w-3.5 h-3.5 text-cyan-400" />
@@ -329,7 +335,6 @@ export default function Toolbar({
 
                   <button
                       onClick={onAddActivity}
-                      title="Adds an executable schedule task inside the selected WBS item."
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg transition-all cursor-pointer backdrop-blur-sm"
                   >
                     <GitCommit className="w-3.5 h-3.5 text-indigo-400" />
@@ -339,7 +344,6 @@ export default function Toolbar({
                   <button
                       onClick={onDeleteSelected}
                       disabled={!selectedNodeId}
-                      title="Delete the currently focused outline item from the scheduler."
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all cursor-pointer backdrop-blur-sm ${
                           selectedNodeId
                               ? 'bg-rose-500/10 border-rose-500/30 text-rose-350 hover:bg-rose-500/20'
@@ -352,7 +356,6 @@ export default function Toolbar({
 
                   <button
                       onClick={onLaunchToBackend}
-                      title="Launch to backend for calculation and revision of the plan."
                       className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white border border-indigo-400 rounded-lg transition-all cursor-pointer shadow-lg shadow-indigo-500/20 font-bold ml-2"
                   >
                     <ServerCog className="w-3.5 h-3.5 text-white animate-pulse" />
@@ -372,21 +375,18 @@ export default function Toolbar({
           <div className="flex items-center gap-2 text-slate-300">
             <button
                 onClick={onExportCsv}
-                title="Export full grid data as CSV sheets."
                 className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-emerald-400 transition-all backdrop-blur-sm cursor-pointer"
             >
               <FileSpreadsheet className="w-4 h-4" />
             </button>
             <button
                 onClick={onExportJson}
-                title="Export full scheduler states as high-fidelity JSON files."
                 className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-cyan-400 transition-all backdrop-blur-sm cursor-pointer"
             >
               <FileJson className="w-4 h-4" />
             </button>
             <button
                 onClick={() => fileInputRef.current?.click()}
-                title="Import an Apex JSON schedule backup."
                 className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-indigo-405 transition-all backdrop-blur-sm cursor-pointer"
             >
               <FolderPlus className="w-4 h-4" />
@@ -401,7 +401,6 @@ export default function Toolbar({
             <div className="h-4 w-px bg-white/10 mx-1" />
             <button
                 onClick={onPrint}
-                title="Optimize sheet and timescale styles for printing or PDF exports."
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-slate-305 hover:text-white rounded-lg transition-all backdrop-blur-sm cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />

@@ -5,7 +5,7 @@ import { ThemeToggle } from './themeChangeToggle';
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../lib/api'; // کلاینت API که در مرحله قبل ساختیم
 import { CustomUser } from '../types/types';
-import { User,Settings,LayoutDashboard } from 'lucide-react';
+import { User, Settings, LayoutDashboard, Users } from 'lucide-react';
 
 export default function Navbar() {
     const [user, setUser] = useState<CustomUser | null>(null);
@@ -33,6 +33,7 @@ export default function Navbar() {
                 <div className="p-4 flex items-center ">
                     <nav className="hidden md:flex gap-4 text-sm font-medium ">
                         <Link href="/DashBoard" className=""><LayoutDashboard/></Link>
+                        <Link href="/DashBoard/ResourcePlan" className="" title="Resource Plan"><Users/></Link>
                         <Link href="/settings" className=""><Settings/></Link>
                     </nav>
                 </div>
@@ -50,8 +51,8 @@ export default function Navbar() {
                                         {user.username.substring(0, 2).toUpperCase()}
                                     </div>
                                     <div>
-                                        <span className="text-slate-200 font-semibold text-xs leading-none">{user.username}</span>
-                                        <span className="text-[9px] text-amber-400 block font-mono">{user.jobTitle || 'Manager'}</span>
+                                        <span className="text-slate-200 font-semibold text-xs leading-none">{user.username.toUpperCase()}</span>
+                                        <span className="text-[9px] text-amber-400 block font-mono">{user.jobTitle.toUpperCase() || 'Manager'}</span>
                                     </div>
                                 </div>
                             </div>

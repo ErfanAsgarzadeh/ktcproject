@@ -237,12 +237,51 @@ export default function App() {
 
   const handleSelectRevision = (id: string) => setActiveRevisionId(id);
 
-  const handleAddProject = async (name: string, description: string) => {
+  const handleAddProject = async (name: string, description: string, startDate: string, endDate: string) => {
     try {
-      const res = await apiClient.post('/planning/projects/', { name, description });
+      // ارسال پارامترهای جدید به بک‌اند
+      const res = await apiClient.post('/planning/projects/', {
+        name,
+        description,
+        start_date: startDate,
+        end_date: endDate
+      });
+
       setProjects([...projects, res.data]);
       setActiveProjectId(res.data.id);
-    } catch (err) { console.error("Error creating project", err); }
+
+      // پس از ایجاد پروژه، بلافاصله لیست ریویژن‌های آن را درخواست می‌کنیم
+      // تا ریویژن صفری که بک‌اند خودکار ساخته را دریافت کنیم.
+      const revRes = await apiClient.get(`/planning/revisions/?project_id=${res.data.id}`);
+      setRevisions(revRes.data);
+
+      if (revRes.data.length > 0) {
+        // ریویژن صفر را به عنوان ریویژن فعال انتخاب می‌کنیم
+        const revZero = revRes.data.find((r: any) => r.number === 0) || revRes.data[0];
+        setActiveRevisionId(revZero.id);
+      }
+    } catch (err) {
+      console.error("Error creating project:", err);
+    }
+  };
+
+  const handleUpdateRevisionDates = async (revisionId: string, newStart: string, newEnd: string) => {
+    try {
+      // ارسال درخواست پچ به بک‌اند برای آپدیت تاریخ‌ها
+      await apiClient.patch(`/planning/revisions/${revisionId}/`, {
+        project_start: newStart,
+        project_end: newEnd
+      });
+
+      // آپدیت کردن استیت در فرانت‌اند تا تغییرات بلافاصله دیده شود
+      setRevisions(prev => prev.map(r =>
+          r.id === revisionId
+              ? { ...r, projectStart: newStart, projectEnd: newEnd }
+              : r
+      ));
+    } catch (err) {
+      console.error("Error updating revision dates", err);
+    }
   };
 
   const handleDeleteProject = async (id: string) => {
@@ -437,8 +476,6 @@ export default function App() {
     setChatMessages([...chatMessages, { id: `msg-${Date.now()}`, taskId, userId, text, timestamp: new Date().toISOString() }]);
   };
 
-  const handleAddUser = (username: string, jobTitle: string, employeeCode: string) => setUsers([...users, { id: `user-${Date.now()}`, username, jobTitle, employeeCode }]);
-  const handleDeleteUser = (id: string) => setUsers(users.filter(u => u.id !== id));
   const handleAddTaskRole = async (taskId: string, userId: string, role: any) => {
     if (activeRevisionId && effectiveEditMode) {
       try {
@@ -560,11 +597,9 @@ export default function App() {
                 activeRevisionId={activeRevisionId}
                 onSelectRevision={handleSelectRevision}
                 onAddRevision={handleAddRevision}
+                onUpdateRevisionDates={handleUpdateRevisionDates}
                 onDuplicateRevision={handleDuplicateRevision}
                 onDeleteRevision={handleDeleteRevision}
-                users={users}
-                onAddUser={handleAddUser}
-                onDeleteUser={handleDeleteUser}
                 onEnterWorkspace={() => setCurrentView('workspace')}
                 nodesCountByRevision={nodesCountByRevision}
             />
@@ -597,6 +632,8 @@ export default function App() {
                   isRevisionLocked={isRevisionLocked}
                   onApproveRevision={handleApproveRevision}
                   onCreateDraft={handleCreateDraft}
+                  revisionStart={activeRevision?.projectStart}
+                  revisionEnd={(activeRevision as any)?.projectEnd}
                   onToggleEditMode={() => {
                     if (!isRevisionLocked) setIsEditMode(!isEditMode);
                   }}

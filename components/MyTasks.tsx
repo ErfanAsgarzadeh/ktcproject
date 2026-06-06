@@ -222,84 +222,32 @@ export default function MyTasks({
   return (
       <div className="h-full bg-[#0a0f1d] flex flex-col font-sans text-slate-200">
 
-        {/* --- HEADER --- */}
-        <header className="bg-white/5 backdrop-blur-md border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl z-20 shrink-0">
-          <div className="flex items-center gap-4">
-            <button onClick={onExit} className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-[#131b31]/80 hover:border-white/20 text-slate-300 hover:text-white rounded-xl transition-all text-xs">
-              <ArrowLeft className="w-4 h-4 text-cyan-400" />
-              <span className="font-semibold">Back to Project Hub</span>
-            </button>
-            <div className="h-5 w-px bg-white/10 hidden sm:block" />
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-xl border border-white/10 flex items-center justify-center">
-                <Gauge className="w-4 h-4 text-cyan-400 animate-pulse" />
-              </div>
-              <div>
-                <h1 className="text-base font-extrabold text-white tracking-tight">Assignee Reporting Terminal</h1>
-                <p className="text-[10px] text-slate-400 font-mono hidden sm:block">STATUS & COMPLIANCE LOGS ENGINE</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-            <span className="text-[11px] text-slate-500 font-mono tracking-wider uppercase hidden md:inline">Executor Context:</span>
-
-            {currentUser && (
-                <div className="flex items-center gap-2.5 px-3 py-1.5 bg-black/30 border border-white/10 rounded-xl text-xs font-sans">
-                  <div className="w-5 h-5 rounded bg-cyan-400/20 text-cyan-300 flex items-center justify-center text-[9px] font-black font-mono">
-                    {currentUser.username.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <span className="text-white font-bold text-xs">{currentUser.username}</span>
-                    <span className="text-[9px] text-slate-500 block font-mono">My Account ({currentUser.employeeCode || 'USR'})</span>
-                  </div>
-                </div>
-            )}
-
-            {onToggleTheme && (
-                <button onClick={onToggleTheme} className="flex items-center justify-center p-2 rounded-xl text-amber-400 border border-white/10 hover:border-amber-500/30 transition-all shadow-sm hover:bg-amber-500/10 bg-black/40 cursor-pointer">
-                  {isLightMode ? <Moon className="w-4 h-4 text-cyan-400" /> : <Sun className="w-4 h-4" />}
-                </button>
-            )}
-          </div>
-        </header>
 
         {/* --- MAIN CONTAINER --- */}
         <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
 
           {/* --- LEFT COLUMN: SIDEBAR --- */}
-          <div className="w-full md:w-[350px] lg:w-[380px] shrink-0 border-r border-white/10 bg-[#0c1223] flex flex-col overflow-hidden">
+          <div className="w-full md:w-[350px] lg:w-[380px] shrink-0 border-r border-white/10  flex flex-col overflow-hidden">
             <div className="p-5 border-b border-white/5 bg-slate-950/20 space-y-4">
-              {currentUser && (
-                  <div className="flex items-center gap-3 bg-[#11192e] p-3 rounded-2xl border border-white/5">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-white text-sm font-black shadow-lg shadow-cyan-500/10">
-                      {currentUser.username.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white tracking-tight">{currentUser.username}</h3>
-                      <p className="text-xs text-slate-400">{currentUser.jobTitle || 'Employee'}</p>
-                      <p className="text-[9px] text-slate-500 font-mono tracking-wider uppercase mt-0.5">{currentUser.employeeCode || 'N/A'} / COMPLIANCE AGENT</p>
-                    </div>
-                  </div>
-              )}
+
 
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                <div className="bg-black/30 border border-white/5 p-2 rounded-xl">
-                  <div className="text-[9px] text-slate-500 uppercase font-mono font-bold">Allocated Tasks</div>
+                <div className=" border border-white/5 p-2 rounded-xl">
+                  <div className="text-[9px] text-slate-500  uppercase font-mono font-bold">Allocated Tasks</div>
                   <div className="text-base font-black text-slate-200 font-mono mt-0.5">{metrics.total}</div>
                 </div>
-                <div className="bg-black/30 border border-white/5 p-2 rounded-xl">
+                <div className=" border border-white/5 p-2 rounded-xl">
                   <div className="text-[9px] text-slate-500 uppercase font-mono font-bold">Avg Progress</div>
                   <div className="text-base font-black text-cyan-400 font-mono mt-0.5">{metrics.avgProgress}%</div>
                 </div>
-                <div className="bg-black/30 border border-white/5 p-2 rounded-xl">
+                <div className=" border border-white/5 p-2 rounded-xl">
                   <div className="text-[9px] text-slate-500 uppercase font-mono font-bold">Critical Blocked</div>
                   <div className="text-sm font-black text-rose-400 font-mono mt-0.5 flex items-center justify-center gap-1">
                     <span>{metrics.blocked}</span>
                     {metrics.blocked > 0 && <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block" />}
                   </div>
                 </div>
-                <div className="bg-black/30 border border-white/5 p-2 rounded-xl">
+                <div className="dark:bg-black border border-white/5 p-2 rounded-xl">
                   <div className="text-[9px] text-slate-500 uppercase font-mono font-bold">Fully Completed</div>
                   <div className="text-base font-black text-emerald-400 font-mono mt-0.5">{metrics.completed}</div>
                 </div>

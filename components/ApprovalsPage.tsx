@@ -290,29 +290,6 @@ export default function ApprovalsPage({
     return (
         <div className="h-full bg-[#0a0f1d] flex flex-col font-sans text-slate-200 overflow-hidden relative">
 
-            {/* HEADER BAR */}
-            <header className="bg-white/5 backdrop-blur-md border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl z-20 shrink-0">
-                <div className="flex items-center gap-4">
-
-
-                    <div className="h-5 w-px bg-white/10 hidden sm:block" />
-
-                    <div className="flex items-center gap-2.5">
-                        <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20 flex items-center justify-center">
-                            <ClipboardCheck className="w-4 h-4 text-amber-400" />
-                        </div>
-                        <div>
-                            <h1 className="text-base font-extrabold text-white tracking-tight">Report Review Terminal</h1>
-                            <p className="text-[10px] text-slate-400 font-mono hidden sm:block">PENDING APPROVAL & COMPLIANCE BOARD</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-slate-500 font-mono tracking-widest uppercase hidden md:inline">Supervisor Session:</span>
-
-                </div>
-            </header>
 
             {/* BODY CONTEXT ROWS */}
             <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8 space-y-6 scrollbar-thin">
