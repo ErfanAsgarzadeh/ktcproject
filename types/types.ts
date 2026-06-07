@@ -45,7 +45,7 @@ export interface Dependency {
   lag: number;    // Days of lag / waiting time
 }
 
-export type ZoomLevel = 'day' | 'week' | 'month';
+export type ZoomLevel = 'hour' |'day' | 'week' | 'month';
 
 export interface CpmData {
   earlyStart: number;  // day index from project start
@@ -120,4 +120,77 @@ export interface TaskReport {
   approvedBy?: string;
   approvedAt?: string;
   rejectionReason?: string; // <--- این خط را اضافه کنید
+}
+
+
+// ==========================================
+// ACCORDING TO PYTHON MODEL DESIGN ENTITIES:
+// ==========================================
+
+export interface ResourcePool {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface ResourceRole {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface ResourceSkill {
+  id: string;
+  name: string;
+}
+
+export type ResourceType = 'LABOR' | 'EQUIPMENT' | 'MATERIAL' | 'COST';
+
+export interface ResourceItem {
+  id: string;
+  poolId: string | null;
+  code: string;
+  name: string;
+  resourceType: ResourceType;
+  roleId: string | null;
+  calendarId?: string | null;
+  maxUnits: number; // default 100
+  priority: number; // default 100
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ResourceSkillMapping {
+  id: string;
+  resourceId: string;
+  skillId: string;
+  level: number; // default 1
+}
+
+export interface ResourceException {
+  id: string;
+  resourceId: string;
+  startDatetime: string;
+  finishDatetime: string;
+  reason: string;
+  isAvailable: boolean;
+}
+
+export interface ResourceRate {
+  id: string;
+  resourceId: string;
+  effectiveFrom: string;
+  regularRate: number;
+  overtimeRate: number;
+}
+
+export interface Assignment {
+  id: string;
+  revisionId: string;
+  taskId: string;
+  resourceId: string;
+  unitsPercent: number; // default 100
+  plannedHours: number;
+  actualHours: number;
 }

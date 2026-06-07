@@ -51,7 +51,7 @@ interface ToolbarProps {
   onDeleteSelected: () => void;
   onExportCsv: () => void;
   onExportJson: () => void;
-  onImportJson: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onImportMsp: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPrint: () => void;
   ganttFilter: 'both' | 'wbs' | 'activity';
   onSelectGanttFilter: (filter: 'both' | 'wbs' | 'activity') => void;
@@ -85,7 +85,7 @@ export default function Toolbar({
                                   onDeleteSelected,
                                   onExportCsv,
                                   onExportJson,
-                                  onImportJson,
+                                  onImportMsp,
                                   onPrint,
                                   ganttFilter,
                                   onSelectGanttFilter,
@@ -192,7 +192,7 @@ export default function Toolbar({
             </div>
 
             <div className="flex items-center bg-black/20 rounded-lg border border-white/10 p-0.5 shadow-inner backdrop-blur-sm">
-              {(['day', 'week', 'month'] as ZoomLevel[]).map(level => (
+              {(['hour', 'day', 'week', 'month'] as ZoomLevel[]).map(level => (
                   <button
                       key={level}
                       onClick={() => onSelectZoom(level)}
@@ -326,12 +326,19 @@ export default function Toolbar({
             {isEditMode && (
                 <>
                   <button
-                      onClick={onAddWbs}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg transition-all cursor-pointer backdrop-blur-sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-emerald-400 transition-all backdrop-blur-sm cursor-pointer"
+                      title="Import MS Project (.xml)"
                   >
-                    <FolderPlus className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Add WBS Node</span>
+                    <FolderPlus className="w-4 h-4" />
                   </button>
+                  <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={onImportMsp}
+                      accept=".xml"
+                      className="hidden"
+                  />
 
                   <button
                       onClick={onAddActivity}
@@ -387,15 +394,16 @@ export default function Toolbar({
             </button>
             <button
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-indigo-405 transition-all backdrop-blur-sm cursor-pointer"
+                className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-emerald-400 transition-all backdrop-blur-sm cursor-pointer"
+                title="Import MS Project (.xml)"
             >
               <FolderPlus className="w-4 h-4" />
             </button>
             <input
                 type="file"
                 ref={fileInputRef}
-                onChange={onImportJson}
-                accept=".json"
+                onChange={onImportMsp}
+                accept=".xml"
                 className="hidden"
             />
             <div className="h-4 w-px bg-white/10 mx-1" />

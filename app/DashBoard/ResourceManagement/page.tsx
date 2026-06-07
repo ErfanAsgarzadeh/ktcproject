@@ -1,0 +1,134 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import ResourceManagement from '@/components/ResourceManagement'; // آدرس ایمپورت را بررسی کنید
+import { CustomUser, ProjectNode, TaskRole, Revision } from '@/types/types'; // آدرس تایپ‌ها را بررسی کنید
+import { Loader2 } from 'lucide-react';
+
+// ایمپورت apiClient برای ریکوئست‌های احراز هویت شده
+import { apiClient } from '@/lib/api';
+
+export default function ResourceManagementPage() {
+    // ==========================================
+    // ۱. استیت‌های مورد نیاز کامپوننت فرزند
+    // ==========================================
+    const [users, setUsers] = useState<CustomUser[]>([]);
+    const [nodes, setNodes] = useState<ProjectNode[]>([]);
+    const [taskRoles, setTaskRoles] = useState<TaskRole[]>([]);
+    const [currentRevision, setCurrentRevision] = useState<Revision | null>(null);
+
+    const [isLightMode, setIsLightMode] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    // ==========================================
+    // ۲. دریافت اطلاعات پایه پروژه از بک‌اند
+    // ==========================================
+    useEffect(() => {
+        const fetchProjectBaseline = async () => {
+            setIsLoading(true);
+            try {
+                // ۱. ابتدا لیست ریویژن‌ها را می‌گیریم تا نسخه فعال را پیدا کنیم
+                const revRes = await apiClient.get('planning/revisions/');
+                const revisions: Revision[] = revRes.data;
+
+                // پیدا کردن نسخه‌ای که هنوز تایید/قفل نشده است (نسخه جاری)
+                // اگر سیستم شما روش دیگری برای پیدا کردن نسخه فعال دارد، این بخش را تغییر دهید
+                const activeRev = revisions.find(r => !r.approvedAt) || revisions[0];
+
+                setCurrentRevision(activeRev || null);
+
+                if (activeRev) {
+                    // ۲. دریافت داده‌های مرتبط با این ریویژن به صورت موازی
+                    const [usersRes, ganttRes, rolesRes] = await Promise.all([
+                        apiClient.get('auth/users/'), // فرض بر این است که اندپوینت کاربران را دارید
+                        apiClient.get(`planning/revisions/${activeRev.id}/gantt-data/`), // اندپوینتی که در views.py برای گانت‌چارت نوشته بودید
+                        apiClient.get(`planning/task-roles/?revision_id=${activeRev.id}`)
+                    ]);
+
+                    setUsers(usersRes.data);
+                    // در متد gantt-data بک‌اند، لیست گره‌ها داخل کلید nodes برمی‌گردد
+                    setNodes(ganttRes.data.nodes || []);
+                    setTaskRoles(rolesRes.data);
+                } else {
+                    // اگر ریویژنی نبود، حداقل کاربران را بگیریم
+                    const usersRes = await apiClient.get('auth/users/');
+                    setUsers(usersRes.data);
+                }
+
+            } catch (error) {
+                console.error("Error fetching baseline data from backend:", error);
+                alert("خطا در دریافت اطلاعات پایه پروژه از سرور.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProjectBaseline();
+    }, []);
+
+    // ==========================================
+    // ۳. هندلرهای عمومی صفحه
+    // ==========================================
+    const handleUpdateNode = (id: string, updatedFields: Partial<ProjectNode>) => {
+        // آپدیت کردن گره‌ها در حافظه (State)
+        setNodes(prevNodes =>
+            prevNodes.map(node =>
+                node.id === id ? ({ ...node, ...updatedFields } as ProjectNode) : node
+            )
+        );
+    };
+
+    // ==========================================
+    // ۴. رندر صفحه
+    // ==========================================
+    if (isLoading) {
+        return (
+            <div className="h-screen w-full flex items-center justify-center bg-[#070b19] text-cyan-500">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                    <span className="font-mono text-sm tracking-widest uppercase">Loading Project Workspace...</span>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`h-screen w-full flex flex-col ${isLightMode ? 'bg-slate-50' : 'bg-[#070b19]'}`}>
+
+            {/* هدر صفحه */}
+            <header className="px-6 py-4 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#0b1021]">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                        <span className="text-white font-bold text-lg leading-none">R</span>
+                    </div>
+                    <div>
+                        <h1 className="text-white font-bold text-lg">Project Resource Matrix</h1>
+                        <p className="text-xs text-slate-400">
+                            Active Revision: <span className="text-cyan-400 font-mono font-bold">Rev {currentRevision?.number || 0}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => setIsLightMode(!isLightMode)}
+                    className="text-[10px] uppercase font-mono font-bold text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                >
+                    {isLightMode ? 'Dark Mode' : 'Light Mode'}
+                </button>
+            </header>
+
+            {/* ناحیه اصلی و تزریق کامپوننت مدیریت منابع */}
+            <main className="flex-1 overflow-hidden relative">
+                <ResourceManagement
+                    users={users}
+                    nodes={nodes}
+                    taskRoles={taskRoles}
+                    currentRevision={currentRevision}
+                    handleUpdateNode={handleUpdateNode}
+                    isLightMode={isLightMode}
+                />
+            </main>
+
+        </div>
+    );
+}

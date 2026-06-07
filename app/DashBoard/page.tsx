@@ -106,7 +106,42 @@ export default function App() {
 
   }, [activeRevisionId, currentView]);
 
+  const handleImportMsp = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setIsLaunching(true);
+
+    try {
+      const res = await apiClient.post('/planning/import-msp/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      alert(`پروژه با موفقیت ایمپورت شد! ${res.data.tasks} تسک و ${res.data.wbs_nodes} گره WBS اضافه گردید.`);
+
+      // گرفتن مجدد لیست پروژه‌ها برای آپدیت شدن دیتای صفحه Hub
+      const projRes = await apiClient.get('/planning/projects/');
+      setProjects(projRes.data);
+
+      // در صورت تمایل، پروژه جدید بلافاصله به عنوان پروژه فعال انتخاب میشه
+      if (res.data.project_id) {
+        handleSelectProject(res.data.project_id);
+      }
+
+    } catch (error) {
+      console.error("Error importing MSP file:", error);
+      alert("خطا در ایمپورت فایل. لطفاً مطمئن شوید فایل خروجی استاندارد XML از MS Project است.");
+    } finally {
+      setIsLaunching(false);
+      // ریست کردن اینپوت برای انتخاب مجدد همان فایل در صورت نیاز
+      if (e.target) e.target.value = '';
+    }
+  };
   // ==========================================
   // 3. Helper Functions & Derived State
   // ==========================================
@@ -512,7 +547,7 @@ export default function App() {
 
   const handleExportCsv = () => { alert("Export logic executed."); };
   const handleExportJson = () => { alert("Export logic executed."); };
-  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => { alert("Import logic executed."); };
+
   const handlePrint = () => { window.print(); };
 
   const handleLaunchToBackend = () => {
@@ -624,7 +659,7 @@ export default function App() {
                   onDeleteSelected={handleDeleteSelected}
                   onExportCsv={handleExportCsv}
                   onExportJson={handleExportJson}
-                  onImportJson={handleImportJson}
+                  onImportMsp={handleImportMsp}
                   onPrint={handlePrint}
                   ganttFilter={ganttFilter}
                   onSelectGanttFilter={setGanttFilter}
