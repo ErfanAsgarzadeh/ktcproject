@@ -139,31 +139,46 @@ export function performWbsRollups(nodes: ProjectNode[]): ProjectNode[] {
  * Traverses WBS tree and activity children, establishing sorted list for view display.
  * Employs Preorder Traversal.
  */
+/**
+ * Traverses WBS tree and activity children, establishing sorted list for view display.
+ * Employs Preorder Traversal.
+ */
 export function getFlattenedHierarchyList(
-  nodes: ProjectNode[],
-  parentId: string | null = null,
-  depth = 0,
-  collapsedWbsIds: Set<string> = new Set()
+    nodes: ProjectNode[],
+    parentId: string | null = null,
+    depth = 0,
+    collapsedWbsIds: Set<string> = new Set()
 ): { node: ProjectNode; depth: number; isHidden: boolean }[] {
-  
+
   const result: { node: ProjectNode; depth: number; isHidden: boolean }[] = [];
-  
+
+  // تابع کمکی برای مرتب‌سازی زمانی (اول بر اساس تاریخ شروع، سپس بر اساس کد)
+  const sortChronologically = (a: ProjectNode, b: ProjectNode) => {
+    const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
+    const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
+
+    if (timeA !== timeB) {
+      return timeA - timeB; // مرتب‌سازی صعودی زمان
+    }
+    return (a.code || '').localeCompare(b.code || '', undefined, { numeric: true });
+  };
+
   // Filter nodes immediately under this parent
   // In Primavera, WBS nodes are ordered first, then activities under WBS
   const parentWbsChildren = nodes
-    .filter(n => n.parentId === parentId && n.type === 'wbs')
-    .sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+      .filter(n => n.parentId === parentId && n.type === 'wbs')
+      .sort(sortChronologically);
 
   const parentActivityChildren = nodes
-    .filter(n => n.parentId === parentId && n.type === 'activity')
-    .sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+      .filter(n => n.parentId === parentId && n.type === 'activity')
+      .sort(sortChronologically);
 
   // Combined children: WBS then activities (standard schedulers)
   const sortedChildren = [...parentWbsChildren, ...parentActivityChildren];
 
   sortedChildren.forEach(child => {
     const isHidden = collapsedWbsIds.has(parentId || '');
-    
+
     result.push({
       node: child,
       depth,
@@ -176,9 +191,9 @@ export function getFlattenedHierarchyList(
       if (!child.isExpanded || collapsedWbsIds.has(child.parentId || '')) {
         childCollapsedIds.add(child.id);
       }
-      
+
       const subTree = getFlattenedHierarchyList(nodes, child.id, depth + 1, childCollapsedIds);
-      
+
       // Propagate hidden status down
       subTree.forEach(item => {
         result.push({
@@ -191,9 +206,7 @@ export function getFlattenedHierarchyList(
   });
 
   return result;
-}
-
-/**
+}/**
  * Critical Path Method (CPM) Forward & Backward Passes.
  * Returns maps of activity IDs to floating variables (ES, EF, LS, LF, Total Float, isCritical).
  */

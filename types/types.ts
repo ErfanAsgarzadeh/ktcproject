@@ -17,6 +17,7 @@ export interface WbsNode {
   endDate: string; // YYYY-MM-DD
   duration: number; // working days
   progress: number; // 0 to 100
+  resources?: string[];
 }
 
 export interface ActivityNode {
@@ -33,6 +34,7 @@ export interface ActivityNode {
   constraintType: 'ASAP' | 'MANDATORY_START' | 'FINISH_NO_LATER_THAN';
   constraintDate?: string | null;
   notes: string;
+
 }
 
 export type ProjectNode = WbsNode | ActivityNode;

@@ -501,8 +501,10 @@ export default function GanttChart({
                       {node.name}
                             {((node as ActivityNode).resources && (node as ActivityNode).resources.length > 0) && (
                                 <span className="text-slate-400 font-medium ml-1.5 font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md backdrop-blur-sm">
-                          [{(node as ActivityNode).resources[0]}]
-                        </span>
+      [{typeof (node as ActivityNode).resources[0] === 'object'
+                                    ? (node as ActivityNode).resources[0].name
+                                    : (node as ActivityNode).resources[0]}]
+    </span>
                             )}
                     </span>
                       )}

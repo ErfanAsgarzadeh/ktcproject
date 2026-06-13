@@ -325,21 +325,15 @@ export default function Toolbar({
 
             {isEditMode && (
                 <>
-                  <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-300 hover:text-emerald-400 transition-all backdrop-blur-sm cursor-pointer"
-                      title="Import MS Project (.xml)"
-                  >
-                    <FolderPlus className="w-4 h-4" />
-                  </button>
-                  <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={onImportMsp}
-                      accept=".xml"
-                      className="hidden"
-                  />
 
+
+                  <button
+                      onClick={onAddWbs}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg transition-all cursor-pointer backdrop-blur-sm"
+                  >
+                    <FolderPlus className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Add WBS Node</span>
+                  </button>
                   <button
                       onClick={onAddActivity}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg transition-all cursor-pointer backdrop-blur-sm"

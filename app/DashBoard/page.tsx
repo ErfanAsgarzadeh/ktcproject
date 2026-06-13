@@ -110,9 +110,19 @@ export default function App() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // اطمینان از انتخاب پروژه و نسخه
+    if (!activeProjectId || !activeRevisionId) {
+      alert("لطفاً ابتدا یک پروژه و نسخه (Revision) فعال را انتخاب کنید.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
-
+    formData.append('project_id', activeProjectId); // استفاده از State فعال
+    formData.append('revision_id', activeRevisionId); // استفاده از State فعال
+    if (selectedNodeId) {
+      formData.append('active_node_id', selectedNodeId);
+    }
     setIsLaunching(true);
 
     try {
@@ -122,23 +132,25 @@ export default function App() {
         },
       });
 
-      alert(`پروژه با موفقیت ایمپورت شد! ${res.data.tasks} تسک و ${res.data.wbs_nodes} گره WBS اضافه گردید.`);
+      alert(`اطلاعات با موفقیت به نسخه جاری اضافه شد! ${res.data.tasks} تسک و ${res.data.wbs_nodes} گره WBS اضافه گردید.`);
 
-      // گرفتن مجدد لیست پروژه‌ها برای آپدیت شدن دیتای صفحه Hub
-      const projRes = await apiClient.get('/planning/projects/');
-      setProjects(projRes.data);
-
-      // در صورت تمایل، پروژه جدید بلافاصله به عنوان پروژه فعال انتخاب میشه
-      if (res.data.project_id) {
-        handleSelectProject(res.data.project_id);
-      }
+      // رفرش کردن اطلاعات صفحه برای نمایش تغییرات جدید
+      // دریافت مجدد دیتای گانت‌چارت برای نسخه فعلی
+      apiClient.get(`/planning/revisions/${activeRevisionId}/gantt-data/`)
+          .then(res => {
+            const fetchedNodes = res.data.nodes || [];
+            const fetchedDeps = res.data.dependencies || [];
+            const rolled = performWbsRollups(fetchedNodes);
+            const cpmMapped = updateCpmResults(rolled, fetchedDeps);
+            setNodes(cpmMapped);
+            setDependencies(fetchedDeps);
+          });
 
     } catch (error) {
       console.error("Error importing MSP file:", error);
-      alert("خطا در ایمپورت فایل. لطفاً مطمئن شوید فایل خروجی استاندارد XML از MS Project است.");
+      alert("خطا در ایمپورت فایل. لطفاً مطمئن شوید فایل خروجی استاندارد XML است.");
     } finally {
       setIsLaunching(false);
-      // ریست کردن اینپوت برای انتخاب مجدد همان فایل در صورت نیاز
       if (e.target) e.target.value = '';
     }
   };
@@ -304,8 +316,8 @@ export default function App() {
     try {
       // ارسال درخواست پچ به بک‌اند برای آپدیت تاریخ‌ها
       await apiClient.patch(`/planning/revisions/${revisionId}/`, {
-        project_start: newStart,
-        project_end: newEnd
+        projectStart: newStart,
+        projectEnd: newEnd
       });
 
       // آپدیت کردن استیت در فرانت‌اند تا تغییرات بلافاصله دیده شود

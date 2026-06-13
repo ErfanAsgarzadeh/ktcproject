@@ -154,10 +154,10 @@ export default function ResourceManagement({
 
         try {
             if (editingResource) {
-                const response = await apiClient.put(`/resources/${editingResource.id}/`, payload);
+                const response = await apiClient.put(`planning/resources/${editingResource.id}/`, payload);
                 setResources(resources.map(r => r.id === editingResource.id ? response.data : r));
             } else {
-                const response = await apiClient.post('/resources/', payload);
+                const response = await apiClient.post('planning/resources/', payload);
                 setResources([...resources, response.data]);
             }
             setShowResourceModal(false);
@@ -189,7 +189,7 @@ export default function ResourceManagement({
         e.preventDefault();
         if (!newPoolName.trim()) return;
         try {
-            const response = await apiClient.post('/resource-pools/', { name: newPoolName, description: newPoolDesc });
+            const response = await apiClient.post('planning/resource-pools/', { name: newPoolName, description: newPoolDesc });
             setPools([...pools, response.data]);
             setNewPoolName(''); setNewPoolDesc('');
         } catch (error) { alert('خطا در ساخت Pool.'); }
@@ -198,7 +198,7 @@ export default function ResourceManagement({
     const handleDeletePool = async (id: string) => {
         if (confirm('آیا از حذف این Pool اطمینان دارید؟')) {
             try {
-                await apiClient.delete(`/resource-pools/${id}/`);
+                await apiClient.delete(`planning/resource-pools/${id}/`);
                 setPools(pools.filter(p => p.id !== id));
                 setResources(resources.map(r => r.poolId === id ? { ...r, poolId: null } : r));
             } catch (error) { alert('خطا در حذف.'); }
@@ -209,7 +209,7 @@ export default function ResourceManagement({
         e.preventDefault();
         if (!newRoleName.trim()) return;
         try {
-            const response = await apiClient.post('/resource-roles/', { name: newRoleName, description: newRoleDesc });
+            const response = await apiClient.post('planning/resource-roles/', { name: newRoleName, description: newRoleDesc });
             setRoles([...roles, response.data]);
             setNewRoleName(''); setNewRoleDesc('');
         } catch (error) { alert('خطا در ساخت Role.'); }
@@ -229,7 +229,7 @@ export default function ResourceManagement({
         e.preventDefault();
         if (!newSkillName.trim()) return;
         try {
-            const response = await apiClient.post('/resource-skills/', { name: newSkillName });
+            const response = await apiClient.post('planning/resource-skills/', { name: newSkillName });
             setSkills([...skills, response.data]);
             setNewSkillName('');
         } catch (error) { alert('خطا در ساخت Skill.'); }
@@ -238,7 +238,7 @@ export default function ResourceManagement({
     const handleDeleteSkill = async (id: string) => {
         if (confirm('آیا از حذف این مهارت اطمینان دارید؟')) {
             try {
-                await apiClient.delete(`/resource-skills/${id}/`);
+                await apiClient.delete(`planning/resource-skills/${id}/`);
                 setSkills(skills.filter(s => s.id !== id));
                 setSkillMappings(skillMappings.filter(m => m.skillId !== id));
             } catch (error) { alert('خطا در حذف.'); }
@@ -250,7 +250,7 @@ export default function ResourceManagement({
         if (!skillForm.resourceId || !skillForm.skillId) return;
         try {
             const payload = { resource: skillForm.resourceId, skill: skillForm.skillId, level: skillForm.level };
-            const response = await apiClient.post('/resource-skill-mappings/', payload);
+            const response = await apiClient.post('planning/resource-skill-mappings/', payload);
             setSkillMappings([...skillMappings, response.data]);
             setShowSkillModal(false);
         } catch (error) { alert('خطا در تخصیص مهارت (ممکن است تکراری باشد).'); }
@@ -269,7 +269,7 @@ export default function ResourceManagement({
                 regular_rate: Number(rateForm.regularRate),
                 overtime_rate: Number(rateForm.overtimeRate)
             };
-            const response = await apiClient.post('/resource-rates/', payload);
+            const response = await apiClient.post('planning/resource-rates/', payload);
             setRates([...rates, response.data]);
             setShowRateModal(false);
         } catch (error) { alert('خطا در ثبت نرخ.'); }
@@ -286,7 +286,7 @@ export default function ResourceManagement({
                 reason: excForm.reason,
                 is_available: excForm.isAvailable
             };
-            const response = await apiClient.post('/resource-exceptions/', payload);
+            const response = await apiClient.post('planning/resource-exceptions/', payload);
             setExceptions([...exceptions, response.data]);
             setShowExceptionModal(false);
         } catch (error) { alert('خطا در ثبت استثنا.'); }
@@ -307,7 +307,7 @@ export default function ResourceManagement({
                 planned_hours: Number(asgForm.plannedHours),
                 actual_hours: Number(asgForm.actualHours)
             };
-            const response = await apiClient.post('/assignments/', payload);
+            const response = await apiClient.post('planning/assignments/', payload);
             setAssignments([...assignments, response.data]);
             setShowAsgModal(false);
         } catch (error) { alert('خطا در تخصیص (احتمالاً این منبع قبلاً به این تسک تخصیص یافته است).'); }
@@ -315,7 +315,7 @@ export default function ResourceManagement({
 
     const handleUpdateActualHours = async (asgId: string, actualHours: number) => {
         try {
-            const response = await apiClient.patch(`/assignments/${asgId}/`, { actual_hours: actualHours });
+            const response = await apiClient.patch(`planning/assignments/${asgId}/`, { actual_hours: actualHours });
             setAssignments(assignments.map(a => a.id === asgId ? response.data : a));
         } catch (error) {
             alert('خطا در بروزرسانی ساعت کارکرد.');

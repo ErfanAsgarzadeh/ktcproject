@@ -92,7 +92,7 @@ export default function MyTasks({
     if (!selectedTaskObj) return;
 
     setIsLoadingReports(true);
-    apiClient.get(`/planning/task-reports/?task_id=${selectedTaskObj.task.id}`)
+    apiClient.get(`/planning/task-reports/?taskID=${selectedTaskObj.task.id}`)
         .then(res => {
           const mappedReports = res.data.results ? res.data.results.map(mapBackendToReport) : res.data.map(mapBackendToReport);
           setReports(mappedReports);
