@@ -207,7 +207,7 @@ export default function App() {
           ...node,
           // اولویت با دیتای بک‌اند است، اگر نبود از فرمول لوکال استفاده کن
           isCritical: backendMetrics ? backendMetrics.isCritical : (data ? data.isCritical : false),
-          totalFloat: backendMetrics ? (backendMetrics.totalFloatHours / 8) : (data ? data.totalFloat : 0),
+          totalFloat: backendMetrics ? (backendMetrics.totalFloatHours ) : (data ? data.totalFloat : 0),
           cpmData: data || null
         } as any;
       }
