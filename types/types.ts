@@ -53,8 +53,9 @@ export interface CpmData {
   earlyStart: number;  // day index from project start
   earlyFinish: number;
   lateStart: number;
+  freeFloatHours: number;
   lateFinish: number;
-  totalFloat: number;  // Slack in days. 0 means Critical Path!
+  totalFloatHours: number;  // Slack in days. 0 means Critical Path!
   isCritical: boolean;
 }
 
@@ -195,4 +196,37 @@ export interface Assignment {
   unitsPercent: number; // default 100
   plannedHours: number;
   actualHours: number;
+}
+
+export interface VarianceReport {
+  id: string;
+  taskId: string;           // اتصال به Task اصلی
+  revisionId: string;       // اتصال به Revision
+  reportDate: string;       // تاریخ اسنپ‌شات (Data Date)
+
+  // مقادیر پایه
+  budgetAtCompletion: number; // BAC
+  plannedValue: number;       // PV
+  earnedValue: number;        // EV
+  actualCost: number;         // AC
+
+  // شاخص‌ها
+  spi: number;                // Schedule Performance Index
+  cpi: number;                // Cost Performance Index
+
+  // انحراف‌ها
+  scheduleVariance: number;   // SV
+  costVariance: number;       // CV
+
+  // پیش‌بینی‌ها
+  estimateAtCompletion: number; // EAC
+  estimateToComplete: number;   // ETC
+  varianceAtCompletion: number; // VAC
+
+  // وضعیت
+  actionRequired: boolean;    // فلگ هشدار مدیریتی
+
+  // --- فیلدهای ReadOnly که از SerializerMethodField بک‌اند می‌آیند ---
+  taskName: string;           // نام تسک در این ریویژن
+  taskCode: string;           // کد WBS تسک در این ریویژن
 }

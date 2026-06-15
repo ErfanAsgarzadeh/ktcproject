@@ -32,7 +32,7 @@ export default function DashboardLayout({
 
   // قالب اصلی داشبورد شامل Navbar ثابت و محتوای متغیر
   return (
-      <div className=" bg-[#0a0f1d] text-slate-200  ">
+      <div className=" h-screen overflow-hidden bg-[#0a0f1d] text-slate-200  ">
         {/* Navbar ثابت برای تمام صفحات داشبورد */}
         <Navbar />
 

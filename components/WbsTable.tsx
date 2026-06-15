@@ -180,6 +180,7 @@ export default function WbsTable({
         className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
       >
         {visibleRows.map(({ node, depth }) => {
+          console.log(node, depth);
           const isSelected = selectedNodeId === node.id;
           const isWbs = node.type === 'wbs';
           const isCritical = (node as any).isCritical;

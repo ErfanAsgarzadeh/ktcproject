@@ -1,17 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = '/api';
 
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+
 });
 
 // اینترسپتور برای اضافه کردن توکن به درخواست‌ها
 apiClient.interceptors.request.use(
     (config) => {
+
         const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -31,7 +30,7 @@ apiClient.interceptors.response.use(
             originalRequest._retry = true;
             try {
                 const refreshToken = localStorage.getItem('refresh_token');
-                const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
+                const response = await apiClient.post('/token/refresh/', {
                     refresh: refreshToken,
                 });
 

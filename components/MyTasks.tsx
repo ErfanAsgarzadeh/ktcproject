@@ -53,6 +53,7 @@ export default function MyTasks({
   // Dashboard states
   const [activeTab, setActiveTab] = useState<'report' | 'chat' | 'history'>('report');
   const [taskQuery, setTaskQuery] = useState('');
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('all'); // استیت جدید برای فیلتر نقش
 
   // Structured Report Form States
   const [reportStatus, setReportStatus] = useState<'on-track' | 'at-risk' | 'blocked' | 'completed'>('on-track');
@@ -114,52 +115,89 @@ export default function MyTasks({
         .finally(() => setIsLoadingReports(false));
   }, [selectedTaskObj?.task?.id]);
 
-  // === Retrieve assigned tasks ===
+  // === 1. Retrieve & Deduplicate Assigned Tasks ===
   const userTasks = useMemo(() => {
     if (!userId || !taskRoles || !tasks) return [];
 
     const roles = taskRoles.filter(tr => String(tr.userId) === String(userId));
-    const userTasksArray = [];
+    const uniqueTasksMap = new Map();
 
     for (const role of roles) {
+      if (uniqueTasksMap.has(role.taskId)) {
+        uniqueTasksMap.get(role.taskId).roles.push(role);
+        continue;
+      }
+
       const taskItem = tasks.find((t) => String(t.id) === String(role.taskId));
       if (taskItem) {
         const rev = revisions.find(r => String(r.id) === String(role.revisionId));
         const proj = projects.find(p => String(p.id) === String(rev?.projectId));
 
-        userTasksArray.push({
-          role,
+        uniqueTasksMap.set(role.taskId, {
+          roles: [role],
           task: taskItem,
           proj,
           rev,
         });
       }
     }
-    return userTasksArray;
+    return Array.from(uniqueTasksMap.values());
   }, [userId, taskRoles, revisions, projects, tasks]);
 
-  // === Filter & Metrics ===
-  const filteredTasks = useMemo(() => {
-    if (!taskQuery.trim()) return userTasks;
-    const q = taskQuery.toLowerCase();
-    return userTasks.filter(t =>
-        t.task.name.toLowerCase().includes(q) ||
-        (t.task.code && t.task.code.toLowerCase().includes(q)) ||
-        (t.proj && t.proj.name.toLowerCase().includes(q))
-    );
-  }, [userTasks, taskQuery]);
+  // === 2. Extract Unique Roles for Filter Dropdown ===
+  const availableRoles = useMemo(() => {
+    if (!taskRoles || !userId) return [];
+    const roleSet = new Set<string>();
+    const userRoles = taskRoles.filter(tr => String(tr.userId) === String(userId));
 
+    userRoles.forEach(r => {
+      // پیدا کردن عنوان نقش بر اساس ساختار بک‌اند شما
+      const roleName = (r as any).role || (r as any).name || (r as any).roleName || (r as any).title;
+      if (roleName) roleSet.add(roleName);
+    });
+
+    return Array.from(roleSet);
+  }, [taskRoles, userId]);
+
+  // === 3. Filter Tasks ===
+  const filteredTasks = useMemo(() => {
+    let filtered = userTasks;
+
+    // اعمال فیلتر بر اساس نقش انتخاب شده در Dropdown
+    if (selectedRoleFilter !== 'all') {
+      filtered = filtered.filter(t =>
+          t.roles.some((r: any) =>
+              (r.role || r.name || r.roleName || r.title) === selectedRoleFilter
+          )
+      );
+    }
+
+    // اعمال فیلتر متنی
+    if (taskQuery.trim()) {
+      const q = taskQuery.toLowerCase();
+      filtered = filtered.filter(t =>
+          t.task.name.toLowerCase().includes(q) ||
+          (t.task.code && t.task.code.toLowerCase().includes(q)) ||
+          (t.proj && t.proj.name.toLowerCase().includes(q))
+      );
+    }
+
+    return filtered;
+  }, [userTasks, taskQuery, selectedRoleFilter]);
+
+  // === 4. Compute Metrics ===
   const metrics = useMemo(() => {
-    const total = userTasks.length;
+    // آمارها بر اساس تسک‌های فیلتر شده محاسبه می‌شوند
+    const total = filteredTasks.length;
     if (total === 0) return { total: 0, completed: 0, blocked: 0, avgProgress: 0 };
 
-    const completed = userTasks.filter(t => t.task.progress === 100).length;
+    const completed = filteredTasks.filter(t => t.task.progress === 100).length;
     const blocked = 0;
-    const sumProgress = userTasks.reduce((acc, curr) => acc + (curr.task.progress || 0), 0);
+    const sumProgress = filteredTasks.reduce((acc, curr) => acc + (curr.task.progress || 0), 0);
     const avgProgress = Math.round(sumProgress / total);
 
     return { total, completed, blocked, avgProgress };
-  }, [userTasks]);
+  }, [filteredTasks]);
 
   // === Handlers ===
   const handleReportSubmit = async (e: React.FormEvent) => {
@@ -174,7 +212,7 @@ export default function MyTasks({
       task: selectedTaskObj.task.id,
       status: actualStatus,
       progress_percent: reportProgress,
-      time_spent_hours: totalDecimalHours, // ارسال مقدار اعشاری به سرور
+      time_spent_hours: totalDecimalHours,
       blockers: (actualStatus === 'blocked' || actualStatus === 'at-risk') ? blockersText.trim() : '',
       notes: notesText.trim() || 'Logged status progress update.',
     };
@@ -222,14 +260,12 @@ export default function MyTasks({
   return (
       <div className="h-full bg-[#0a0f1d] flex flex-col font-sans text-slate-200">
 
-
         {/* --- MAIN CONTAINER --- */}
         <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
 
           {/* --- LEFT COLUMN: SIDEBAR --- */}
           <div className="w-full md:w-[350px] lg:w-[380px] shrink-0 border-r border-white/10  flex flex-col overflow-hidden">
             <div className="p-5 border-b border-white/5 bg-slate-950/20 space-y-4">
-
 
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
                 <div className=" border border-white/5 p-2 rounded-xl">
@@ -253,10 +289,26 @@ export default function MyTasks({
                 </div>
               </div>
 
-              <div className="relative">
-                <input type="text" placeholder="Search assigned activities..." value={taskQuery} onChange={e => setTaskQuery(e.target.value)} className="w-full bg-black/40 border border-white/5 rounded-xl pl-3 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/60" />
-                {taskQuery && (
-                    <button onClick={() => setTaskQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 hover:text-slate-200 bg-white/5 border border-white/10 rounded px-1.5 py-0.2">Clear</button>
+              {/* Box جستجو و لیست کشویی نقش‌ها */}
+              <div className="flex gap-2 relative">
+                <div className="relative flex-1">
+                  <input type="text" placeholder="Search assigned activities..." value={taskQuery} onChange={e => setTaskQuery(e.target.value)} className="w-full bg-black/40 border border-white/5 rounded-xl pl-3 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/60" />
+                  {taskQuery && (
+                      <button onClick={() => setTaskQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 hover:text-slate-200 bg-white/5 border border-white/10 rounded px-1.5 py-0.2 transition-colors">Clear</button>
+                  )}
+                </div>
+
+                {availableRoles.length > 0 && (
+                    <select
+                        value={selectedRoleFilter}
+                        onChange={(e) => setSelectedRoleFilter(e.target.value)}
+                        className="bg-black/40 border border-white/5 rounded-xl px-2 py-2 text-xs text-slate-300 focus:outline-none focus:border-cyan-400/60 font-mono outline-none cursor-pointer hover:bg-black/60 transition-colors"
+                    >
+                      <option value="all">All Roles</option>
+                      {availableRoles.map(role => (
+                          <option key={role} value={role}>{role}</option>
+                      ))}
+                    </select>
                 )}
               </div>
             </div>
@@ -300,7 +352,20 @@ export default function MyTasks({
                               <span className="text-[9px] font-mono text-cyan-300 font-medium tracking-tight bg-white/5 border border-white/10 rounded px-1">{t.task.code}</span>
                             </div>
                           </div>
+
+                          {/* نمایش تگ نقش‌ها و میزان پیشرفت */}
                           <div className="mt-3 w-full">
+                            <div className="flex flex-wrap gap-1.5 mb-2.5">
+                              {t.roles.map((r: any, idx: number) => {
+                                const roleName = r.role || r.name || r.roleName || r.title || 'Assigned';
+                                return (
+                                    <span key={idx} className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-mono font-bold text-[8px] uppercase px-1.5 py-0.5 rounded tracking-wide shrink-0">
+                                    {roleName}
+                                  </span>
+                                );
+                              })}
+                            </div>
+
                             <div className="flex items-center justify-between text-[9px] font-mono text-slate-500 mb-1">
                               <span>Progress Level</span>
                               <span className="font-bold text-slate-300">{progress}%</span>

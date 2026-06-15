@@ -43,7 +43,6 @@ export function ThemeToggle() {
             }}
         >
             {isDark ? <Sun size={13} /> : <Moon size={13} />}
-            {isDark ? 'LIGHT' : 'DARK'}
         </button>
     );
 }

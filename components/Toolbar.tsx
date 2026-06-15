@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 import {
   Play,
   Layers,
@@ -26,7 +26,7 @@ import {
   ServerCog,
   Lock,
   CheckCircle,
-  Copy
+  Copy, ChevronUp, ChevronDown, Sun
 } from 'lucide-react';
 import { ZoomLevel, ProjectNode, Dependency } from '../types/types';
 
@@ -122,6 +122,106 @@ export default function Toolbar({
   const isCriticalCount = nodes.filter(n => n.type === 'activity' && (n as any).isCritical).length;
   const criticalPercent = totalActivities > 0 ? Math.round((isCriticalCount / totalActivities) * 100) : 0;
 
+
+  const [isCollapsed, setIsCollapsed] = useState(() => localStorage.getItem('nexus_toolbar_collapsed') === 'true');
+
+
+  if (isCollapsed) {
+    return (
+        <header className="bg-white/5 backdrop-blur-md text-slate-100 border-b border-white/10 px-4 py-2 flex items-center justify-between gap-3 shrink-0 shadow-lg select-none z-20 transition-all duration-300">
+          {/* Left Side: Exit Button & Title */}
+          <div className="flex items-center gap-2">
+            <button
+                onClick={onExitToHub}
+                className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white rounded-lg transition-all text-xs cursor-pointer"
+                title="Return to Projects & Revisions Dashboard"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="hidden sm:inline">Hub</span>
+            </button>
+            <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block" />
+            <h1 className="text-xs font-semibold font-sans tracking-tight text-white flex items-center gap-1.5">
+              <span className="text-cyan-400 font-bold bg-cyan-400/15 px-1.5 py-0.5 rounded text-[10px]">P</span>
+              <span className="truncate max-w-[120px] md:max-w-[200px]">{projectName}</span>
+            </h1>
+            <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">
+            R{revisionNumber}
+          </span>
+          </div>
+
+          {/* Middle Stats Rollup */}
+          <div className="hidden md:flex items-center gap-4 text-[11px] font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/5">
+            <div>
+              <span className="text-slate-400">WBS/Acts: </span>
+              <span className="text-cyan-400 font-bold">{totalWbs}</span><span className="text-slate-500">/</span><span className="text-indigo-400 font-bold">{totalActivities}</span>
+            </div>
+            <div className="h-3 w-px bg-white/10" />
+            <div>
+              <span className="text-slate-400">Duration: </span>
+              <span className="text-slate-200 font-bold">{displayDuration}d</span>
+            </div>
+            <div className="h-3 w-px bg-white/10" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">Rollup:</span>
+              <div className="w-12 bg-white/10 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-cyan-400 h-full rounded-full" style={{ width: `${projectProgress}%` }} />
+              </div>
+              <span className="text-cyan-400 font-bold">{projectProgress}%</span>
+            </div>
+          </div>
+
+          {/* Right Actions: Theme Toggle, CPM Highlight, F9 Solver, and Expand */}
+          <div className="flex items-center gap-2">
+            {/* Quick theme toggle */}
+
+
+            {/* Quick Critical path toggle */}
+            <button
+                onClick={onToggleCriticalPath}
+                title="Highlights activities with zero total float in red on the Gantt timeline."
+                className={`p-1.5 rounded-lg border transition-all ${
+                    showCriticalPath
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 font-semibold'
+                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
+                }`}
+            >
+              <AlertTriangle className={`w-3.5 h-3.5 ${showCriticalPath ? 'text-rose-400' : 'text-slate-400'}`} />
+            </button>
+
+            {/* Quick F9 Solve Network dates */}
+            <button
+                onClick={onRunF9Scheduler}
+                title="Run CPM F9 solver"
+                className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 transition-all cursor-pointer"
+            >
+              <RefreshCw className="w-3 h-3 text-cyan-400 animate-spin-hover" />
+              <span className="hidden sm:inline">F9</span>
+            </button>
+
+            <div className="h-4 w-px bg-white/10 mx-0.5" />
+
+            {/* Expand Toggle */}
+            <button
+                onClick={() => {
+                  setIsCollapsed(false);
+                  localStorage.setItem('nexus_toolbar_collapsed', 'false');
+                }}
+                className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-white bg-cyan-500 hover:bg-cyan-400 rounded-lg shadow-md hover:shadow-cyan-500/10 cursor-pointer transition-all active:scale-95"
+                title="Expand Navigation Toolbar Control Panel"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+              <span>Expand</span>
+            </button>
+          </div>
+        </header>
+    );
+  }
+
+
+
+
+
+
   return (
       <header className="bg-white/5 backdrop-blur-md text-slate-100 border-b border-white/10 p-4 flex flex-col gap-3 shrink-0 shadow-xl select-none z-20">
         {/* Top Bar: Title & Primary Templates & Critical Path & F9 Solver */}
@@ -145,30 +245,57 @@ export default function Toolbar({
                 <span className="text-xs font-mono font-normal text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/10 backdrop-blur-sm">
                 / {projectName}
               </span>
+                <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border font-mono tracking-wider shadow-inner flex items-center gap-1.5 ${
+                    isRevisionLocked
+                        ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                        : 'bg-white/5 text-cyan-400 border-white/10'
+                }`}>
+            Rev {revisionNumber}
+                  {isRevisionLocked ? <Lock className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
+          </span>
               </h1>
             </div>
           </div>
 
           {/* Active Revision Identifier */}
-          <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-slate-400 flex items-center gap-1.5 font-mono">
-            Active Revision Level:
-          </span>
-            <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border font-mono tracking-wider shadow-inner flex items-center gap-1.5 ${
-                isRevisionLocked
-                    ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                    : 'bg-white/5 text-cyan-400 border-white/10'
-            }`}>
-            Rev {revisionNumber}
-              {isRevisionLocked ? <Lock className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
-          </span>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <button
+                onClick={onToggleCriticalPath}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all backdrop-blur-sm ${
+                    showCriticalPath
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 hover:bg-rose-500/30 font-semibold'
+                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
+                }`}
+            >
+              <AlertTriangle className={`w-3.5 h-3.5 ${showCriticalPath ? 'text-rose-400' : 'text-slate-400'}`} />
+              <span>Critical Path</span>
+            </button>
+
+            <button
+                onClick={onRunF9Scheduler}
+                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-205 border border-cyan-500/30 shadow transition-all active:scale-95 cursor-pointer backdrop-blur-sm"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-cyan-400 animate-spin-hover" />
+              <span>Schedule (F9)</span>
+            </button>
+            <button
+                onClick={() => {
+                  setIsCollapsed(true);
+                  localStorage.setItem('nexus_toolbar_collapsed', 'true');
+                }}
+                title="Collapse the toolbar to save space"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 shadow transition-all active:scale-95 cursor-pointer backdrop-blur-sm ml-1"
+            >
+              <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+              <span>Collapse</span>
+            </button>
           </div>
+
 
           {/* TimeScale Zoom & Active Critical Actions */}
           <div className="flex items-center gap-3.5 flex-wrap">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-slate-400 bg-black/20 rounded-lg border border-white/10 shadow-inner backdrop-blur-sm cursor-default select-none">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">Dark Theme</span>
+            <div className="flex items-center gap-1.5  py-1 text-[11px] font-medium text-slate-400 bg-black/20 rounded-lg border border-white/10 shadow-inner backdrop-blur-sm cursor-default select-none">
+
             </div>
 
             <div className="flex items-center bg-black/20 rounded-lg border border-white/10 p-0.5 shadow-inner backdrop-blur-sm">
@@ -207,25 +334,6 @@ export default function Toolbar({
               ))}
             </div>
 
-            <button
-                onClick={onToggleCriticalPath}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all backdrop-blur-sm ${
-                    showCriticalPath
-                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 hover:bg-rose-500/30 font-semibold'
-                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
-                }`}
-            >
-              <AlertTriangle className={`w-3.5 h-3.5 ${showCriticalPath ? 'text-rose-400' : 'text-slate-400'}`} />
-              <span>Critical Path</span>
-            </button>
-
-            <button
-                onClick={onRunF9Scheduler}
-                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-205 border border-cyan-500/30 shadow transition-all active:scale-95 cursor-pointer backdrop-blur-sm"
-            >
-              <RefreshCw className="w-3.5 h-3.5 text-cyan-400 animate-spin-hover" />
-              <span>Schedule (F9)</span>
-            </button>
           </div>
         </div>
 

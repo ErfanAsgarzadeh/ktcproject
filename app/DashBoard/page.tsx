@@ -59,6 +59,45 @@ export default function App() {
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
   const ganttContainerRef = useRef<HTMLDivElement | null>(null);
 
+
+  const [resources, setResources] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+
+  useEffect(() => {
+    apiClient.get('/planning/resources/')
+        .then(res => setResources(res.data))
+        .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (activeRevisionId && currentView === 'workspace') {
+      apiClient.get(`/planning/assignments/?revision_id=${activeRevisionId}`)
+          .then(res => setAssignments(res.data))
+          .catch(err => console.error(err));
+    }
+  }, [activeRevisionId, currentView]);
+
+
+  const handleAddAssignment = async (taskId: string, resourceId: string, unitsPercent: number) => {
+    try {
+      const res = await apiClient.post('/planning/assignments/', {
+        revisionId: activeRevisionId,
+        taskId: taskId,
+        resourceId:resourceId,
+        unitsPercent: unitsPercent
+      });
+      setAssignments(prev => [...prev, res.data]);
+    } catch (err) {
+      alert("خطا در تخصیص منبع. احتمالاً قبلاً اضافه شده است.");
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    try {
+      await apiClient.delete(`/planning/assignments/${assignmentId}/`);
+      setAssignments(prev => prev.filter(a => a.id !== assignmentId));
+    } catch (err) { console.error(err); }
+  };
   // ==========================================
   // 2. Data Fetching (API Integration)
   // ==========================================
@@ -188,6 +227,7 @@ export default function App() {
     const list = getFlattenedHierarchyList(nodes, null, 0);
     if (ganttFilter === 'wbs') return list.filter(item => item.node.type === 'wbs');
     if (ganttFilter === 'activity') return list.filter(item => item.node.type === 'activity');
+    console.log(list)
     return list;
   }, [nodes, ganttFilter]);
 
@@ -363,16 +403,20 @@ export default function App() {
 
   const handleUpdateNode = async (id: string, updatedFields: Partial<ProjectNode>) => {
     if (!effectiveEditMode) return;
+
+    // اگه تاریخ یا مدت زمان دستی ادیت میشه، reschedule نباید اون‌ها رو overwrite کنه
+    const isManualDateEdit = 'startDate' in updatedFields || 'endDate' in updatedFields || 'duration' in updatedFields;
+
     setNodes(prev => {
       const next = prev.map(n => n.id === id ? { ...n, ...updatedFields } as any : n);
       let solved = performWbsRollups(next);
-      if (autoSchedule) solved = rescheduleProject(solved, dependencies);
+      if (autoSchedule && !isManualDateEdit) solved = rescheduleProject(solved, dependencies); // ← تنها تغییر
       return updateCpmResults(solved, dependencies);
     });
 
     try {
-      const node = nodes.find(n => n.id === id);
-      const endpoint = node?.type === 'wbs' ? `/planning/wbs-nodes/${id}/` : `/planning/activities/${id}/`;
+      const nodeType = nodes.find(n => n.id === id)?.type; // ← stale closure رو هم درست کردیم
+      const endpoint = nodeType === 'wbs' ? `/planning/wbs-nodes/${id}/` : `/planning/activities/${id}/`;
       await apiClient.patch(endpoint, updatedFields);
     } catch (error) { console.error("Error updating node:", error); }
   };
@@ -433,11 +477,16 @@ export default function App() {
     if (selectedNodeId) handleDeleteNode(selectedNodeId);
   };
 
-  const handleAddDependency = async (fromId: string, toId: string) => {
+  const handleAddDependency = async (
+      fromId: string,
+      toId: string,
+      type: string = 'FS',   // ← اضافه
+      lag: number = 0        // ← اضافه
+  ) => {
     if (!effectiveEditMode || fromId === toId || dependencies.some(d => d.fromId === fromId && d.toId === toId)) return;
     try {
       const res = await apiClient.post('/planning/dependencies/', {
-        revisionId: activeRevisionId, fromId, toId, type: 'FS', lag: 0
+        revisionId: activeRevisionId, fromId, toId, type, lag  // ← دیگه هاردکد نیست
       });
       const nextDeps = [...dependencies, res.data];
       setDependencies(nextDeps);
@@ -630,8 +679,8 @@ export default function App() {
   // ==========================================
   return (
       <div className="flex flex-col h-screen w-full bg-[#0a0f1d] text-slate-200 overflow-hidden font-sans relative">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none z-0"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/15 blur-[150px] rounded-full pointer-events-none z-0"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-full h-[40%] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none z-0"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-full h-[50%] bg-cyan-600/15 blur-[150px] rounded-full pointer-events-none z-0"></div>
 
         {currentView === 'hub' ? (
             <ProjectHub
@@ -774,6 +823,10 @@ export default function App() {
                           chatMessages={chatMessages}
                           onAddChatMessage={handleAddChatMessage}
                           onOpenChat={() => setIsChatOpen(true)}
+                          resources={resources}
+                          assignments={assignments}
+                          onAddAssignment={handleAddAssignment}
+                          onDeleteAssignment={handleDeleteAssignment}
                       />
                     </aside>
                 )}

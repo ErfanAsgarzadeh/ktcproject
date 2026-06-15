@@ -101,10 +101,10 @@ export default function ProjectHub({
     return (
         <div className="h-screen w-full bg-[#0a0f1d] text-slate-200 flex flex-col justify-between font-sans relative overflow-hidden">
             {/* Background radial glowing gradients */}
-            <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none z-0" />
-            <div className="absolute bottom-12 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
+            <div className="absolute top-0 left-1/4 w-full h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none z-0" />
+            <div className="absolute bottom-12 right-1/4 w-full h-[500px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
 
-            <div className="max-w-6xl w-full mx-auto space-y-8 z-10 p-6 md:p-8 overflow-y-auto h-full">
+            <div className=" w-full mx-auto space-y-8 z-10 p-6 md:p-8  h-full">
 
                 {/* Hub Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/5">
@@ -418,41 +418,7 @@ export default function ProjectHub({
                                     </div>
 
                                     {/* Create New Revision Form */}
-                                    <form onSubmit={handleCreateRevision} className="bg-white/5 p-5 rounded-xl border border-white/10 space-y-4 backdrop-blur-sm">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                      ⛓️ Create a New Revision Context (Replan Base)
-                    </span>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-[10px] text-slate-400 font-medium mb-1">Revision Milestone Notes</label>
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    placeholder="e.g. Weather Delayed Reprojection, Rev 3"
-                                                    value={newRevDesc}
-                                                    onChange={(e) => setNewRevDesc(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 transition-all font-sans"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] text-slate-400 font-medium mb-1">Project Network Start Date</label>
-                                                <input
-                                                    type="date"
-                                                    required
-                                                    value={newRevStart}
-                                                    onChange={(e) => setNewRevStart(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-300 font-mono focus:outline-none"
-                                                />
-                                            </div>
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-                                        >
-                                            <Plus className="w-3.5 h-3.5" />
-                                            <span>Commit Revision Schema</span>
-                                        </button>
-                                    </form>
+
                                 </>
                             ) : (
                                 <div className="h-full bg-white/5 rounded-2xl border border-white/10 p-12 flex flex-col items-center justify-center text-center gap-4 min-h-[400px]">

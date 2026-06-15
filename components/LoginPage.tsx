@@ -372,7 +372,7 @@ export default function LoginPage({
                     )}
                   </div>
               ) : (
-                  <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  <form onSubmit={handleRegisterSubmit} className="space-y-1">
                     <h3 className="text-lg font-bold text-white tracking-tight mb-2">Register Project Member Account</h3>
 
                     {regSuccess && (

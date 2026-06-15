@@ -3,21 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  FileText,
-  UserPlus,
-  CalendarClock,
-  GitMerge,
-  Clock,
-  Award,
-  X,
-  Plus,
-  TrendingUp,
-  Scale,
-  MessageSquare,
-  Send,
-  ExternalLink
+  FileText, UserPlus, CalendarClock, GitMerge, Clock, Award, X, Plus,
+  TrendingUp, Scale, MessageSquare, Briefcase
 } from 'lucide-react';
 import { ProjectNode, ActivityNode, Dependency, CustomUser, TaskRole, ChatMessage } from '../types/types';
 
@@ -38,26 +27,49 @@ interface TaskDetailsPanelProps {
   chatMessages: ChatMessage[];
   onAddChatMessage: (taskId: string, userId: string, text: string) => void;
   onOpenChat: () => void;
+  // پراپ‌های سیستم تخصیص منابع
+  resources?: any[];
+  assignments?: any[];
+  onAddAssignment?: (taskId: string, resourceId: string, unitsPercent: number) => void;
+  onDeleteAssignment?: (assignmentId: string) => void;
 }
 
 export default function TaskDetailsPanel({
-                                           selectedNode,
-                                           onClose,
-                                           onUpdateNode,
-                                           dependencies,
-                                           allNodes,
-                                           onAddDependency,
-                                           onDeleteDependency,
-                                           users,
-                                           taskRoles,
-                                           onAddTaskRole,
-                                           onDeleteTaskRole,
-                                           onAddActivity,
-                                           isEditMode = true,
-                                           chatMessages = [],
-                                           onAddChatMessage,
-                                           onOpenChat,
+                                           selectedNode, onClose, onUpdateNode, dependencies, allNodes, onAddDependency,
+                                           onDeleteDependency, users, taskRoles, onAddTaskRole, onDeleteTaskRole,
+                                           onAddActivity, isEditMode = true, chatMessages = [], onAddChatMessage, onOpenChat,
+                                           resources = [], assignments = [], onAddAssignment, onDeleteAssignment
                                          }: TaskDetailsPanelProps) {
+
+  const [selectedAssignee, setSelectedAssignee] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<string>('owner');
+
+  // استیت‌های فرم وابستگی
+  const [selectedPredId, setSelectedPredId] = useState<string>('');
+  const [selectedDepType, setSelectedDepType] = useState<string>('FS');
+  const [selectedLag, setSelectedLag] = useState<number>(0);
+
+  // استیت‌های فرم تخصیص منابع
+  const [selectedResourceId, setSelectedResourceId] = useState<string>('');
+  const [selectedUnits, setSelectedUnits] = useState<number>(100);
+
+  // ── Local copy of the node so edits don't clobber each other ──
+  const [localNode, setLocalNode] = useState<ProjectNode | null>(selectedNode);
+
+  useEffect(() => {
+    setLocalNode(selectedNode);
+  }, [selectedNode?.id]);
+
+  const handleLocalChange = (field: string, val: any) => {
+    setLocalNode(prev => prev ? { ...prev, [field]: val } : prev);
+  };
+
+  const handleCommit = (field: string, val: any) => {
+    if (selectedNode) {
+      onUpdateNode(selectedNode.id, { [field]: val } as Partial<ProjectNode>);
+    }
+  };
+
   if (!selectedNode) {
     return (
         <div className="h-full bg-transparent p-6 flex flex-col items-center justify-center text-center select-none text-slate-400">
@@ -73,41 +85,28 @@ export default function TaskDetailsPanel({
   }
 
   const isWbs = selectedNode.type === 'wbs';
-
   const cpmData = (selectedNode as any).cpmData;
-  const metrics = (selectedNode as any).metrics; // اضافه شدن متریک‌ها
+  const metrics = (selectedNode as any).metrics;
   const isCritical = metrics?.isCritical ?? (selectedNode as any).isCritical;
 
-  // تابع کمکی برای فرمت کردن تاریخ و نمایش تمیزتر
   const formatMetricDate = (dateStr?: string) => {
     if (!dateStr) return '—';
     return dateStr.split('T')[0] || dateStr.split(' ')[0];
   };
 
-  // Find direct predecessors for selected activity
   const predecessors = dependencies.filter(d => d.toId === selectedNode.id);
-  // Find direct successors
-  const successors = dependencies.filter(d => d.fromId === selectedNode.id);
-
-  // Filter possible predecessors (only other activities)
-  const candidateActivities = allNodes.filter(
-      n => n.type === 'activity' && n.id !== selectedNode.id
-  ) as ActivityNode[];
+  const candidateActivities = allNodes.filter(n => n.type === 'activity' && n.id !== selectedNode.id) as ActivityNode[];
 
   const handleAddField = (field: keyof ActivityNode, val: any) => {
     onUpdateNode(selectedNode.id, { [field]: val });
   };
 
-  // Add useState at the top of the component logic
-  const [selectedAssignee, setSelectedAssignee] = React.useState<string>('');
-  const [selectedRole, setSelectedRole] = React.useState<string>('owner');
-
-  const handlePredecessorSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const predId = (form.elements.namedItem('predecessorSelect') as HTMLSelectElement).value;
-    if (predId) {
-      onAddDependency(predId, selectedNode.id);
+  const handleAddPredecessor = () => {
+    if (selectedPredId) {
+      (onAddDependency as any)(selectedPredId, selectedNode.id, selectedDepType, selectedLag);
+      setSelectedPredId('');
+      setSelectedDepType('FS');
+      setSelectedLag(0);
     }
   };
 
@@ -119,9 +118,17 @@ export default function TaskDetailsPanel({
     }
   };
 
+  const handleAssignResource = () => {
+    if (selectedResourceId && onAddAssignment) {
+      onAddAssignment(selectedNode.id, selectedResourceId, selectedUnits);
+      setSelectedResourceId('');
+      setSelectedUnits(100);
+    }
+  };
+
   return (
       <div className="relative h-full bg-transparent text-slate-200 flex flex-col overflow-hidden border-l border-white/5 select-none">
-        {/* Inspector Header */}
+        {/* Header */}
         <div className="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between shrink-0 backdrop-blur-md">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-cyan-400" />
@@ -129,124 +136,54 @@ export default function TaskDetailsPanel({
               {isWbs ? 'WBS Summary Inspector' : 'Activity Properties'}
             </h3>
           </div>
-          <button
-              onClick={onClose}
-              className="p-1 hover:bg-white/5 text-slate-400 hover:text-white rounded transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <button onClick={onClose} className="p-1 hover:bg-white/5 text-slate-400 hover:text-white rounded transition-colors"><X className="w-4 h-4" /></button>
         </div>
 
-        {/* Primary fields form scroll area */}
+        {/* Form Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
 
-          {/* Node Heading Identifier */}
           <div className="bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-md">
-            <div className="text-[10px] font-mono text-cyan-400 font-semibold mb-1 uppercase tracking-wider">
-              ID Code: {selectedNode.code}
-            </div>
+            <div className="text-[10px] font-mono text-cyan-400 font-semibold mb-1 uppercase tracking-wider">ID Code: {selectedNode.code}</div>
             <input
-                type="text"
-                value={selectedNode.name}
-                onChange={(e) => handleAddField('name', e.target.value)}
-                disabled={!isEditMode}
+                type="text" value={localNode?.name ?? ''} onChange={(e) => handleLocalChange('name', e.target.value)} onBlur={(e) => handleCommit('name', e.target.value)} disabled={!isEditMode}
                 className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400/30 capitalize transition-all disabled:opacity-50"
-                placeholder="Item Description"
             />
           </div>
 
           {isEditMode && isWbs && onAddActivity && (
               <div className="bg-cyan-500/10 p-3 rounded-xl border border-cyan-500/25 backdrop-blur-md">
-                <h4 className="text-[10px] font-mono text-cyan-300 font-bold uppercase tracking-wider mb-2">
-                  WBS Child Task Management
-                </h4>
-                <button
-                    onClick={() => onAddActivity(selectedNode.id)}
-                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-lg shadow-cyan-500/15 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4 text-white" />
-                  <span>Create Task under WBS</span>
+                <h4 className="text-[10px] font-mono text-cyan-300 font-bold uppercase tracking-wider mb-2">WBS Child Task Management</h4>
+                <button onClick={() => onAddActivity(selectedNode.id)} className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-lg shadow-cyan-500/15 cursor-pointer">
+                  <Plus className="w-4 h-4 text-white" /><span>Create Task under WBS</span>
                 </button>
               </div>
           )}
 
-          {/* Schedule Bounds */}
+          {/* Dates & Durations */}
           <div>
-            <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1">
-              <CalendarClock className="w-3.5 h-3.5 text-cyan-400" />
-              Dates & Durations
-            </h4>
+            <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1"><CalendarClock className="w-3.5 h-3.5 text-cyan-400" />Dates & Durations</h4>
             <div className="grid grid-cols-2 gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/10 backdrop-blur-sm">
               <div>
                 <label className="block text-[10px] text-slate-400 font-medium mb-1">Start Date</label>
-                <input
-                    type="date"
-                    disabled={!isEditMode || isWbs}
-                    value={selectedNode.startDate}
-                    onChange={(e) => handleAddField('startDate', e.target.value)}
-                    className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 disabled:bg-white/[0.02]/50 focus:border-cyan-400 focus:outline-none"
-                />
+                <input type="date" disabled={!isEditMode || isWbs} value={localNode?.startDate ?? ''} onChange={(e) => handleLocalChange('startDate', e.target.value)} onBlur={(e) => handleCommit('startDate', e.target.value)} className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none" />
               </div>
               <div>
                 <label className="block text-[10px] text-slate-400 font-medium mb-1">Finish Date</label>
-                <input
-                    type="date"
-                    disabled={!isEditMode || isWbs}
-                    value={selectedNode.endDate}
-                    onChange={(e) => handleAddField('endDate', e.target.value)}
-                    className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 disabled:bg-white/[0.02]/50 focus:border-cyan-400 focus:outline-none"
-                />
+                <input type="date" disabled={!isEditMode || isWbs} value={localNode?.endDate ?? ''} onChange={(e) => handleLocalChange('endDate', e.target.value)} onBlur={(e) => handleCommit('endDate', e.target.value)} className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none" />
               </div>
               <div className="col-span-2">
                 {(() => {
-                  // تبدیل عدد اعشاری بک‌اند به ساعت و دقیقه برای نمایش در UI
-                  const totalDuration = Number(selectedNode.duration) || 0;
+                  const totalDuration = Number(localNode?.duration) || 0;
                   const currentHours = Math.floor(totalDuration);
                   const currentMins = Math.round((totalDuration - currentHours) * 60);
 
                   return (
                       <>
-                        <label className="block text-[10px] text-slate-400 font-medium mb-1">
-                          Duration (HH:MM): <span className="text-cyan-400 font-bold font-mono">
-            {String(currentHours).padStart(2, '0')}:{String(currentMins).padStart(2, '0')}
-          </span>
-                        </label>
+                        <label className="block text-[10px] text-slate-400 font-medium mb-1">Duration (HH:MM): <span className="text-cyan-400 font-bold font-mono">{String(currentHours).padStart(2, '0')}:{String(currentMins).padStart(2, '0')}</span></label>
                         <div className="flex gap-2 items-center">
-                          {/* ورودی ساعت */}
-                          <input
-                              type="number"
-                              disabled={!isEditMode || isWbs}
-                              min="0"
-                              placeholder="ساعت"
-                              value={currentHours}
-                              onChange={(e) => {
-                                const newHours = parseInt(e.target.value) || 0;
-                                // ترکیب ساعت جدید با دقیقه فعلی و تبدیل به عدد اعشاری
-                                const newDurationFloat = newHours + (currentMins / 60);
-                                // ارسال به بک‌اند با حداکثر 4 رقم اعشار
-                                handleAddField('duration', Number(newDurationFloat.toFixed(4)));
-                              }}
-                              className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
-                          />
+                          <input type="number" disabled={!isEditMode || isWbs} min="0" value={currentHours} onChange={(e) => { const v = Number(((parseInt(e.target.value) || 0) + (currentMins / 60)).toFixed(4)); handleLocalChange('duration', v); }} onBlur={(e) => { const v = Number(((parseInt(e.target.value) || 0) + (currentMins / 60)).toFixed(4)); handleCommit('duration', v); }} className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none" />
                           <span className="text-slate-400 font-bold">:</span>
-                          {/* ورودی دقیقه */}
-                          <input
-                              type="number"
-                              disabled={!isEditMode || isWbs}
-                              min="0"
-                              max="59"
-                              placeholder="دقیقه"
-                              value={currentMins}
-                              onChange={(e) => {
-                                let newMins = parseInt(e.target.value) || 0;
-                                if (newMins > 59) newMins = 59; // محدودسازی دقیقه
-                                // ترکیب ساعت فعلی با دقیقه جدید و تبدیل به عدد اعشاری
-                                const newDurationFloat = currentHours + (newMins / 60);
-                                // ارسال به بک‌اند
-                                handleAddField('duration', Number(newDurationFloat.toFixed(4)));
-                              }}
-                              className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none"
-                          />
+                          <input type="number" disabled={!isEditMode || isWbs} min="0" max="59" value={currentMins} onChange={(e) => { let m = parseInt(e.target.value) || 0; if (m > 59) m = 59; const v = Number((currentHours + m / 60).toFixed(4)); handleLocalChange('duration', v); }} onBlur={(e) => { let m = parseInt(e.target.value) || 0; if (m > 59) m = 59; const v = Number((currentHours + m / 60).toFixed(4)); handleCommit('duration', v); }} className="w-full bg-black/40 border border-white/5 text-xs text-slate-200 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none" />
                         </div>
                       </>
                   );
@@ -255,86 +192,110 @@ export default function TaskDetailsPanel({
             </div>
           </div>
 
-          {/* Progress Tracker Slider (for terminal nodes editable) */}
-          <div>
-            <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
-              % Completion Tracker
-            </h4>
-            <div className="bg-white/5 p-3 rounded-xl border border-white/10 flex items-center gap-4 backdrop-blur-sm">
-              <div className="flex-1">
-                <input
-                    type="range"
-                    disabled={isWbs}
-                    min="0"
-                    max="100"
-                    value={selectedNode.progress}
-                    onChange={(e) => handleAddField('progress', parseInt(e.target.value))}
-                    className="w-full accent-cyan-400 cursor-pointer disabled:opacity-50"
-                />
-                <div className="flex justify-between text-[9px] text-slate-500 mt-1 font-mono">
-                  <span>0% Not Started</span>
-                  <span>100% Completed</span>
-                </div>
+          {/* === ردیف دو ستونه: درصد پیشرفت و وزن تسک === */}
+          <div className="grid grid-cols-2 gap-3.5">
+            {/* اسلایدر درصد پیشرفت */}
+            <div>
+              <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+                % Progress
+              </h4>
+              <div className="bg-white/5 p-2.5 h-12 rounded-xl border border-white/10 flex items-center gap-2 backdrop-blur-sm">
+                <input type="range" disabled={isWbs} min="0" max="100" value={localNode?.progress || 0} onChange={(e) => { handleLocalChange('progress', parseInt(e.target.value)); handleCommit('progress', parseInt(e.target.value)); }} className="w-full accent-cyan-400 cursor-pointer disabled:opacity-50" />
+                <span className="font-mono text-cyan-400 font-bold text-xs shrink-0">{localNode?.progress || 0}%</span>
               </div>
-              <div className="bg-black/35 px-3 py-1.5 rounded-lg border border-white/5 text-center shrink-0">
-              <span className="font-mono text-cyan-400 font-bold text-sm block">
-                {selectedNode.progress}%
-              </span>
-                <span className="text-[9px] text-slate-500 block uppercase font-mono">Closed</span>
+            </div>
+
+            {/* اینپوت وزن تسک */}
+            <div>
+              <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                <Scale className="w-3.5 h-3.5 text-amber-400" />
+                Task Weight
+              </h4>
+              <div className="bg-white/5 p-2 h-12 rounded-xl border border-white/10 flex items-center gap-1 backdrop-blur-sm">
+                <input
+                    type="number"
+                    disabled={!isEditMode || isWbs}
+                    min="0" max="100" step="0.01"
+                    value={(localNode as any)?.weight || 0}
+                    onChange={(e) => handleLocalChange('weight', parseFloat(e.target.value) || 0)}
+                    onBlur={(e) => handleCommit('weight', parseFloat(e.target.value) || 0)}
+                    className="w-full bg-black/30 border border-white/5 text-xs text-slate-200 rounded-lg p-1 text-center font-mono focus:border-amber-400 focus:outline-none"
+                    placeholder="0.00"
+                />
+                <span className="text-[9px] text-slate-500 font-mono pr-1">%</span>
               </div>
             </div>
           </div>
 
-          {/* Task Roles Assignments (New) */}
+          {/* Task Roles Assignments */}
+          {!isWbs && (
+              <div className="space-y-2.5">
+                <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1"><UserPlus className="w-3.5 h-3.5 text-cyan-400" />Task Roles (Users)</h4>
+                <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
+                  {(() => {
+                    const assignedRoles = taskRoles.filter(tr => tr.taskId === selectedNode.id);
+                    if (assignedRoles.length === 0) return <div className="text-[10px] italic text-slate-600 pl-1">No roles allocated.</div>;
+                    return assignedRoles.map(role => {
+                      const assignee = users.find(u => String(u.id) === String(role.userId));
+                      return (
+                          <div key={role.id} className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/5 text-xs font-sans group">
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <span className="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold uppercase tracking-wide border bg-indigo-500/10 text-indigo-400 border-indigo-500/20">{role.role}</span>
+                                <strong className="text-white text-xs">{assignee?.username || 'Unknown'}</strong>
+                              </div>
+                            </div>
+                            {isEditMode && <button type="button" onClick={() => onDeleteTaskRole(role.id)} className="p-1 hover:bg-white/5 text-slate-500 hover:text-rose-400 rounded"><X className="w-3.5 h-3.5" /></button>}
+                          </div>
+                      );
+                    });
+                  })()}
+                </div>
+
+                {isEditMode && users.length > 0 && (
+                    <div className="grid grid-cols-[1fr_1fr_auto] gap-1.5 font-sans pt-1">
+                      <select value={selectedAssignee} onChange={e => setSelectedAssignee(e.target.value)} className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-205 focus:outline-none focus:border-cyan-400">
+                        <option value="" className="bg-slate-900 text-slate-500">Choose User...</option>
+                        {users.map(u => <option key={u.id} value={u.id} className="bg-slate-950 text-slate-200">{u.username}</option>)}
+                      </select>
+                      <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-205 focus:outline-none focus:border-cyan-400">
+                        <option value="owner" className="bg-slate-950 text-slate-202 text-xs">Owner</option>
+                        <option value="reviewer" className="bg-slate-950 text-slate-202 text-xs">Reviewer</option>
+                        <option value="executor" className="bg-slate-950 text-slate-202 text-xs">Executor</option>
+                        <option value="project manager" className="bg-slate-950 text-slate-202 text-xs">PM</option>
+                      </select>
+                      <button type="button" onClick={handleAssignUser} disabled={!selectedAssignee} className="px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 rounded-lg disabled:opacity-50"><Plus className="w-4 h-4" /></button>
+                    </div>
+                )}
+              </div>
+          )}
+
+          {/* Resource Assignments System */}
           {!isWbs && (
               <div className="space-y-2.5">
                 <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                  <UserPlus className="w-3.5 h-3.5 text-cyan-400" />
-                  Task Roles (CustomUser assignments)
+                  <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
+                  Resource Allocations
                 </h4>
 
-                {/* List current roles */}
-                <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
+                <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
                   {(() => {
-                    const assignedRoles = taskRoles.filter(tr => tr.taskId === selectedNode.id);
-                    if (assignedRoles.length === 0) {
-                      return (
-                          <div className="text-[10px] italic text-slate-600 pl-1">
-                            No custom user roles allocated to this task row.
-                          </div>
-                      );
-                    }
-                    return assignedRoles.map(role => {
-                      const assignee = users.find(u => String(u.id) === String(role.userId));
-                      let badgeStyle = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
-                      if (role.role === 'reviewer') badgeStyle = 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
-                      if (role.role === 'executor') badgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-                      if (role.role === 'project manager') badgeStyle = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+                    const taskAssignments = assignments.filter(a => a.task === selectedNode.id || a.taskId === selectedNode.id);
+                    if (taskAssignments.length === 0) return <div className="text-[10px] italic text-slate-600 pl-1">No resources assigned.</div>;
 
+                    return taskAssignments.map(asgn => {
+                      const resItem = resources.find(r => r.id === asgn.resourceId);
                       return (
-                          <div
-                              key={role.id}
-                              className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/5 text-xs font-sans group hover:border-white/15 transition-all animate-fade-in"
-                          >
-                            <div className="space-y-0.5">
-                              <div className="flex items-center gap-1.5">
-                          <span className={`px-1.5 py-0.2 rounded text-[8px] font-mono font-bold uppercase tracking-wide border ${badgeStyle}`}>
-                            {role.role}
-                          </span>
-                                <strong className="text-white text-xs">{assignee?.username || 'Unknown Assignee'}</strong>
-                              </div>
-                              <div className="text-[9px] text-slate-500 font-mono">
-                                {assignee ? `${assignee.jobTitle} • ${assignee.employeeCode}` : 'Deregistered from pool'}
+                          <div key={asgn.id} className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/5 text-xs font-sans group">
+                            <div className="space-y-0.5 flex-1 pr-2">
+                              <div className="flex items-center justify-between w-full">
+                                <strong className="text-white text-[11px] truncate">{resItem?.name || 'Unknown Resource'}</strong>
+                                <span className="font-mono text-emerald-400 text-[10px] bg-emerald-500/10 px-1.5 rounded">{asgn.units_percent}%</span>
                               </div>
                             </div>
-                            {isEditMode && (
-                                <button
-                                    type="button"
-                                    onClick={() => onDeleteTaskRole(role.id)}
-                                    className="p-1 hover:bg-white/5 text-slate-500 hover:text-rose-400 rounded transition-colors cursor-pointer"
-                                    title="Deallocate role"
-                                >
+                            {isEditMode && onDeleteAssignment && (
+                                <button type="button" onClick={() => onDeleteAssignment(asgn.id)} className="p-1 hover:bg-white/5 text-slate-500 hover:text-rose-400 rounded shrink-0">
                                   <X className="w-3.5 h-3.5" />
                                 </button>
                             )}
@@ -344,216 +305,235 @@ export default function TaskDetailsPanel({
                   })()}
                 </div>
 
-                {/* Quick Assign Form */}
-                {isEditMode && users.length > 0 ? (
-                    <div className="grid grid-cols-[1fr_1fr_auto] gap-1.5 font-sans pt-1">
+                {isEditMode && resources.length > 0 ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-2 font-sans pt-2">
+
+                      {/* 1. لیست کشویی انتخاب منبع */}
                       <select
-                          value={selectedAssignee}
-                          onChange={e => setSelectedAssignee(e.target.value)}
-                          className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-205 focus:outline-none focus:border-cyan-400"
+                          value={selectedResourceId}
+                          onChange={e => setSelectedResourceId(e.target.value)}
+                          className="w-full sm:flex-1 bg-black/40 border border-white/10 rounded-lg px-2 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-400 truncate shadow-inner"
                       >
-                        <option value="" className="bg-slate-900 text-slate-500 text-[11px]">Choose User...</option>
-                        {users.map(u => (
-                            <option key={u.id} value={u.id} className="bg-slate-950 text-slate-200">
-                              {u.username} ({u.employeeCode})
+                        <option value="" className="bg-slate-900 text-slate-500">1. Select Resource...</option>
+                        {resources.map(r => (
+                            <option key={r.id} value={r.id} className="bg-slate-950 text-slate-200">
+                              {r.name} ({r.resource_type})
                             </option>
                         ))}
                       </select>
 
-                      <select
-                          value={selectedRole}
-                          onChange={e => setSelectedRole(e.target.value)}
-                          className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-205 focus:outline-none focus:border-cyan-400"
-                      >
-                        <option value="owner" className="bg-slate-950 text-slate-202 text-xs">Owner</option>
-                        <option value="reviewer" className="bg-slate-950 text-slate-202 text-xs">Reviewer</option>
-                        <option value="executor" className="bg-slate-950 text-slate-202 text-xs">Executor</option>
-                        <option value="project manager" className="bg-slate-950 text-slate-202 text-xs">PM</option>
-                      </select>
-
-                      <button
-                          type="button"
-                          onClick={handleAssignUser}
-                          className="px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 rounded-lg transition-all flex items-center justify-center cursor-pointer font-bold disabled:opacity-50"
-                          title="Assign User role"
-                          disabled={!selectedAssignee}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                ) : isEditMode ? (
-                    <div className="text-[10px] text-slate-500 bg-black/20 p-2.5 rounded-lg border border-white/5 font-sans leading-relaxed">
-                      ℹ️ Go to the **Company Team Pool** tab in the main hub to register team members before assigning them to tasks.
-                    </div>
-                ) : null}
-              </div>
-          )}
-
-          {/* Resources Assignees */}
-          {!isWbs && (
-              <div>
-                <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
-                  <UserPlus className="w-3.5 h-3.5 text-cyan-400" />
-                  Alternative Resources Allocations
-                </h4>
-                <input
-                    type="text"
-                    disabled={!isEditMode}
-                    placeholder="e.g. Lead Dev, Designer, Analyst (comma-separated)"
-                    value={(selectedNode as ActivityNode).resources?.join(', ') || ''}
-                    onChange={(e) => handleAddField('resources', e.target.value.split(',').map(s => s.trim()))}
-                    className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-100 focus:border-cyan-400 focus:outline-none transition-all disabled:opacity-50"
-                />
-              </div>
-          )}
-
-          {/* Primavera/CPM Telemetry Stats (For Activities) */}
-          {!isWbs && (
-              <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-2 backdrop-blur-sm">
-                <div className="flex justify-between items-center pb-2 border-b border-white/5">
-              <span className="text-[10px] font-bold font-mono text-slate-200 uppercase tracking-wide flex items-center gap-1">
-                <Clock className="w-3 h-3 text-cyan-400" /> WBS CPM Telemetry
-              </span>
-                  {isCritical ? (
-                      <span className="text-[8px] font-mono font-bold bg-rose-500/20 border border-rose-500/50 text-rose-300 px-2.5 py-0.5 rounded-full animate-pulse uppercase tracking-widest shadow">
-                  Critical Path
-                </span>
-                  ) : (
-                      <span className="text-[8px] font-mono font-medium bg-white/5 text-slate-400 px-2.5 py-0.5 rounded-full uppercase tracking-widest border border-white/5">
-                  Non-Critical
-                </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>Early Start:</span>
-                    <span className="text-cyan-400 font-semibold">
-                      {metrics?.earlyStart ? formatMetricDate(metrics.earlyStart) : (cpmData ? `Day ${cpmData.earlyStart}` : '—')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>Early Finish:</span>
-                    <span className="text-cyan-400 font-semibold">
-                      {metrics?.earlyFinish ? formatMetricDate(metrics.earlyFinish) : (cpmData ? `Day ${cpmData.earlyFinish}` : '—')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-400 border-t border-white/5 pt-1.5">
-                    <span>Late Start:</span>
-                    <span className="text-indigo-400 font-semibold">
-                      {metrics?.lateStart ? formatMetricDate(metrics.lateStart) : (cpmData ? `Day ${cpmData.lateStart}` : '—')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-400 border-t border-white/5 pt-1.5">
-                    <span>Late Finish:</span>
-                    <span className="text-indigo-400 font-semibold">
-                      {metrics?.lateFinish ? formatMetricDate(metrics.lateFinish) : (cpmData ? `Day ${cpmData.lateFinish}` : '—')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between border-t border-white/5 pt-2 text-[10px] font-mono mt-1">
-              <span className="text-slate-400 flex items-center gap-1 uppercase text-[9px] font-bold tracking-wide">
-                <Scale className="w-3.5 h-3.5 text-cyan-400" /> Total Float (Slack):
-              </span>
-                  <span className={`font-bold px-2 py-0.5 rounded ${isCritical ? 'bg-rose-500/10 text-rose-405 text-rose-400 border border-rose-500/35 font-mono text-[11px]' : 'bg-cyan-550/10 text-cyan-400 border border-cyan-500/20'}`}>
-                {metrics ? `${metrics.totalFloatHours} Hours` : (cpmData ? `${cpmData.totalFloat} days` : '0 days')}
-              </span>
-                </div>
-              </div>
-          )}
-
-          {/* Predecessors Connections */}
-          {!isWbs && (
-              <div>
-                <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                  <GitMerge className="w-3.5 h-3.5 text-cyan-405 text-cyan-400" />
-                  Predecessors Links
-                </h4>
-
-                {/* List current predecessors */}
-                <div className="space-y-1.5 mb-3.5">
-                  {predecessors.map(pred => {
-                    const predNode = allNodes.find(n => n.id === pred.fromId);
-                    return (
-                        <div
-                            key={pred.id}
-                            className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-lg border border-white/5 text-xs font-mono"
-                        >
-                    <span className="text-cyan-400 uppercase">
-                      FS: <strong className="text-indigo-400 font-bold">{predNode?.code || '—'}</strong>
-                    </span>
-                          {isEditMode && (
-                              <button
-                                  onClick={() => onDeleteDependency(pred.id)}
-                                  className="p-1 hover:bg-white/5 text-slate-500 hover:text-rose-400 rounded transition-colors cursor-pointer"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                          )}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        {/* 2. ورودی درصد استفاده از منبع */}
+                        <div className="relative flex items-center w-20 shrink-0">
+                          <input
+                              type="number"
+                              min="1" max="100"
+                              value={selectedUnits}
+                              onChange={e => setSelectedUnits(Number(e.target.value))}
+                              className="w-full bg-black/40 border border-white/10 rounded-lg pl-2 pr-6 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-400 shadow-inner"
+                              title="Units / Allocation Percentage"
+                          />
+                          <span className="absolute right-2.5 text-[10px] text-slate-500 font-bold pointer-events-none">%</span>
                         </div>
-                    );
-                  })}
-                  {predecessors.length === 0 && (
-                      <div className="text-[10px] italic text-slate-600 pl-1">
-                        No predecessor links configured. Starts immediately at project baseline.
-                      </div>
-                  )}
-                </div>
 
-                {/* Form to connect a new predecessor */}
-                {isEditMode && (
-                    <form onSubmit={handlePredecessorSubmit} className="flex gap-1.5 font-sans">
-                      <select
-                          name="predecessorSelect"
-                          className="flex-1 bg-black/40 border border-white/5 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
-                      >
-                        <option value="" className="bg-slate-900 text-slate-300">Select Predecessor...</option>
-                        {candidateActivities.map(act => (
-                            <option key={act.id} value={act.id} className="bg-slate-900 text-slate-205">
-                              {act.code} - {act.name}
-                            </option>
-                        ))}
-                      </select>
-                      <button
-                          type="submit"
-                          className="px-3 py-2 bg-white/5 hover:bg-white/10 text-cyan-400 border border-white/10 rounded-lg transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </form>
+                        {/* 3. دکمه اضافه کردن (به‌روز شده و واضح‌تر) */}
+                        <button
+                            type="button"
+                            onClick={handleAssignResource}
+                            disabled={!selectedResourceId}
+                            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800/50 disabled:text-slate-500 text-white border border-transparent disabled:border-white/5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 font-bold shadow-lg shadow-emerald-500/10 active:scale-95 duration-100"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span className="text-xs uppercase tracking-wider">Add</span>
+                        </button>
+                      </div>
+
+                    </div>
+                ) : isEditMode && (
+                    <div className="text-[10px] text-slate-500 italic pl-1 bg-black/20 p-2 rounded-lg border border-white/5">
+                      No resources available in the pool.
+                    </div>
                 )}
               </div>
           )}
 
-          {/* Notebook Activity Log area */}
-          <div>
-            <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2">
-              Workspace Notes & Logs
-            </h4>
-            <textarea
-                disabled={!isEditMode}
-                value={(selectedNode as any).notes || ''}
-                onChange={(e) => handleAddField('notes', e.target.value)}
-                rows={3}
-                placeholder="Log crew notes, construction safety bounds, or API code commits..."
-                className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-300 font-sans focus:border-cyan-400 focus:outline-none transition-all placeholder:text-slate-600 disabled:opacity-50"
-            />
-          </div>
-
-          {/* Task Chat Log Toggle (View Mode Only) */}
-          {!isEditMode && !isWbs && (
-              <div className="mt-6 pt-4 border-t border-white/10 flex flex-col items-center">
-                <button
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 rounded-lg text-xs tracking-wide font-mono text-cyan-300 transition-colors shadow-sm"
-                    onClick={onOpenChat}
-                >
-                  <MessageSquare className="w-4 h-4 text-cyan-400" />
-                  Open Collaboration Chat
-                </button>
+          {/* CPM Telemetry & Predecessors Links */}
+          {!isWbs && (
+              <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-2 backdrop-blur-sm">
+                <div className="flex justify-between items-center pb-2 border-b border-white/5">
+                  <span className="text-[10px] font-bold font-mono text-slate-200 uppercase tracking-wide flex items-center gap-1"><Clock className="w-3 h-3 text-cyan-400" /> WBS CPM Telemetry</span>
+                  {isCritical ? <span className="text-[8px] font-mono font-bold bg-rose-500/20 border border-rose-500/50 text-rose-300 px-2.5 py-0.5 rounded-full animate-pulse uppercase tracking-widest shadow">Critical Path</span> : <span className="text-[8px] font-mono font-medium bg-white/5 text-slate-400 px-2.5 py-0.5 rounded-full uppercase tracking-widest border border-white/5">Non-Critical</span>}
+                </div>
               </div>
           )}
 
+          {!isWbs && (
+              <div className="space-y-3">
+                {/* ─── Predecessors ─── */}
+                <div>
+                  <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                    <GitMerge className="w-3.5 h-3.5 text-cyan-400" />
+                    Predecessors
+                  </h4>
+                  <div className="space-y-1.5 mb-2 max-h-[140px] overflow-y-auto pr-1">
+                    {predecessors.length === 0
+                        ? <div className="text-[10px] italic text-slate-600 pl-1">No predecessors defined.</div>
+                        : predecessors.map(pred => {
+                          const predNode = allNodes.find(n => n.id === pred.fromId);
+                          const depType = (pred as any).type || 'FS';
+                          const lag = (pred as any).lag ?? 0;
+                          return (
+                              <div key={pred.id} className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-lg border border-white/5 text-xs font-mono gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide border shrink-0 ${
+                                    depType === 'FS' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25' :
+                                        depType === 'SS' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' :
+                                            depType === 'FF' ? 'bg-amber-500/10 text-amber-400 border-amber-500/25' :
+                                                'bg-rose-500/10 text-rose-400 border-rose-500/25'
+                                }`}>{depType}</span>
+                                  <strong className="text-indigo-300 truncate">{predNode?.code || '—'}</strong>
+                                  <span className="text-slate-500 truncate">{predNode?.name || ''}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {lag !== 0 && (
+                                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
+                                          lag > 0
+                                              ? 'bg-amber-500/10 text-amber-400 border-amber-500/25'
+                                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                                      }`}>
+                                    {lag > 0 ? `+${lag}d` : `${lag}d`}
+                                  </span>
+                                  )}
+                                  {isEditMode && (
+                                      <button onClick={() => onDeleteDependency(pred.id)} className="p-1 hover:bg-white/5 text-slate-500 hover:text-rose-400 rounded">
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                  )}
+                                </div>
+                              </div>
+                          );
+                        })
+                    }
+                  </div>
+
+                  {/* فرم افزودن وابستگی */}
+                  {isEditMode && candidateActivities.length > 0 && (
+                      <div className="bg-white/3 border border-white/8 rounded-xl p-3 space-y-2">
+                        <div className="text-[9px] font-mono text-slate-500 uppercase tracking-wider mb-1">Add Predecessor</div>
+                        {/* ردیف اول: انتخاب فعالیت */}
+                        <select
+                            value={selectedPredId}
+                            onChange={e => setSelectedPredId(e.target.value)}
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                        >
+                          <option value="" className="bg-slate-900 text-slate-500">Select activity...</option>
+                          {candidateActivities
+                              .filter(n => !predecessors.some(p => p.fromId === n.id))
+                              .map(n => (
+                                  <option key={n.id} value={n.id} className="bg-slate-950 text-slate-200">
+                                    {n.code} — {n.name}
+                                  </option>
+                              ))
+                          }
+                        </select>
+
+                        {/* ردیف دوم: نوع + Lag/Lead + دکمه */}
+                        <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center">
+                          {/* نوع وابستگی */}
+                          <div className="flex gap-1">
+                            {(['FS','SS','FF','SF'] as const).map(t => (
+                                <button
+                                    key={t}
+                                    type="button"
+                                    onClick={() => setSelectedDepType(t)}
+                                    className={`px-2 py-1.5 rounded-lg text-[10px] font-mono font-bold border transition-all ${
+                                        selectedDepType === t
+                                            ? t === 'FS' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' :
+                                                t === 'SS' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' :
+                                                    t === 'FF' ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' :
+                                                        'bg-rose-500/20 text-rose-300 border-rose-500/50'
+                                            : 'bg-black/30 text-slate-500 border-white/5 hover:border-white/15'
+                                    }`}
+                                >
+                                  {t}
+                                </button>
+                            ))}
+                          </div>
+
+                          {/* Lag / Lead */}
+                          <div className="relative">
+                            <input
+                                type="number"
+                                value={selectedLag}
+                                onChange={e => setSelectedLag(Number(e.target.value))}
+                                className="w-full bg-black/40 border border-white/10 rounded-lg pl-2 pr-8 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-400"
+                                placeholder="0"
+                                title="Lag (positive) / Lead (negative) in days"
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-slate-500 pointer-events-none font-mono">
+                            {selectedLag > 0 ? 'lag' : selectedLag < 0 ? 'lead' : 'd'}
+                          </span>
+                          </div>
+
+                          {/* دکمه Add */}
+                          <button
+                              type="button"
+                              onClick={handleAddPredecessor}
+                              disabled={!selectedPredId}
+                              className="px-1.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-800/50 disabled:text-slate-500 text-white rounded-lg transition-all flex items-center gap-1 text-xs font-bold disabled:border-white/5 border border-transparent shadow-lg shadow-cyan-500/10 active:scale-95 shrink-0"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* راهنمای نوع وابستگی */}
+
+                      </div>
+                  )}
+                </div>
+
+                {/* ─── Successors (فقط نمایش) ─── */}
+                <div>
+                  <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                    <GitMerge className="w-3.5 h-3.5 text-violet-400 rotate-180" />
+                    Successors
+                  </h4>
+                  <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
+                    {(() => {
+                      const successors = dependencies.filter(d => d.fromId === selectedNode.id);
+                      if (successors.length === 0)
+                        return <div className="text-[10px] italic text-slate-600 pl-1">No successors.</div>;
+                      return successors.map(succ => {
+                        const succNode = allNodes.find(n => n.id === succ.toId);
+                        const depType = (succ as any).type || 'FS';
+                        const lag = (succ as any).lag ?? 0;
+                        return (
+                            <div key={succ.id} className="flex items-center gap-2 bg-black/30 px-3 py-2 rounded-lg border border-white/5 text-xs font-mono">
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide border shrink-0 ${
+                                depType === 'FS' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25' :
+                                    depType === 'SS' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' :
+                                        depType === 'FF' ? 'bg-amber-500/10 text-amber-400 border-amber-500/25' :
+                                            'bg-rose-500/10 text-rose-400 border-rose-500/25'
+                            }`}>{depType}</span>
+                              <strong className="text-violet-300 truncate">{succNode?.code || '—'}</strong>
+                              <span className="text-slate-500 truncate flex-1">{succNode?.name || ''}</span>
+                              {lag !== 0 && (
+                                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border shrink-0 ${
+                                      lag > 0
+                                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/25'
+                                          : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                                  }`}>
+                                {lag > 0 ? `+${lag}d` : `${lag}d`}
+                              </span>
+                              )}
+                            </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              </div>
+          )}
         </div>
       </div>
   );
