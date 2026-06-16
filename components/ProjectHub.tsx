@@ -84,7 +84,11 @@ export default function ProjectHub({
     const handleCreateRevision = (e: React.FormEvent) => {
         e.preventDefault();
         if (!activeProjectId) return;
-        onAddRevision(activeProjectId, newRevDesc.trim() || 'Custom Schedule Adjustment', newRevStart);
+        if (!newRevDesc.trim()) {
+            alert("وارد کردن توضیحات (دلیل ساخت نسخه جدید) الزامی است.");
+            return;
+        }
+        onAddRevision(activeProjectId, newRevDesc.trim(), newRevStart);
         setNewRevDesc('');
     };
 

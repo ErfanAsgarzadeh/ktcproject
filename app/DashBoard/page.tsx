@@ -583,9 +583,24 @@ export default function App() {
 
   const handleCreateDraft = async () => {
     if (!activeRevisionId) return;
+
+    // دریافت دلیل/توضیح از کاربر (اجباری)
+    const description = window.prompt(
+      "لطفاً دلیل ساخت پیش‌نویس جدید را وارد کنید:\n(این فیلد اجباری است)",
+      ""
+    );
+
+    // اگر کاربر Cancel زد یا خالی گذاشت، متوقف شود
+    if (!description || !description.trim()) {
+      alert("وارد کردن توضیحات برای ساخت پیش‌نویس الزامی است.");
+      return;
+    }
+
     try {
       setIsLaunching(true);
-      const res = await apiClient.post(`/planning/revisions/${activeRevisionId}/create-draft/`);
+      const res = await apiClient.post(`/planning/revisions/${activeRevisionId}/create-draft/`, {
+        description: description.trim(),
+      });
       setRevisions([...revisions, res.data]);
       setActiveRevisionId(res.data.id);
       setIsEditMode(true);
