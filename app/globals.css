@@ -6,226 +6,197 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   DARK THEME (Default) — Deep cosmic palette
+   ═══════════════════════════════════════════════════════════════ */
 :root {
-  --bg-primary: #070913;       /* Deeper cosmic midnight violet-black */
-  --bg-secondary: #0d1024;     /* Lustrous deep aurora navy vault */
-  --bg-tertiary: #161a38;      /* Vibrant cosmic dark core card */
-  --bg-hover: #1f234a;         /* High-energy electric violet hover */
-  --bg-active: #292e5f;        /* Sharp indigo active indicator */
-  --bg-header: #0a0c1a;        /* Clean obsidian header bar overlay */
-  --bg-input: #04050d;         /* True deep ink void for clean contrast */
-  --bg-input-danger: #290d16;  /* Spicy crimson-danger highlight */
-  --text-primary: #f1f5f9;     /* Ultra-clean crisp glacier text */
-  --text-secondary: #cbd5e1;   /* Dynamic electric slate secondary text */
-  --text-tertiary: #94a3b8;    /* Soft violet-metallic metadata state */
-  --border-subtle: rgba(139, 92, 246, 0.08); /* Glow lavender thread boundary */
-  --border-medium: rgba(139, 92, 246, 0.16); /* Sharp electric violet partition */
-  --overlay-bg: rgba(139, 92, 246, 0.06);     /* Micro violet-glass backdrop */
-  --overlay-hover: rgba(139, 92, 246, 0.12);  /* Luminous aurora laser sweep */
+  --bg-primary: #070913;
+  --bg-secondary: #0d1024;
+  --bg-tertiary: #161a38;
+  --bg-hover: #1f234a;
+  --bg-active: #292e5f;
+  --bg-header: #0a0c1a;
+  --bg-input: #04050d;
+  --bg-input-danger: #290d16;
+  --bg-surface: #0d1024;
+  --bg-elevated: #161a38;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-accent: #06b6d4;
+
+  --border-subtle: rgba(139, 92, 246, 0.08);
+  --border-medium: rgba(139, 92, 246, 0.16);
+  --border-strong: rgba(139, 92, 246, 0.25);
+
+  --overlay-bg: rgba(139, 92, 246, 0.06);
+  --overlay-hover: rgba(139, 92, 246, 0.12);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+
+  --scrollbar-thumb: #1e293b;
+  --scrollbar-hover: #334155;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME — Psychology-Informed Warm & Natural Palette
+   ─────────────────────────────────────────────────────────────
+   Design Principles:
+   • Warm paper tones reduce cognitive strain (Kuller & Mikellides, 1993)
+   • Nature-inspired hues lower cortisol (Biophilic Design research)
+   • Progressive depth via warm shadows creates "figure-ground" clarity (Gestalt)
+   • Teal accents signal trustworthiness (Labrecque & Milne, 2012)
+   • High contrast text (7:1+) on soft backgrounds for universal readability
+   • Rounded warm grays avoid the "clinical" feel of pure blue-grays
+   ═══════════════════════════════════════════════════════════════ */
 html.light {
+  /* ── Tailwind color overrides (reversed scale for light mode) ── */
   --color-white: #ffffff;
-  --color-black: #000000;
+  --color-black: #1a1612;
 
-  --color-slate-950: #f4f7fc;   /* Vibrant light slate pastel breeze */
-  --color-slate-900: #eef2fa;   /* Lucid energetic silver-card base */
-  --color-slate-800: #e2e8f4;   /* Polished steel edge borders */
-  --color-slate-700: #cbd5e1;   /* Muted accent gray scales */
-  --color-slate-600: #94a3b8;   /* Soft slate metrics */
-  --color-slate-500: #64748b;
-  --color-slate-400: #475569;
-  --color-slate-300: #1e293b;   /* Dynamic charcoal captions */
-  --color-slate-200: #0f172a;   /* Vibrant primary dark graphite text */
-  --color-slate-100: #020617;   /* Absolute display black headers */
+  --color-slate-950: #faf8f6;   /* Warm linen canvas — base layer */
+  --color-slate-900: #f5f2ee;   /* Soft parchment — card backgrounds */
+  --color-slate-800: #e8e3dc;   /* Warm stone border — gentle separation */
+  --color-slate-700: #d4cdc4;   /* Sandstone muted — disabled states */
+  --color-slate-600: #9e958a;   /* Warm taupe — metadata text */
+  --color-slate-500: #706960;   /* Earthy mid-tone — secondary labels */
+  --color-slate-400: #524b44;   /* Deep walnut — strong secondary */
+  --color-slate-300: #3a342e;   /* Dark bark — caption text */
+  --color-slate-200: #231f1b;   /* Rich espresso — primary body text */
+  --color-slate-100: #141210;   /* Near-black umber — display headings */
   --color-slate-50: #ffffff;
 
-  --color-cyan-500: #0ea5e9;    /* Electric vivid sky cyan */
-  --color-cyan-400: #0284c7;    /* Sleek corporate focus blue/cyan */
-  --color-cyan-300: #0369a1;
+  /* ── Accent colors (warmer, more natural) ── */
+  --color-cyan-500: #0d9488;    /* Teal — trust & focus (warmer than cyan) */
+  --color-cyan-400: #0f766e;    /* Deep teal — links & interactive */
+  --color-cyan-300: #115e59;    /* Dark teal — visited/pressed */
 
-  --color-indigo-500: #6366f1;  /* True royal purple-indigo high energy */
-  --color-emerald-500: #10b981; /* Ultra-bright energetic jade-green */
-  --color-amber-500: #f59e0b;   /* Warm solar orange-gold energy */
+  --color-indigo-500: #7c5cfc;  /* Soft violet — creative accent */
+  --color-emerald-500: #059669; /* Natural green — success & growth */
+  --color-amber-500: #d97706;   /* Warm honey — warnings & energy */
+  --color-rose-500: #e11d48;    /* Refined crimson — errors & critical */
 
-  --bg-primary: #f3f6fc;        /* Super-clean, crisp, ice-breeze blue canvas */
-  --bg-secondary: #ffffff;      /* Luminous glowing snow cards */
-  --bg-tertiary: #e9effa;       /* Polished soft pastel violet-blue card container */
-  --bg-hover: #e1ebfa;          /* energetic neon sunburst touch states */
-  --bg-active: #d2e1f7;         /* high-visibility active buttons */
-  --bg-header: #ffffff;         /* Glare-free pristine header */
-  --bg-input: #ffffff;
-  --bg-input-danger: #fff1f2;
+  /* ── Semantic background tokens ── */
+  --bg-primary: #faf8f5;        /* Warm off-white linen canvas */
+  --bg-secondary: #ffffff;      /* Pure white elevated cards */
+  --bg-tertiary: #f3efe9;       /* Soft warm sand — nested containers */
+  --bg-hover: #ede8e0;          /* Warm bisque hover — tactile feedback */
+  --bg-active: #e5dfd5;         /* Toasted cream — active/pressed state */
+  --bg-header: #fffffe;         /* Crisp white header — clarity */
+  --bg-input: #ffffff;          /* Clean input fields */
+  --bg-input-danger: #fef2f2;   /* Pale rose — danger context */
+  --bg-surface: #ffffff;        /* Floating surfaces */
+  --bg-elevated: #ffffff;       /* Cards & modals */
 
-  --text-primary: #090e1b;      /* Pristine readable midnight core text */
-  --text-secondary: #273142;    /* Sleek steel grey subtitles */
-  --text-tertiary: #4f5b70;     /* Meticulous structural annotations */
+  /* ── Text hierarchy (warm undertones for visual comfort) ── */
+  --text-primary: #1a1612;      /* Warm charcoal — high readability, less eye strain than pure black */
+  --text-secondary: #44403c;    /* Stone gray — body text, warm & soft */
+  --text-tertiary: #78716c;     /* Warm gray — metadata, timestamps */
+  --text-accent: #0d9488;       /* Teal — accent links & highlights */
 
-  --border-subtle: rgba(99, 102, 241, 0.07);  /* Crisp violet-gold light framing */
-  --border-medium: rgba(99, 102, 241, 0.14);  /* Energetic outline */
-  --overlay-bg: rgba(99, 102, 241, 0.04);
-  --overlay-hover: rgba(99, 102, 241, 0.08);
+  /* ── Borders (warm gray with minimal opacity for depth without harshness) ── */
+  --border-subtle: rgba(120, 113, 108, 0.10);   /* Whisper-thin warm separation */
+  --border-medium: rgba(120, 113, 108, 0.18);   /* Clear warm boundary */
+  --border-strong: rgba(120, 113, 108, 0.30);   /* Strong warm divider */
+
+  /* ── Overlays (warm tint for glass-morphism in light mode) ── */
+  --overlay-bg: rgba(120, 113, 108, 0.04);      /* Barely-there warm glass */
+  --overlay-hover: rgba(120, 113, 108, 0.08);   /* Subtle hover feedback */
+
+  /* ── Shadows (warm-tinted for natural depth perception) ── */
+  --shadow-sm: 0 1px 3px rgba(120, 100, 80, 0.06), 0 1px 2px rgba(120, 100, 80, 0.04);
+  --shadow-md: 0 4px 12px rgba(120, 100, 80, 0.08), 0 2px 4px rgba(120, 100, 80, 0.04);
+  --shadow-lg: 0 12px 40px rgba(120, 100, 80, 0.10), 0 4px 12px rgba(120, 100, 80, 0.06);
+
+  /* ── Scrollbar ── */
+  --scrollbar-thumb: #d4cdc4;
+  --scrollbar-hover: #b8b0a6;
 }
 
-/* Base custom classes */
+/* ═══════════════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════════════ */
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Fix specific hardcoded backgrounds mapped back to CSS variables */
-.bg-\[\#0a0f1d\] {
-  background-color: var(--bg-primary) !important;
-}
+/* ═══════════════════════════════════════════════════════════════
+   HARDCODED HEX BACKGROUND REMAPPING
+   (Maps dark-mode hex literals to CSS variables)
+   ═══════════════════════════════════════════════════════════════ */
+.bg-\[\#0a0f1d\] { background-color: var(--bg-primary) !important; }
+.bg-\[\#0c1224\] { background-color: var(--bg-secondary) !important; }
+.bg-\[\#0c1224\]\/90 { background-color: var(--bg-secondary) !important; }
+.bg-\[\#0c1224\]\/95 { background-color: var(--bg-secondary) !important; }
+.bg-\[\#0c1223\] { background-color: var(--bg-secondary) !important; }
+.bg-\[\#11192e\] { background-color: var(--bg-tertiary) !important; }
+.bg-\[\#11192e\]\/60 { background-color: var(--overlay-bg) !important; }
+.bg-\[\#11192e\]\/80 { background-color: var(--bg-tertiary) !important; }
+.bg-\[\#11192e\]\/40 { background-color: var(--overlay-bg) !important; }
+.bg-\[\#151f38\] { background-color: var(--bg-hover) !important; }
+.hover\:bg-\[\#151f38\]:hover { background-color: var(--bg-hover) !important; }
+.bg-\[\#18233f\] { background-color: var(--bg-active) !important; }
+.bg-\[\#0f1629\] { background-color: var(--bg-tertiary) !important; }
+.bg-\[\#0d1323\] { background-color: var(--bg-tertiary) !important; }
+.bg-\[\#070b14\] { background-color: var(--bg-input) !important; }
+.bg-\[\#070b15\] { background-color: var(--bg-input) !important; }
+.bg-\[\#1b1115\] { background-color: var(--bg-input-danger) !important; }
+.bg-\[\#111827\] { background-color: var(--bg-tertiary) !important; }
 
-.bg-\[\#0c1224\] {
-  background-color: var(--bg-secondary) !important;
-}
+/* ═══════════════════════════════════════════════════════════════
+   TRANSPARENCY CLASSES → CSS VARIABLES
+   ═══════════════════════════════════════════════════════════════ */
+.bg-white\/5 { background-color: var(--overlay-bg) !important; }
+.hover\:bg-white\/5:hover { background-color: var(--overlay-hover) !important; }
+.bg-white\/10 { background-color: var(--overlay-hover) !important; }
+.hover\:bg-white\/10:hover { background-color: var(--bg-hover) !important; }
+.bg-white\/\[0\.02\] { background-color: var(--overlay-bg) !important; }
+.bg-white\/\[0\.01\] { background-color: transparent !important; }
+.bg-white\/\[0\.03\] { background-color: var(--overlay-bg) !important; }
+.bg-black\/40 { background-color: var(--bg-tertiary) !important; }
+.bg-black\/30 { background-color: var(--overlay-bg) !important; }
+.bg-black\/20 { background-color: var(--overlay-bg) !important; }
+.bg-black\/60 { background-color: var(--bg-input) !important; }
 
-.bg-\[\#0c1224\]\/90 {
-  background-color: var(--bg-secondary) !important;
-}
+/* ═══════════════════════════════════════════════════════════════
+   BORDER REMAPPING
+   ═══════════════════════════════════════════════════════════════ */
+.border-white\/5 { border-color: var(--border-subtle) !important; }
+.border-white\/8 { border-color: var(--border-subtle) !important; }
+.border-white\/10 { border-color: var(--border-medium) !important; }
+.border-white\/15 { border-color: var(--border-medium) !important; }
+.border-white\/20 { border-color: var(--border-strong) !important; }
+.border-r-white\/10 { border-right-color: var(--border-medium) !important; }
+.border-l-white\/10 { border-left-color: var(--border-medium) !important; }
+.border-b-white\/10 { border-bottom-color: var(--border-medium) !important; }
+.border-t-white\/10 { border-top-color: var(--border-medium) !important; }
 
-.bg-\[\#0c1224\]\/95 {
-  background-color: var(--bg-secondary) !important;
-}
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE TEXT OVERRIDES
+   (Ensure all text is legible on warm light backgrounds)
+   ═══════════════════════════════════════════════════════════════ */
+html.light .text-slate-100 { color: var(--text-primary) !important; }
+html.light .text-slate-200 { color: var(--text-primary) !important; }
+html.light .text-slate-300 { color: var(--text-secondary) !important; }
+html.light .text-slate-400 { color: var(--text-tertiary) !important; }
+html.light .text-slate-500 { color: var(--text-tertiary) !important; }
+html.light .text-slate-600 { color: var(--text-tertiary) !important; }
 
-.bg-\[\#0c1223\] {
-  background-color: var(--bg-secondary) !important;
-}
-
-.bg-\[\#11192e\] {
-  background-color: var(--bg-tertiary) !important;
-}
-
-.bg-\[\#11192e\]\/60 {
-  background-color: var(--overlay-bg) !important;
-}
-
-.bg-\[\#11192e\]\/80 {
-  background-color: var(--bg-tertiary) !important;
-}
-
-.bg-\[\#11192e\]\/40 {
-  background-color: var(--overlay-bg) !important;
-}
-
-.bg-\[\#151f38\] {
-  background-color: var(--bg-hover) !important;
-}
-
-.hover\:bg-\[\#151f38\]:hover {
-  background-color: var(--bg-hover) !important;
-}
-
-.bg-\[\#18233f\] {
-  background-color: var(--bg-active) !important;
-}
-
-.bg-\[\#0f1629\] {
-  background-color: var(--bg-tertiary) !important;
-}
-
-.bg-\[\#0d1323\] {
-  background-color: var(--bg-tertiary) !important;
-}
-
-.bg-\[\#070b14\] {
-  background-color: var(--bg-input) !important;
-}
-
-.bg-\[\#070b15\] {
-  background-color: var(--bg-input) !important;
-}
-
-.bg-\[\#1b1115\] {
-  background-color: var(--bg-input-danger) !important;
-}
-
-/* Map white transparency classes to dynamic background variables in light mode */
-.bg-white\/5 {
-  background-color: var(--overlay-bg) !important;
-}
-
-.hover\:bg-white\/5:hover {
-  background-color: var(--overlay-hover) !important;
-}
-
-.bg-white\/10 {
-  background-color: var(--bg-active) !important;
-}
-
-.hover\:bg-white\/10:hover {
-  background-color: var(--overlay-hover) !important;
-}
-
-.bg-white\/\[0\.02\] {
-  background-color: var(--overlay-bg) !important;
-}
-
-.bg-black\/40 {
-  background-color: var(--overlay-bg) !important;
-}
-
-.bg-black\/30 {
-  background-color: var(--overlay-bg) !important;
-}
-
-.bg-black\/60 {
-  background-color: var(--bg-input) !important;
-}
-
-/* Map borders */
-.border-white\/5 {
-  border-color: var(--border-subtle) !important;
-}
-
-.border-white\/10 {
-  border-color: var(--border-medium) !important;
-}
-
-.border-white\/15 {
-  border-color: var(--border-medium) !important;
-}
-
-.border-white\/20 {
-  border-color: var(--border-medium) !important;
-}
-
-.border-r-white\/10 {
-  border-right-color: var(--border-medium) !important;
-}
-
-/* Adjust texts for light mode specifically */
-html.light .text-slate-200 {
-  color: var(--text-primary) !important;
-}
-
-html.light .text-slate-300 {
-  color: var(--text-secondary) !important;
-}
-
-html.light .text-slate-100 {
-  color: var(--text-primary) !important;
-}
-
-html.light .text-slate-400 {
-  color: var(--text-tertiary) !important;
-}
-
-html.light .text-slate-500 {
-  color: var(--text-tertiary) !important;
-}
-
-/* Support dynamic text-white overrides so captions are legible on light cards */
+/* text-white → warm dark on light backgrounds */
 html.light .text-white {
-  color: #0c1224 !important;
+  color: var(--text-primary) !important;
 }
 
-/* Exclude colored elements like buttons, badges, gradients, glowing dots */
+/* PRESERVE white text on colored buttons, badges, and gradients */
 html.light .bg-cyan-500 .text-white,
+html.light .bg-cyan-500.text-white,
 html.light .bg-cyan-600 .text-white,
 html.light .bg-indigo-500 .text-white,
 html.light .bg-indigo-600 .text-white,
@@ -238,33 +209,100 @@ html.light .bg-gradient-to-br .text-white,
 html.light .bg-gradient-to-tr .text-white,
 html.light .bg-gradient-to-r .text-white,
 html.light .animate-ping,
-html.light .shadow-cyan-500\/15,
+html.light button.bg-cyan-500,
 html.light button.bg-cyan-500 *,
 html.light button.bg-indigo-500 *,
 html.light button.bg-indigo-600 *,
 html.light button.bg-rose-600 *,
-html.light button.bg-emerald-500 * {
+html.light button.bg-emerald-500 *,
+html.light button.bg-emerald-400 * {
   color: #ffffff !important;
 }
 
-/* Specific component visual tuning for Light Mode cards */
-html.light input {
-  color: #0c1224 !important;
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE INPUT STYLING
+   ═══════════════════════════════════════════════════════════════ */
+html.light input,
+html.light select {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-medium) !important;
 }
 
-html.light input::placeholder {
-  color: #94a3b8 !important;
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: var(--text-tertiary) !important;
 }
 
 html.light textarea {
-  color: #0c1224 !important;
+  color: var(--text-primary) !important;
 }
 
-html.light textarea::placeholder {
-  color: #94a3b8 !important;
+html.light select option {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
 }
 
-/* Custom scrollbar aesthetics for professional look */
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE — ACCENT COLOR ADJUSTMENTS
+   (Teal replaces cold cyan for warmth & trust)
+   ═══════════════════════════════════════════════════════════════ */
+html.light .text-cyan-400 { color: #0d9488 !important; }
+html.light .text-cyan-300 { color: #0f766e !important; }
+html.light .border-cyan-400 { border-color: #0d9488 !important; }
+html.light .border-cyan-500 { border-color: #0d9488 !important; }
+html.light .border-cyan-500\/50 { border-color: rgba(13, 148, 136, 0.5) !important; }
+html.light .border-cyan-500\/20 { border-color: rgba(13, 148, 136, 0.2) !important; }
+html.light .border-cyan-500\/25 { border-color: rgba(13, 148, 136, 0.25) !important; }
+html.light .border-cyan-500\/30 { border-color: rgba(13, 148, 136, 0.3) !important; }
+html.light .bg-cyan-400\/15 { background-color: rgba(13, 148, 136, 0.12) !important; }
+html.light .bg-cyan-400\/10 { background-color: rgba(13, 148, 136, 0.08) !important; }
+html.light .bg-cyan-500\/5 { background-color: rgba(13, 148, 136, 0.05) !important; }
+html.light .bg-cyan-500\/10 { background-color: rgba(13, 148, 136, 0.08) !important; }
+html.light .bg-cyan-500\/20 { background-color: rgba(13, 148, 136, 0.15) !important; }
+html.light .bg-cyan-500\/30 { background-color: rgba(13, 148, 136, 0.2) !important; }
+html.light .bg-cyan-950\/40 { background-color: rgba(13, 148, 136, 0.08) !important; }
+html.light .bg-cyan-500 { background-color: #0d9488 !important; }
+html.light .hover\:bg-cyan-400:hover { background-color: #0f766e !important; }
+html.light .shadow-cyan-500\/10 { box-shadow: 0 4px 12px rgba(13, 148, 136, 0.1) !important; }
+html.light .shadow-cyan-500\/15 { box-shadow: 0 4px 12px rgba(13, 148, 136, 0.12) !important; }
+
+/* Rose/Critical path — slightly warmer red */
+html.light .bg-rose-950\/40 { background-color: rgba(225, 29, 72, 0.06) !important; }
+html.light .border-rose-500 { border-color: #e11d48 !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE — BLUR & BACKDROP ADJUSTMENTS
+   (Remove excessive backdrop-blur that causes whitewash)
+   ═══════════════════════════════════════════════════════════════ */
+html.light .backdrop-blur-md { backdrop-filter: blur(6px) !important; }
+html.light .backdrop-blur-xl { backdrop-filter: blur(8px) !important; }
+html.light .backdrop-blur-2xl { backdrop-filter: blur(10px) !important; }
+html.light .backdrop-blur-sm { backdrop-filter: blur(3px) !important; }
+
+/* Remove decorative gradient orbs in light mode */
+html.light .bg-indigo-600\/15 { background-color: transparent !important; }
+html.light .bg-cyan-600\/15 { background-color: transparent !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE — SHADOWS & ELEVATION
+   (Warm shadows create natural depth hierarchy)
+   ═══════════════════════════════════════════════════════════════ */
+html.light .shadow-lg { box-shadow: var(--shadow-lg) !important; }
+html.light .shadow-xl { box-shadow: var(--shadow-lg) !important; }
+html.light .shadow-2xl { box-shadow: var(--shadow-lg) !important; }
+html.light .shadow-3xl { box-shadow: var(--shadow-lg) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE — GANTT CHART SPECIFIC
+   ═══════════════════════════════════════════════════════════════ */
+html.light .bg-white\/\[0\.03\] { background-color: var(--bg-tertiary) !important; }
+html.light .bg-white\/\[0\.01\] { background-color: transparent !important; }
+html.light .bg-white\/\[0\.05\] { background-color: var(--overlay-bg) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR — Theme-aware
+   ═══════════════════════════════════════════════════════════════ */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -275,19 +313,21 @@ html.light textarea::placeholder {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #1e293b; /* slate-800 */
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #334155; /* slate-700 */
+  background: var(--scrollbar-hover);
 }
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 
-/* Dynamic F9 spinner rotation on hover */
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════════ */
 .animate-spin-hover:hover {
   animation: spin 1.2s linear infinite;
 }
@@ -297,24 +337,23 @@ html.light textarea::placeholder {
   to { transform: rotate(360deg); }
 }
 
-/* Print optimizations for WBS Scheduling Report */
+/* ═══════════════════════════════════════════════════════════════
+   PRINT STYLES
+   ═══════════════════════════════════════════════════════════════ */
 @media print {
   body {
     background-color: white !important;
     color: black !important;
   }
 
-  /* Hide typical utility elements for standard output PDF */
   header, footer, aside, button, select, input[type="file"], .print\:hidden {
     display: none !important;
   }
 
-  /* Make Gantt timeline fill full printable area flat */
   .print\:block {
     display: block !important;
   }
 
-  /* Unset height limits */
   .h-screen, .h-full, .overflow-hidden {
     height: auto !important;
     overflow: visible !important;
