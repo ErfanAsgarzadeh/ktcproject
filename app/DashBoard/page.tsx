@@ -98,6 +98,35 @@ export default function App() {
       setAssignments(prev => prev.filter(a => a.id !== assignmentId));
     } catch (err) { console.error(err); }
   };
+
+  // ── Handler برای ذخیره اطلاعات واقعی (Actual Start/Finish/Progress) ──
+  const handleSaveActual = async (taskId: string, data: { actualStart?: string; actualFinish?: string; progress: number }) => {
+    try {
+      await apiClient.patch(`/planning/activities/${taskId}/`, {
+        actual_start: data.actualStart || null,
+        actual_finish: data.actualFinish || null,
+        progress: data.progress,
+      });
+
+      // آپدیت لوکال: progress تسک را در state آپدیت کن
+      setNodes(prev => prev.map(n =>
+          n.id === taskId
+              ? {
+                ...n,
+                progress: data.progress,
+                actual: {
+                  actualStart: data.actualStart || '',
+                  actualFinish: data.actualFinish || '',
+                  progress: data.progress,
+                }
+              } as any
+              : n
+      ));
+    } catch (err) {
+      console.error("Error saving actual data:", err);
+      alert("خطا در ذخیره اطلاعات واقعی تسک.");
+    }
+  };
   // ==========================================
   // 2. Data Fetching (API Integration)
   // ==========================================
@@ -827,6 +856,7 @@ export default function App() {
                           assignments={assignments}
                           onAddAssignment={handleAddAssignment}
                           onDeleteAssignment={handleDeleteAssignment}
+                          onSaveActual={handleSaveActual}
                       />
                     </aside>
                 )}

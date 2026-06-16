@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   FileText, UserPlus, CalendarClock, GitMerge, Clock, Award, X, Plus,
-  TrendingUp, Scale, MessageSquare, Briefcase
+  TrendingUp, Scale, MessageSquare, Briefcase, CheckCircle2, Play
 } from 'lucide-react';
 import { ProjectNode, ActivityNode, Dependency, CustomUser, TaskRole, ChatMessage } from '../types/types';
 
@@ -32,13 +32,15 @@ interface TaskDetailsPanelProps {
   assignments?: any[];
   onAddAssignment?: (taskId: string, resourceId: string, unitsPercent: number) => void;
   onDeleteAssignment?: (assignmentId: string) => void;
+  // پراپ برای ارسال اطلاعات واقعی (actual) به بک‌اند
+  onSaveActual?: (taskId: string, data: { actualStart?: string; actualFinish?: string; progress: number }) => void;
 }
 
 export default function TaskDetailsPanel({
                                            selectedNode, onClose, onUpdateNode, dependencies, allNodes, onAddDependency,
                                            onDeleteDependency, users, taskRoles, onAddTaskRole, onDeleteTaskRole,
                                            onAddActivity, isEditMode = true, chatMessages = [], onAddChatMessage, onOpenChat,
-                                           resources = [], assignments = [], onAddAssignment, onDeleteAssignment
+                                           resources = [], assignments = [], onAddAssignment, onDeleteAssignment, onSaveActual
                                          }: TaskDetailsPanelProps) {
 
   const [selectedAssignee, setSelectedAssignee] = useState<string>('');
@@ -53,11 +55,22 @@ export default function TaskDetailsPanel({
   const [selectedResourceId, setSelectedResourceId] = useState<string>('');
   const [selectedUnits, setSelectedUnits] = useState<number>(100);
 
+  // ── استیت‌های Actual Data (شروع/پایان واقعی و درصد پیشرفت) ──
+  const [actualStart, setActualStart] = useState<string>('');
+  const [actualFinish, setActualFinish] = useState<string>('');
+  const [actualProgress, setActualProgress] = useState<number>(0);
+  const [isSavingActual, setIsSavingActual] = useState<boolean>(false);
+
   // ── Local copy of the node so edits don't clobber each other ──
   const [localNode, setLocalNode] = useState<ProjectNode | null>(selectedNode);
 
   useEffect(() => {
     setLocalNode(selectedNode);
+    // بازنشانی فیلدهای actual هنگام تعویض تسک
+    const nodeActual = (selectedNode as any)?.actual;
+    setActualStart(nodeActual?.actualStart || '');
+    setActualFinish(nodeActual?.actualFinish || '');
+    setActualProgress(nodeActual?.progress ?? selectedNode?.progress ?? 0);
   }, [selectedNode?.id]);
 
   const handleLocalChange = (field: string, val: any) => {
@@ -227,6 +240,70 @@ export default function TaskDetailsPanel({
               </div>
             </div>
           </div>
+
+          {/* ═══ Actual Execution Data (شروع/پایان واقعی + پیشرفت) ═══ */}
+          {!isWbs && (
+              <div>
+                <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1">
+                  <Play className="w-3.5 h-3.5 text-emerald-400" />Actual Execution Data
+                </h4>
+                <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-3 backdrop-blur-sm">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] text-slate-400 font-medium mb-1">Actual Start</label>
+                      <input
+                          type="datetime-local"
+                          value={actualStart}
+                          onChange={(e) => setActualStart(e.target.value)}
+                          className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-slate-400 font-medium mb-1">Actual Finish</label>
+                      <input
+                          type="datetime-local"
+                          value={actualFinish}
+                          onChange={(e) => setActualFinish(e.target.value)}
+                          className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-slate-400 font-medium mb-1">
+                      Progress: <span className="text-emerald-400 font-bold font-mono">{actualProgress}%</span>
+                    </label>
+                    <input
+                        type="range"
+                        min="0" max="100"
+                        value={actualProgress}
+                        onChange={(e) => setActualProgress(parseInt(e.target.value))}
+                        className="w-full accent-emerald-400 cursor-pointer"
+                    />
+                  </div>
+                  <button
+                      type="button"
+                      disabled={isSavingActual}
+                      onClick={async () => {
+                        if (!selectedNode || !onSaveActual) return;
+                        setIsSavingActual(true);
+                        try {
+                          await onSaveActual(selectedNode.id, {
+                            actualStart: actualStart || undefined,
+                            actualFinish: actualFinish || undefined,
+                            progress: actualProgress,
+                          });
+                        } finally {
+                          setIsSavingActual(false);
+                        }
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-lg shadow-emerald-500/15 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isSavingActual ? 'Saving...' : 'Save Actual Data'}</span>
+                  </button>
+                </div>
+              </div>
+          )}
 
           {/* Task Roles Assignments */}
           {!isWbs && (
