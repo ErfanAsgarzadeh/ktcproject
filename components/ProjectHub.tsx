@@ -99,12 +99,12 @@ export default function ProjectHub({
     };
 
     return (
-        <div className="h-screen w-full bg-[#0a0f1d] text-slate-200 flex flex-col justify-between font-sans relative overflow-hidden">
+        <div className="h-screen w-full bg-[#0a0f1d] text-slate-200 flex flex-col font-sans relative overflow-hidden">
             {/* Background radial glowing gradients */}
             <div className="absolute top-0 left-1/4 w-full h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none z-0" />
             <div className="absolute bottom-12 right-1/4 w-full h-[500px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
 
-            <div className=" w-full mx-auto space-y-8 z-10 p-6 md:p-8  h-full">
+            <div className="w-full mx-auto space-y-8 z-10 p-6 md:p-8 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
 
                 {/* Hub Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/5">
@@ -168,7 +168,7 @@ export default function ProjectHub({
                             </div>
 
                             {/* Projects cards container */}
-                            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/5">
+                            <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/5">
                                 {projects.map(proj => {
                                     const isProjSelected = proj.id === activeProjectId;
                                     const revsCount = revisions.filter(r => r.projectId === proj.id).length;
@@ -239,7 +239,7 @@ export default function ProjectHub({
                                     </div>
 
                                     {/* Revisions Stack list */}
-                                    <div className="space-y-3.5 max-h-[460px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/5">
+                                    <div className="space-y-3.5 max-h-[calc(100vh-320px)] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/5">
                                         {selectedProjectRevisions.slice().sort((a,b) => b.number - a.number).map(rev => {
                                             const isRevSelected = rev.id === activeRevisionId;
                                             const hasDuplicateMode = duplicateModeId === rev.id;
@@ -439,7 +439,7 @@ export default function ProjectHub({
 
                 {/* CREATE NEW PROJECT TAB */}
                 {activeTab === 'create' && (
-                    <div className="flex flex-col items-center justify-center pt-8 pb-20">
+                    <div className="flex flex-col items-center justify-start pt-4 pb-12">
                         <div className="bg-white/5 p-8 md:p-10 rounded-3xl border border-white/10 space-y-8 backdrop-blur-md w-full max-w-xl shadow-2xl relative overflow-hidden">
 
                             <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none" />
