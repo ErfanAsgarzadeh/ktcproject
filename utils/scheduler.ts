@@ -12,7 +12,25 @@ export function isWeekend(date: Date): boolean {
 }
 
 export function parseDateStr(dateStr: string): Date {
-  const [year, month, day] = dateStr.split('-').map(Number);
+  if (!dateStr) return new Date(NaN);
+  // Handle "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DDTHH:MM:SS" formats
+  const datePart = dateStr.split('T')[0].split(' ')[0];
+  const timePart = dateStr.includes('T')
+      ? dateStr.split('T')[1]
+      : dateStr.includes(' ')
+          ? dateStr.split(' ')[1]
+          : null;
+
+  const [year, month, day] = datePart.split('-').map(Number);
+
+  if (timePart) {
+    const timeParts = timePart.split(':').map(Number);
+    const hours = timeParts[0] || 0;
+    const minutes = timeParts[1] || 0;
+    const seconds = timeParts[2] || 0;
+    return new Date(year, month - 1, day, hours, minutes, seconds);
+  }
+
   return new Date(year, month - 1, day);
 }
 
@@ -23,9 +41,31 @@ export function formatDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * Format a Date object as "YYYY-MM-DD HH:MM:SS".
+ * Used when time precision matters (e.g. comparing dates with hours).
+ */
+export function formatDateTime(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+  return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+}
+
+/**
+ * Extract only the date part ("YYYY-MM-DD") from a potentially full datetime string.
+ */
+export function dateOnly(dateStr: string): string {
+  if (!dateStr) return '';
+  return dateStr.split('T')[0].split(' ')[0];
+}
+
 // Adjust a date to the next available working day if it falls on a weekend
 export function adjustToWorkingDay(dateStr: string, direction: 'forward' | 'backward' = 'forward'): string {
-  const date = parseDateStr(dateStr);
+  const date = parseDateStr(dateOnly(dateStr));
   while (isWeekend(date)) {
     date.setDate(date.getDate() + (direction === 'forward' ? 1 : -1));
   }
@@ -51,15 +91,21 @@ export function addWorkingDays(startDateStr: string, duration: number): string {
 
 // Calculate the number of working days between start and finish dates (inclusive)
 export function calculateWorkingDays(startDateStr: string, endDateStr: string): number {
-  if (startDateStr > endDateStr) return 0;
+  if (!startDateStr || !endDateStr) return 0;
   
   const start = parseDateStr(startDateStr);
   const end = parseDateStr(endDateStr);
   
+  if (start.getTime() > end.getTime()) return 0;
+  
   let count = 0;
   const current = new Date(start);
+  // Normalize to date-only for day counting
+  current.setHours(0, 0, 0, 0);
+  const endNorm = new Date(end);
+  endNorm.setHours(0, 0, 0, 0);
   
-  while (current <= end) {
+  while (current <= endNorm) {
     if (!isWeekend(current)) {
       count++;
     }
@@ -103,10 +149,16 @@ export function performWbsRollups(nodes: ProjectNode[]): ProjectNode[] {
       children.forEach(child => {
         if (!child.startDate || !child.endDate) return;
         
-        if (!minStart || child.startDate < minStart) {
+        // Use parsed timestamps for accurate comparison (handles both date-only and datetime strings)
+        const childStartMs = parseDateStr(child.startDate).getTime();
+        const childEndMs = parseDateStr(child.endDate).getTime();
+        const minStartMs = minStart ? parseDateStr(minStart).getTime() : Infinity;
+        const maxEndMs = maxEnd ? parseDateStr(maxEnd).getTime() : -Infinity;
+
+        if (!minStart || childStartMs < minStartMs) {
           minStart = child.startDate;
         }
-        if (!maxEnd || child.endDate > maxEnd) {
+        if (!maxEnd || childEndMs > maxEndMs) {
           maxEnd = child.endDate;
         }
 
@@ -154,8 +206,8 @@ export function getFlattenedHierarchyList(
 
   // تابع کمکی برای مرتب‌سازی زمانی (اول بر اساس تاریخ شروع، سپس بر اساس کد)
   const sortChronologically = (a: ProjectNode, b: ProjectNode) => {
-    const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
-    const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
+    const timeA = a.startDate ? parseDateStr(a.startDate).getTime() : 0;
+    const timeB = b.startDate ? parseDateStr(b.startDate).getTime() : 0;
 
     if (timeA !== timeB) {
       return timeA - timeB; // مرتب‌سازی صعودی زمان
@@ -222,8 +274,12 @@ export function calculateCriticalPath(
 
   // Let's identify the date bounds of the project
   let absoluteMinStart = '';
+  let absoluteMinMs = Infinity;
   activities.forEach(act => {
-    if (!absoluteMinStart || act.startDate < absoluteMinStart) {
+    if (!act.startDate) return;
+    const ms = parseDateStr(act.startDate).getTime();
+    if (ms < absoluteMinMs) {
+      absoluteMinMs = ms;
       absoluteMinStart = act.startDate;
     }
   });
@@ -438,17 +494,24 @@ export function rescheduleProject(
 
     // Get latest finish of all predecessors
     let latestPredFinishDate = '';
+    let latestPredFinishMs = -Infinity;
     revAdjList[id].forEach(predId => {
       const pred = nodeMap.get(predId) as ActivityNode;
-      if (pred && (!latestPredFinishDate || pred.endDate > latestPredFinishDate)) {
-        latestPredFinishDate = pred.endDate;
+      if (pred && pred.endDate) {
+        const predMs = parseDateStr(pred.endDate).getTime();
+        if (predMs > latestPredFinishMs) {
+          latestPredFinishMs = predMs;
+          latestPredFinishDate = pred.endDate;
+        }
       }
     });
 
     if (latestPredFinishDate) {
       // Successor starts on the next working day after predecessor finish
-      const nextWorkDay = addWorkingDays(latestPredFinishDate, 2); // 2 means jump to next working day after latestPredFinishDate
-      if (act.startDate < nextWorkDay) {
+      const nextWorkDay = addWorkingDays(dateOnly(latestPredFinishDate), 2); // 2 means jump to next working day after latestPredFinishDate
+      const actStartMs = parseDateStr(act.startDate).getTime();
+      const nextWorkDayMs = parseDateStr(nextWorkDay).getTime();
+      if (actStartMs < nextWorkDayMs) {
         act.startDate = nextWorkDay;
         act.endDate = addWorkingDays(act.startDate, act.duration);
       }

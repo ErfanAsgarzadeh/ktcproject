@@ -36,11 +36,15 @@ export default function GanttChart({
   const { timelineStart, timelineEnd, calendarDays } = useMemo(() => {
     let minDate = '';
     let maxDate = '';
+    let minMs = Infinity;
+    let maxMs = -Infinity;
 
     flattenedNodes.forEach(({ node }) => {
       if (!node.startDate || !node.endDate) return;
-      if (!minDate || node.startDate < minDate) minDate = node.startDate;
-      if (!maxDate || node.endDate > maxDate) maxDate = node.endDate;
+      const startMs = parseDateStr(node.startDate).getTime();
+      const endMs = parseDateStr(node.endDate).getTime();
+      if (startMs < minMs) { minMs = startMs; minDate = node.startDate; }
+      if (endMs > maxMs) { maxMs = endMs; maxDate = node.endDate; }
     });
 
     // Default to reasonable bounds if empty
@@ -52,10 +56,9 @@ export default function GanttChart({
       maxDate = formatDate(future);
     }
 
-    // Buffer range: Align start to previous Saturday (Iran week start), end +2 weeks
-    // parseDateStr is fine here — we only need the date part for boundary alignment
-    const startDateOnly = minDate.split(' ')[0];
-    const endDateOnly   = maxDate.split(' ')[0];
+    // Buffer range: extract date-only for boundary alignment
+    const startDateOnly = minDate.split('T')[0].split(' ')[0];
+    const endDateOnly   = maxDate.split('T')[0].split(' ')[0];
 
     const start = parseDateStr(startDateOnly);
     const dayOfWeek = start.getDay(); // 0 is Sunday, 1 is Mon etc
