@@ -252,21 +252,47 @@ export default function TaskDetailsPanel({
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[10px] text-slate-400 font-medium mb-1">Actual Start</label>
-                      <input
-                          type="datetime-local"
-                          value={actualStart}
-                          onChange={(e) => setActualStart(e.target.value)}
-                          className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none"
-                      />
+                      <div className="space-y-1.5">
+                        <JalaliDatePicker
+                            value={actualStart ? actualStart.split('T')[0] : ''}
+                            onChange={(iso) => {
+                              const time = actualStart && actualStart.includes('T') ? actualStart.split('T')[1].slice(0, 5) : '00:00';
+                              setActualStart(`${iso}T${time}`);
+                            }}
+                            className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none flex items-center justify-between gap-2"
+                        />
+                        <input
+                            type="time"
+                            value={actualStart && actualStart.includes('T') ? actualStart.split('T')[1].slice(0, 5) : ''}
+                            onChange={(e) => {
+                              const date = actualStart ? actualStart.split('T')[0] : '';
+                              if (date) setActualStart(`${date}T${e.target.value || '00:00'}`);
+                            }}
+                            className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="block text-[10px] text-slate-400 font-medium mb-1">Actual Finish</label>
-                      <input
-                          type="datetime-local"
-                          value={actualFinish}
-                          onChange={(e) => setActualFinish(e.target.value)}
-                          className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none"
-                      />
+                      <div className="space-y-1.5">
+                        <JalaliDatePicker
+                            value={actualFinish ? actualFinish.split('T')[0] : ''}
+                            onChange={(iso) => {
+                              const time = actualFinish && actualFinish.includes('T') ? actualFinish.split('T')[1].slice(0, 5) : '00:00';
+                              setActualFinish(`${iso}T${time}`);
+                            }}
+                            className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none flex items-center justify-between gap-2"
+                        />
+                        <input
+                            type="time"
+                            value={actualFinish && actualFinish.includes('T') ? actualFinish.split('T')[1].slice(0, 5) : ''}
+                            onChange={(e) => {
+                              const date = actualFinish ? actualFinish.split('T')[0] : '';
+                              if (date) setActualFinish(`${date}T${e.target.value || '00:00'}`);
+                            }}
+                            className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono focus:border-emerald-400 focus:outline-none"
+                        />
+                      </div>
                     </div>
                   </div>
                   <div>
