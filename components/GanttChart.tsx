@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import { ProjectNode, ActivityNode, Dependency, ZoomLevel } from '../types/types';
 import { parseDateStr, formatDate, isWeekend } from '../utils/scheduler';
 import { jalaliFromDate, JALALI_MONTHS, JALALI_WEEKDAYS } from '../utils/jalali';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface GanttChartProps {
   flattenedNodes: { node: ProjectNode; depth: number; isHidden: boolean }[];
@@ -332,13 +333,91 @@ export default function GanttChart({
     return paths;
   }, [dependencies, visibleRows, zoomLevel, showCriticalPath, flattenedNodes]);
 
+  // ─────────────────────────────────────────
+  // Drag-to-pan (grab & move horizontally/vertically)
+  // ─────────────────────────────────────────
+  const isPanning = useRef(false);
+  const didPan = useRef(false);
+  const panStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return; // left button only
+    const el = ganttContainerRef.current;
+    if (!el) return;
+    isPanning.current = true;
+    didPan.current = false;
+    panStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      scrollLeft: el.scrollLeft,
+      scrollTop: el.scrollTop,
+    };
+  }, [ganttContainerRef]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isPanning.current) return;
+    const el = ganttContainerRef.current;
+    if (!el) return;
+    const dx = e.clientX - panStart.current.x;
+    const dy = e.clientY - panStart.current.y;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didPan.current = true;
+    el.scrollLeft = panStart.current.scrollLeft - dx;
+    el.scrollTop = panStart.current.scrollTop - dy;
+  }, [ganttContainerRef]);
+
+  const endPan = useCallback(() => {
+    isPanning.current = false;
+  }, []);
+
+  // Suppress row click if a pan/drag just happened
+  const handleClickCapture = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (didPan.current) {
+      e.stopPropagation();
+      e.preventDefault();
+      didPan.current = false;
+    }
+  }, []);
+
+  // Mouse-wheel → horizontal scroll when Shift is held (native), and
+  // expose smooth scroll buttons for explicit left/right navigation.
+  const scrollByAmount = useCallback((amount: number) => {
+    const el = ganttContainerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+  }, [ganttContainerRef]);
+
   return (
       <div className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative select-none">
+        {/* ◀ ▶ Floating navigation buttons */}
+        <button
+            type="button"
+            onClick={() => scrollByAmount(-Math.max(300, columnWidth * 6))}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
+            style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', color: 'var(--text-accent)' }}
+            title="Scroll left"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+            type="button"
+            onClick={() => scrollByAmount(Math.max(300, columnWidth * 6))}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
+            style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', color: 'var(--text-accent)' }}
+            title="Scroll right"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
         {/* 1. Synced Double Header Timescale Row */}
         <div
             ref={ganttContainerRef}
             onScroll={onGanttScroll}
-            className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent relative"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={endPan}
+            onMouseLeave={endPan}
+            onClickCapture={handleClickCapture}
+            className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent relative cursor-grab active:cursor-grabbing"
         >
           <div style={{ width: `${canvasWidth}px` }} className="relative h-full">
 
