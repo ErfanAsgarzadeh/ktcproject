@@ -844,6 +844,8 @@ export default function App() {
                         onGanttScroll={handleGanttScroll}
                         ganttContainerRef={ganttContainerRef}
                         isEditMode={effectiveEditMode}
+                        projectStart={activeRevision?.projectStart}
+                        projectEnd={(activeRevision as any)?.projectEnd}
                     />
                   </div>
                 </div>
