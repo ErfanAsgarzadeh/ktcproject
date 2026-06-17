@@ -128,55 +128,56 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   HARDCODED HEX BACKGROUND REMAPPING
-   (Maps dark-mode hex literals to CSS variables)
+   HARDCODED HEX BACKGROUND REMAPPING — LIGHT MODE ONLY
+   (Maps dark-mode hex literals to light-appropriate CSS variables)
    ═══════════════════════════════════════════════════════════════ */
-.bg-\[\#0a0f1d\] { background-color: var(--bg-primary) !important; }
-.bg-\[\#0c1224\] { background-color: var(--bg-secondary) !important; }
-.bg-\[\#0c1224\]\/90 { background-color: var(--bg-secondary) !important; }
-.bg-\[\#0c1224\]\/95 { background-color: var(--bg-secondary) !important; }
-.bg-\[\#0c1223\] { background-color: var(--bg-secondary) !important; }
-.bg-\[\#11192e\] { background-color: var(--bg-tertiary) !important; }
-.bg-\[\#11192e\]\/60 { background-color: var(--overlay-bg) !important; }
-.bg-\[\#11192e\]\/80 { background-color: var(--bg-tertiary) !important; }
-.bg-\[\#11192e\]\/40 { background-color: var(--overlay-bg) !important; }
-.bg-\[\#151f38\] { background-color: var(--bg-hover) !important; }
-.hover\:bg-\[\#151f38\]:hover { background-color: var(--bg-hover) !important; }
-.bg-\[\#18233f\] { background-color: var(--bg-active) !important; }
-.bg-\[\#0f1629\] { background-color: var(--bg-tertiary) !important; }
-.bg-\[\#0d1323\] { background-color: var(--bg-tertiary) !important; }
-.bg-\[\#070b14\] { background-color: var(--bg-input) !important; }
-.bg-\[\#070b15\] { background-color: var(--bg-input) !important; }
-.bg-\[\#1b1115\] { background-color: var(--bg-input-danger) !important; }
-.bg-\[\#111827\] { background-color: var(--bg-tertiary) !important; }
+html.light .bg-\[\#0a0f1d\] { background-color: var(--bg-primary) !important; }
+html.light .bg-\[\#0c1224\] { background-color: var(--bg-secondary) !important; }
+html.light .bg-\[\#0c1224\]\/90 { background-color: var(--bg-secondary) !important; }
+html.light .bg-\[\#0c1224\]\/95 { background-color: var(--bg-secondary) !important; }
+html.light .bg-\[\#0c1223\] { background-color: var(--bg-secondary) !important; }
+html.light .bg-\[\#11192e\] { background-color: var(--bg-tertiary) !important; }
+html.light .bg-\[\#11192e\]\/60 { background-color: var(--overlay-bg) !important; }
+html.light .bg-\[\#11192e\]\/80 { background-color: var(--bg-tertiary) !important; }
+html.light .bg-\[\#11192e\]\/40 { background-color: var(--overlay-bg) !important; }
+html.light .bg-\[\#151f38\] { background-color: var(--bg-hover) !important; }
+html.light .hover\:bg-\[\#151f38\]:hover { background-color: var(--bg-hover) !important; }
+html.light .bg-\[\#18233f\] { background-color: var(--bg-active) !important; }
+html.light .bg-\[\#0f1629\] { background-color: var(--bg-tertiary) !important; }
+html.light .bg-\[\#0d1323\] { background-color: var(--bg-tertiary) !important; }
+html.light .bg-\[\#070b14\] { background-color: var(--bg-input) !important; }
+html.light .bg-\[\#070b15\] { background-color: var(--bg-input) !important; }
+html.light .bg-\[\#1b1115\] { background-color: var(--bg-input-danger) !important; }
+html.light .bg-\[\#111827\] { background-color: var(--bg-tertiary) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   TRANSPARENCY CLASSES → CSS VARIABLES
+   TRANSPARENCY CLASSES — LIGHT MODE ONLY
    ═══════════════════════════════════════════════════════════════ */
-.bg-white\/5 { background-color: var(--overlay-bg) !important; }
-.hover\:bg-white\/5:hover { background-color: var(--overlay-hover) !important; }
-.bg-white\/10 { background-color: var(--overlay-hover) !important; }
-.hover\:bg-white\/10:hover { background-color: var(--bg-hover) !important; }
-.bg-white\/\[0\.02\] { background-color: var(--overlay-bg) !important; }
-.bg-white\/\[0\.01\] { background-color: transparent !important; }
-.bg-white\/\[0\.03\] { background-color: var(--overlay-bg) !important; }
-.bg-black\/40 { background-color: var(--bg-tertiary) !important; }
-.bg-black\/30 { background-color: var(--overlay-bg) !important; }
-.bg-black\/20 { background-color: var(--overlay-bg) !important; }
-.bg-black\/60 { background-color: var(--bg-input) !important; }
+html.light .bg-white\/5 { background-color: var(--overlay-bg) !important; }
+html.light .hover\:bg-white\/5:hover { background-color: var(--overlay-hover) !important; }
+html.light .bg-white\/10 { background-color: var(--overlay-hover) !important; }
+html.light .hover\:bg-white\/10:hover { background-color: var(--bg-hover) !important; }
+html.light .bg-white\/\[0\.02\] { background-color: var(--overlay-bg) !important; }
+html.light .bg-white\/\[0\.01\] { background-color: transparent !important; }
+html.light .bg-white\/\[0\.03\] { background-color: var(--overlay-bg) !important; }
+html.light .bg-white\/\[0\.05\] { background-color: var(--overlay-bg) !important; }
+html.light .bg-black\/40 { background-color: var(--bg-tertiary) !important; }
+html.light .bg-black\/30 { background-color: var(--overlay-bg) !important; }
+html.light .bg-black\/20 { background-color: var(--overlay-bg) !important; }
+html.light .bg-black\/60 { background-color: var(--bg-input) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   BORDER REMAPPING
+   BORDER REMAPPING — LIGHT MODE ONLY
    ═══════════════════════════════════════════════════════════════ */
-.border-white\/5 { border-color: var(--border-subtle) !important; }
-.border-white\/8 { border-color: var(--border-subtle) !important; }
-.border-white\/10 { border-color: var(--border-medium) !important; }
-.border-white\/15 { border-color: var(--border-medium) !important; }
-.border-white\/20 { border-color: var(--border-strong) !important; }
-.border-r-white\/10 { border-right-color: var(--border-medium) !important; }
-.border-l-white\/10 { border-left-color: var(--border-medium) !important; }
-.border-b-white\/10 { border-bottom-color: var(--border-medium) !important; }
-.border-t-white\/10 { border-top-color: var(--border-medium) !important; }
+html.light .border-white\/5 { border-color: var(--border-subtle) !important; }
+html.light .border-white\/8 { border-color: var(--border-subtle) !important; }
+html.light .border-white\/10 { border-color: var(--border-medium) !important; }
+html.light .border-white\/15 { border-color: var(--border-medium) !important; }
+html.light .border-white\/20 { border-color: var(--border-strong) !important; }
+html.light .border-r-white\/10 { border-right-color: var(--border-medium) !important; }
+html.light .border-l-white\/10 { border-left-color: var(--border-medium) !important; }
+html.light .border-b-white\/10 { border-bottom-color: var(--border-medium) !important; }
+html.light .border-t-white\/10 { border-top-color: var(--border-medium) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
    LIGHT MODE TEXT OVERRIDES
