@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { ProjectNode, WbsNode, ActivityNode, Dependency, TaskRole, CustomUser } from '../types/types';
 import { adjustToWorkingDay, addWorkingDays, calculateWorkingDays } from '../utils/scheduler';
+import JalaliDatePicker from './JalaliDatePicker';
+import { gregorianToJalaliString } from '../utils/jalali';
 
 interface WbsTableProps {
   flattenedNodes: { node: ProjectNode; depth: number; isHidden: boolean }[];
@@ -73,7 +75,7 @@ export default function WbsTable({
     setEditValue(String(currentValue || ''));
   };
 
-  const handleFinishEdit = (nodeId: string, field: keyof ActivityNode | 'predecessors') => {
+  const handleFinishEdit = (nodeId: string, field: keyof ActivityNode | 'predecessors', explicitValue?: string) => {
     if (!editingCell) return;
 
     const node = allNodes.find(n => n.id === nodeId);
@@ -82,7 +84,7 @@ export default function WbsTable({
       return;
     }
 
-    const value = editValue.trim();
+    const value = (explicitValue !== undefined ? explicitValue : editValue).trim();
 
     if (field === 'predecessors') {
       // Specialty parser
@@ -297,26 +299,23 @@ export default function WbsTable({
                 {isWbs ? (
                   <span className="text-slate-500 flex items-center gap-1">
                     <Lock className="w-3 h-3 text-slate-600" />
-                    {node.startDate}
+                    {gregorianToJalaliString(node.startDate)}
                   </span>
                 ) : editingCell?.nodeId === node.id && editingCell?.field === 'startDate' ? (
-                  <input
-                    type="date"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onBlur={() => handleFinishEdit(node.id, 'startDate')}
-                    onKeyDown={(e) => handleKeyDown(e, node.id, 'startDate')}
-                    className="w-full bg-black/40 border border-cyan-500/50 rounded-lg p-1 font-mono text-xs text-white focus:outline-none"
-                    autoFocus
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                  <div onClick={(e) => e.stopPropagation()} className="w-full">
+                    <JalaliDatePicker
+                      value={editValue}
+                      onChange={(iso) => { setEditValue(iso); handleFinishEdit(node.id, 'startDate', iso); }}
+                      className="w-full bg-black/40 border border-cyan-500/50 rounded-lg p-1 font-mono text-xs text-white focus:outline-none flex items-center justify-between gap-1"
+                    />
+                  </div>
                 ) : (
                   <span 
                     onDoubleClick={() => startInlineEdit(node.id, 'startDate', node.startDate)}
                     className="w-full text-slate-300 cursor-text py-1.5"
                     title="Double click to edit Start Date"
                   >
-                    {node.startDate}
+                    {gregorianToJalaliString(node.startDate)}
                   </span>
                 )}
               </div>
@@ -326,26 +325,23 @@ export default function WbsTable({
                 {isWbs ? (
                   <span className="text-slate-500 flex items-center gap-1">
                     <Lock className="w-3 h-3 text-slate-600" />
-                    {node.endDate}
+                    {gregorianToJalaliString(node.endDate)}
                   </span>
                 ) : editingCell?.nodeId === node.id && editingCell?.field === 'endDate' ? (
-                  <input
-                    type="date"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onBlur={() => handleFinishEdit(node.id, 'endDate')}
-                    onKeyDown={(e) => handleKeyDown(e, node.id, 'endDate')}
-                    className="w-full bg-black/40 border border-cyan-500/50 rounded-lg p-1 font-mono text-xs text-white focus:outline-none"
-                    autoFocus
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                  <div onClick={(e) => e.stopPropagation()} className="w-full">
+                    <JalaliDatePicker
+                      value={editValue}
+                      onChange={(iso) => { setEditValue(iso); handleFinishEdit(node.id, 'endDate', iso); }}
+                      className="w-full bg-black/40 border border-cyan-500/50 rounded-lg p-1 font-mono text-xs text-white focus:outline-none flex items-center justify-between gap-1"
+                    />
+                  </div>
                 ) : (
                   <span 
                     onDoubleClick={() => startInlineEdit(node.id, 'endDate', node.endDate)}
                     className="w-full text-slate-300 cursor-text py-1.5"
                     title="Double click to edit Finish Date"
                   >
-                    {node.endDate}
+                    {gregorianToJalaliString(node.endDate)}
                   </span>
                 )}
               </div>

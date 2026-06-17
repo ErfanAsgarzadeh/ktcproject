@@ -17,6 +17,8 @@ import {
     Edit2
 } from 'lucide-react';
 import { Project, Revision } from '../types/types';
+import JalaliDatePicker from './JalaliDatePicker';
+import { gregorianToJalaliString } from '../utils/jalali';
 
 interface ProjectHubProps {
     projects: Project[];
@@ -209,7 +211,7 @@ export default function ProjectHub({
 
                                             <div className="flex items-center gap-4 mt-3 text-[10px] font-mono text-slate-500 border-t border-white/5 pt-2">
                                                 <span>Revs: <strong className="text-cyan-400">{revsCount}</strong></span>
-                                                <span>Created: {new Date(proj.createdAt).toLocaleDateString()}</span>
+                                                <span>Created: {gregorianToJalaliString(proj.createdAt)}</span>
                                             </div>
                                         </div>
                                     );
@@ -271,7 +273,7 @@ export default function ProjectHub({
                                 </span>
 
                                                                 {isLocked ? (
-                                                                    <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[9px] font-mono font-bold uppercase flex items-center gap-1" title={`Locked at: ${new Date(rev.approvedAt!).toLocaleDateString()}`}>
+                                                                    <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[9px] font-mono font-bold uppercase flex items-center gap-1" title={`Locked at: ${gregorianToJalaliString(rev.approvedAt!)}`}>
                                     <Lock className="w-2.5 h-2.5" /> Locked
                                   </span>
                                                                 ) : (
@@ -297,14 +299,13 @@ export default function ProjectHub({
                                                                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider">Start:</span>
                                                                     {isLocked ? (
                                                                         <span className="text-xs text-white font-mono bg-transparent border-none py-0.5">
-                                      {rev.projectStart?.split('T')[0] || 'N/A'}
+                                      {gregorianToJalaliString(rev.projectStart) || 'N/A'}
                                     </span>
                                                                     ) : (
-                                                                        <input
-                                                                            type="date"
+                                                                        <JalaliDatePicker
                                                                             value={rev.projectStart?.split('T')[0] || ''}
-                                                                            onChange={(e) => onUpdateRevisionDates(rev.id, e.target.value, (rev as any).projectEnd || '')}
-                                                                            className="bg-black/50 border border-white/10 hover:border-cyan-500/50 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono cursor-pointer transition-colors"
+                                                                            onChange={(iso) => onUpdateRevisionDates(rev.id, iso, (rev as any).projectEnd || '')}
+                                                                            className="bg-black/50 border border-white/10 hover:border-cyan-500/50 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono cursor-pointer transition-colors flex items-center justify-between gap-2"
                                                                         />
                                                                     )}
                                                                 </div>
@@ -315,14 +316,13 @@ export default function ProjectHub({
                                                                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider">End:</span>
                                                                     {isLocked ? (
                                                                         <span className="text-xs text-white font-mono bg-transparent border-none py-0.5">
-                                      {(rev as any).projectEnd?.split('T')[0] || 'Unset'}
+                                      {gregorianToJalaliString((rev as any).projectEnd) || 'Unset'}
                                     </span>
                                                                     ) : (
-                                                                        <input
-                                                                            type="date"
+                                                                        <JalaliDatePicker
                                                                             value={(rev as any).projectEnd?.split('T')[0] || ''}
-                                                                            onChange={(e) => onUpdateRevisionDates(rev.id, rev.projectStart || '', e.target.value)}
-                                                                            className="bg-black/50 border border-white/10 hover:border-cyan-500/50 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono cursor-pointer transition-colors"
+                                                                            onChange={(iso) => onUpdateRevisionDates(rev.id, rev.projectStart || '', iso)}
+                                                                            className="bg-black/50 border border-white/10 hover:border-cyan-500/50 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono cursor-pointer transition-colors flex items-center justify-between gap-2"
                                                                         />
                                                                     )}
                                                                 </div>
@@ -331,7 +331,7 @@ export default function ProjectHub({
                                                             <div className="text-[11px] font-mono text-slate-500 flex items-center gap-3 pt-2">
                                                                 <span>Tasks Stacked: <strong className="text-white">{taskCount} Node elements</strong></span>
                                                                 <span>•</span>
-                                                                <span>Created: {new Date(rev.createdAt).toLocaleDateString()}</span>
+                                                                <span>Created: {gregorianToJalaliString(rev.createdAt)}</span>
                                                             </div>
                                                         </div>
 
@@ -479,24 +479,22 @@ export default function ProjectHub({
                                         <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider ml-1">
                                             Project Start Date
                                         </label>
-                                        <input
-                                            type="date"
+                                        <JalaliDatePicker
                                             required
                                             value={newProjStart}
-                                            onChange={(e) => setNewProjStart(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-cyan-400 transition-all font-sans"
+                                            onChange={(iso) => setNewProjStart(iso)}
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-cyan-400 transition-all font-sans flex items-center justify-between gap-2"
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider ml-1">
                                             Project End Date
                                         </label>
-                                        <input
-                                            type="date"
+                                        <JalaliDatePicker
                                             required
                                             value={newProjEnd}
-                                            onChange={(e) => setNewProjEnd(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-cyan-400 transition-all font-sans"
+                                            onChange={(iso) => setNewProjEnd(iso)}
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-cyan-400 transition-all font-sans flex items-center justify-between gap-2"
                                         />
                                     </div>
                                 </div>

@@ -6,6 +6,7 @@
 import React, { useMemo } from 'react';
 import { ProjectNode, ActivityNode, Dependency, ZoomLevel } from '../types/types';
 import { parseDateStr, formatDate, isWeekend } from '../utils/scheduler';
+import { jalaliFromDate, JALALI_MONTHS, JALALI_WEEKDAYS } from '../utils/jalali';
 
 interface GanttChartProps {
   flattenedNodes: { node: ProjectNode; depth: number; isHidden: boolean }[];
@@ -237,15 +238,19 @@ export default function GanttChart({
     originalHeaders.forEach((item, index) => {
       let label = '';
       if (zoomLevel === 'hour') {
-        // Group by day: "Mon 7 Jun"
-        label = item.date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+        // Group by day: "سه‌شنبه ۲۷ خرداد"
+        const j = jalaliFromDate(item.date);
+        label = `${JALALI_WEEKDAYS[item.date.getDay()]} ${j.jd} ${JALALI_MONTHS[j.jm - 1]}`;
       } else if (zoomLevel === 'day') {
-        // Label format: "June 2026"
-        label = item.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        // Label format: "خرداد ۱۴۰۵"
+        const j = jalaliFromDate(item.date);
+        label = `${JALALI_MONTHS[j.jm - 1]} ${j.jy}`;
       } else if (zoomLevel === 'week') {
-        label = item.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        const j = jalaliFromDate(item.date);
+        label = `${JALALI_MONTHS[j.jm - 1]} ${j.jy}`;
       } else {
-        label = item.date.getFullYear().toString();
+        // Jalali year
+        label = jalaliFromDate(item.date).jy.toString();
       }
 
       if (index === 0) {
@@ -360,14 +365,14 @@ export default function GanttChart({
                     // e.g. "09" or "14"
                     label = item.date.getHours().toString().padStart(2, '0');
                   } else if (zoomLevel === 'day') {
-                    // e.g. "27"
-                    label = item.date.getDate().toString();
+                    // Jalali day-of-month e.g. "27"
+                    label = jalaliFromDate(item.date).jd.toString();
                   } else if (zoomLevel === 'week') {
-                    // e.g. "W27"
-                    label = `W${item.date.getDate().toString().padStart(2, '0')}`;
+                    // Jalali day-of-month for the week start
+                    label = `${jalaliFromDate(item.date).jd}`;
                   } else {
-                    // e.g. "Jun"
-                    label = item.date.toLocaleDateString('en-US', { month: 'short' });
+                    // Jalali month short name
+                    label = JALALI_MONTHS[jalaliFromDate(item.date).jm - 1];
                   }
 
                   const isWknd = (zoomLevel === 'day' || zoomLevel === 'hour') && item.isWeekend;

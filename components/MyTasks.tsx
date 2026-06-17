@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { CustomUser, TaskRole, Project, Revision, ChatMessage, TaskReport } from '../types/types'; // مسیر types خود را چک کنید
-import { apiClient } from '../lib/api'; // مسیر api خود را چک کنید
+import { apiClient } from '../lib/api';
+import { gregorianToJalaliString, gregorianToJalaliDateTime, timeOnly } from '../utils/jalali'; // مسیر api خود را چک کنید
 import {
   ArrowLeft, CheckCircle, MessageSquare, Briefcase, Clock,
   Check, Send, Sun, Moon, AlertTriangle, Trash2,
@@ -351,7 +352,7 @@ export default function MyTasks({
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-1.5 font-mono text-[9px] text-slate-500">
                                 <Clock className="w-3 h-3 text-cyan-400 shrink-0" />
-                                <span>{t.task.startDate} to {t.task.endDate}</span>
+                                <span>{gregorianToJalaliString(t.task.startDate)} to {gregorianToJalaliString(t.task.endDate)}</span>
                               </div>
                               <span className="text-[9px] font-mono text-cyan-300 font-medium tracking-tight bg-white/5 border border-white/10 rounded px-1">{t.task.code}</span>
                             </div>
@@ -588,7 +589,7 @@ export default function MyTasks({
                                             </div>
                                             <span className={`text-xs font-bold ${isMe ? 'text-cyan-300' : 'text-slate-350'}`}>{sender?.username || 'System Pool'} {isMe && '(You)'}</span>
                                           </div>
-                                          <span className="text-[10px] text-slate-500 font-mono">{new Date(msg.timestamp).toLocaleDateString()} {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                          <span className="text-[10px] text-slate-500 font-mono">{gregorianToJalaliString(msg.timestamp)} {timeOnly(msg.timestamp)}</span>
                                         </div>
 
                                         {/* Text content */}
@@ -765,7 +766,7 @@ export default function MyTasks({
                                                 <span className="text-[9px] text-slate-500 font-mono">({reporter?.employeeCode || 'SYS-STAFF'})</span>
                                               </div>
                                               <div className="flex items-center gap-2.5 ml-0 sm:ml-auto">
-                                                <span className="text-[10px] text-slate-500 font-mono">{new Date(rep.timestamp).toLocaleString()}</span>
+                                                <span className="text-[10px] text-slate-500 font-mono">{gregorianToJalaliDateTime(rep.timestamp)}</span>
                                                 <button onClick={() => handleDeleteReport(rep.id)} className="p-1 px-1.5 hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 border border-transparent hover:border-rose-500/10 rounded-lg transition-all cursor-pointer" title="Delete this report log">
                                                   <Trash2 className="w-3.5 h-3.5" />
                                                 </button>

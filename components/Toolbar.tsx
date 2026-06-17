@@ -29,6 +29,7 @@ import {
   Copy, ChevronUp, ChevronDown, Sun
 } from 'lucide-react';
 import { ZoomLevel, ProjectNode, Dependency } from '../types/types';
+import { gregorianToJalaliString } from '../utils/jalali';
 
 interface ToolbarProps {
   projectName: string;
@@ -104,8 +105,8 @@ export default function Toolbar({
   const projectRoot = nodes.find(n => n.parentId === null && n.type === 'wbs') || nodes[0];
 
   // خواندن اطلاعات مستقیما از دیتابیس ریویژن به جای گره‌های جدول
-  const displayStart = revisionStart ? revisionStart.split('T')[0] : (projectRoot?.startDate || '—');
-  const displayEnd = revisionEnd ? revisionEnd.split('T')[0] : (projectRoot?.endDate || '—');
+  const displayStart = revisionStart ? gregorianToJalaliString(revisionStart) : (projectRoot?.startDate ? gregorianToJalaliString(projectRoot.startDate) : '—');
+  const displayEnd = revisionEnd ? gregorianToJalaliString(revisionEnd) : (projectRoot?.endDate ? gregorianToJalaliString(projectRoot.endDate) : '—');
 
   // محاسبه مدت زمان (Duration) بر اساس تاریخ شروع و پایان ریویژن
   let displayDuration = projectRoot?.duration || 0;

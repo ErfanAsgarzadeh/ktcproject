@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { apiClient } from '@/lib/api'; // مسیر ایمپورت را بر اساس ساختار پوشه‌های خود تنظیم کنید
+import { gregorianToJalali, JALALI_MONTHS } from '../utils/jalali';
 import {
     Project, Revision, ProjectNode, CustomUser, VarianceReport
 } from '@/types/types';
@@ -238,8 +239,8 @@ export default function VarianceControlPage({
             try {
                 const parts = dateStr.split('-');
                 if (parts.length === 3) {
-                    const tempDate = new Date(Date.UTC(+parts[0], +parts[1]-1, +parts[2]));
-                    elegantLabel = tempDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const j = gregorianToJalali(+parts[0], +parts[1], +parts[2]);
+                    elegantLabel = `${j.jd} ${JALALI_MONTHS[j.jm - 1]}`;
                 }
             } catch (e) {}
 

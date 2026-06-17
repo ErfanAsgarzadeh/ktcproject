@@ -20,6 +20,7 @@ import {
 
 // ایمپورت کردن apiClient از فایل api.tsx (آدرس را در صورت نیاز اصلاح کنید)
 import { apiClient } from '@/lib/api';
+import JalaliDatePicker from './JalaliDatePicker';
 
 interface ResourceManagementProps {
     users: CustomUser[];
@@ -1250,12 +1251,11 @@ export default function ResourceManagement({
 
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold font-mono text-slate-400 uppercase">Effective From Date</label>
-                                <input
-                                    type="date"
+                                <JalaliDatePicker
                                     required
                                     value={rateForm.effectiveFrom}
-                                    onChange={e => setRateForm({ ...rateForm, effectiveFrom: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white text-center font-mono"
+                                    onChange={(iso) => setRateForm({ ...rateForm, effectiveFrom: iso })}
+                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white font-mono flex items-center justify-between gap-2"
                                 />
                             </div>
 

@@ -27,6 +27,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { CustomUser, TaskRole, Project, Revision, ActivityNode, ProjectNode } from '../types/types';
+import { gregorianToJalaliString } from '../utils/jalali';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,8 +61,7 @@ const getRoleMeta = (role: string) =>
 
 const fmtDate = (d?: string | null) => {
   if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+  return gregorianToJalaliString(d);
 };
 
 const progressColor = (p: number) => {
