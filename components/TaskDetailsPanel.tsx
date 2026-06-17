@@ -9,6 +9,7 @@ import {
   TrendingUp, Scale, MessageSquare, Briefcase, CheckCircle2, Play
 } from 'lucide-react';
 import { ProjectNode, ActivityNode, Dependency, CustomUser, TaskRole, ChatMessage } from '../types/types';
+import JalaliDatePicker from './JalaliDatePicker';
 
 interface TaskDetailsPanelProps {
   selectedNode: ProjectNode | null;
@@ -178,11 +179,11 @@ export default function TaskDetailsPanel({
             <div className="grid grid-cols-2 gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/10 backdrop-blur-sm">
               <div>
                 <label className="block text-[10px] text-slate-400 font-medium mb-1">Start Date</label>
-                <input type="date" disabled={!isEditMode || isWbs} value={localNode?.startDate ?? ''} onChange={(e) => handleLocalChange('startDate', e.target.value)} onBlur={(e) => handleCommit('startDate', e.target.value)} className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none" />
+                <JalaliDatePicker disabled={!isEditMode || isWbs} value={localNode?.startDate ?? ''} onChange={(iso) => { handleLocalChange('startDate', iso); handleCommit('startDate', iso); }} className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none flex items-center justify-between gap-2" />
               </div>
               <div>
                 <label className="block text-[10px] text-slate-400 font-medium mb-1">Finish Date</label>
-                <input type="date" disabled={!isEditMode || isWbs} value={localNode?.endDate ?? ''} onChange={(e) => handleLocalChange('endDate', e.target.value)} onBlur={(e) => handleCommit('endDate', e.target.value)} className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none" />
+                <JalaliDatePicker disabled={!isEditMode || isWbs} value={localNode?.endDate ?? ''} onChange={(iso) => { handleLocalChange('endDate', iso); handleCommit('endDate', iso); }} className="w-full bg-black/40 border border-white/5 text-xs text-slate-300 rounded-lg p-2 font-mono disabled:opacity-50 focus:border-cyan-400 focus:outline-none flex items-center justify-between gap-2" />
               </div>
               <div className="col-span-2">
                 {(() => {

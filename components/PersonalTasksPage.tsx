@@ -22,6 +22,8 @@ import {
   X
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import JalaliDatePicker from './JalaliDatePicker';
+import { gregorianToJalaliString } from '../utils/jalali';
 
 interface PersonalTasksPageProps {
   users: CustomUser[];
@@ -439,12 +441,11 @@ export default function PersonalTasksPage({
                 <label className="text-[10px] font-bold font-mono tracking-wider text-slate-400 uppercase flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-cyan-400" /> Start Date
                 </label>
-                <input
-                    type="date"
+                <JalaliDatePicker
                     required
                     value={startDateStr}
-                    onChange={e => setStartDateStr(e.target.value)}
-                    className="w-full bg-[#11162a]/90 border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none transition-all font-mono"
+                    onChange={(iso) => setStartDateStr(iso)}
+                    className="w-full bg-[#11162a]/90 border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none transition-all font-mono flex items-center justify-between gap-2"
                 />
               </div>
 
@@ -587,7 +588,7 @@ export default function PersonalTasksPage({
                                     })()}
                                   </div>
                                 </td>
-                                <td className="p-3 font-mono text-[10px] text-slate-300">{task.startDate}</td>
+                                <td className="p-3 font-mono text-[10px] text-slate-300">{gregorianToJalaliString(task.startDate)}</td>
                                 <td className="p-3 text-center font-mono text-xs">
                         <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/15 px-2 py-0.5 rounded font-extrabold text-[10px]">
                           {task.duration}

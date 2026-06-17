@@ -8,6 +8,7 @@ import {
     TaskReport
 } from '../types/types'; // اطمینان حاصل کنید که مسیر types درست است
 import { apiClient } from '../lib/api'; // اطمینان حاصل کنید که مسیر api درست است
+import { gregorianToJalaliDateTime } from '../utils/jalali';
 import {
     ArrowLeft, CheckCircle, XCircle, AlertTriangle, Clock,
     FileText, Compass, ClipboardCheck, Search, Briefcase,
@@ -417,7 +418,7 @@ export default function ApprovalsPage({
                                                     <span className="text-[10px] text-cyan-400 font-semibold">{rep.reporter?.jobTitle || 'Employee'}</span>
                                                 </div>
                                                 <p className="text-[10px] text-slate-450 text-slate-400 mt-1 flex items-center gap-1.5 font-mono">
-                                                    <Clock className="w-3 h-3 text-slate-500" /> Logged {new Date(rep.timestamp).toLocaleString()}
+                                                    <Clock className="w-3 h-3 text-slate-500" /> Logged {gregorianToJalaliDateTime(rep.timestamp)}
                                                 </p>
                                             </div>
                                         </div>
@@ -556,7 +557,7 @@ export default function ApprovalsPage({
                                                         <div className="flex items-center gap-1.5">
                                                             <span>Supervisor: <strong>{rep.approvedBy || 'Project Manager'}</strong></span>
                                                             <span>//</span>
-                                                            <span>Reviewed {rep.approvedAt ? new Date(rep.approvedAt).toLocaleString() : 'Recently'}</span>
+                                                            <span>Reviewed {rep.approvedAt ? gregorianToJalaliDateTime(rep.approvedAt) : 'Recently'}</span>
                                                         </div>
 
                                                         <div className="flex items-center gap-3">
