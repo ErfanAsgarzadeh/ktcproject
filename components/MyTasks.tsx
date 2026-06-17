@@ -265,7 +265,7 @@ export default function MyTasks({
 
           {/* --- LEFT COLUMN: SIDEBAR --- */}
           <div className="w-full md:w-[350px] lg:w-[380px] shrink-0 border-r border-white/10  flex flex-col overflow-hidden">
-            <div className="p-5 border-b border-white/5 bg-slate-950/20 space-y-4">
+            <div className="p-5 border-b border-white/5 space-y-4" style={{ backgroundColor: 'var(--overlay-bg)' }}>
 
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
                 <div className=" border border-white/5 p-2 rounded-xl">
@@ -331,7 +331,7 @@ export default function MyTasks({
                     }
 
                     return (
-                        <button key={t.task.id} onClick={() => setSelectedTaskObj(t)} type="button" className={`w-full text-left p-4 rounded-2xl border transition-all relative group flex flex-col ${isSelected ? 'bg-[#18233f] border-cyan-500/40 shadow-xl' : 'bg-[#11192e]/60 border-white/5 hover:border-white/15 hover:bg-[#151f38]'}`}>
+                        <button key={t.task.id} onClick={() => setSelectedTaskObj(t)} type="button" className={`w-full text-left p-4 rounded-2xl border transition-all relative group flex flex-col ${isSelected ? 'bg-white/10 border-cyan-500/40 shadow-xl' : 'bg-white/5 border-white/5 hover:border-white/15 hover:bg-white/10'}`}>
                           {t.task.metrics?.isCritical && (
                               <div className="absolute top-0 right-12 translate-y-[-50%] bg-rose-500 text-white font-mono font-bold text-[7px] tracking-widest uppercase px-2 py-0.5 rounded-full shadow border border-white/10">Critical</div>
                           )}
@@ -370,7 +370,7 @@ export default function MyTasks({
                               <span>Progress Level</span>
                               <span className="font-bold text-slate-300">{progress}%</span>
                             </div>
-                            <div className="relative w-full h-1.5 rounded-full overflow-hidden bg-slate-950">
+                            <div className="relative w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--overlay-bg)' }}>
                               <div className={`absolute h-full transition-all duration-300 ${progress === 100 ? 'bg-emerald-400' : 'bg-cyan-400'}`} style={{ width: `${progress}%` }} />
                             </div>
                           </div>
@@ -399,7 +399,7 @@ export default function MyTasks({
             ) : (
                 <div className="flex-1 flex flex-col overflow-hidden animate-fade-in duration-200" key={selectedTaskObj.task.id}>
 
-                  <div className="px-6 py-5 border-b border-white/10 bg-[#0f1629]">
+                  <div className="px-6 py-5 border-b border-white/10" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="space-y-1 leading-tight">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -421,7 +421,7 @@ export default function MyTasks({
                     </div>
                   </div>
 
-                  <div className="bg-[#0c1223] border-b border-white/10 px-6 py-2 flex items-center justify-between shrink-0">
+                  <div className="border-b border-white/10 px-6 py-2 flex items-center justify-between shrink-0" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setActiveTab('report')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${activeTab === 'report' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'}`}>
                         <FileText className="w-4 h-4 text-cyan-400" /><span>Submit Report (ثبت عملکرد)</span>
@@ -438,7 +438,7 @@ export default function MyTasks({
 
                   <div className="flex-1 overflow-hidden relative">
                     {isLoadingReports && (
-                        <div className="absolute inset-0 z-10 bg-[#0a0f1d]/80 flex items-center justify-center">
+                        <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                           <Gauge className="w-8 h-8 text-cyan-500 animate-spin" />
                         </div>
                     )}
@@ -480,7 +480,7 @@ export default function MyTasks({
 
                                     <div className="flex items-center gap-2" dir="ltr">
                                       {/* بخش ساعت */}
-                                      <div className="flex-1 flex items-center bg-[#070b14] border border-white/15 focus-within:border-cyan-400 rounded-lg overflow-hidden transition-colors">
+                                      <div className="flex-1 flex items-center border border-white/15 focus-within:border-cyan-400 rounded-lg overflow-hidden transition-colors" style={{ backgroundColor: 'var(--bg-input)' }}>
                                         <input
                                             type="number"
                                             min="0" max="99"
@@ -493,7 +493,7 @@ export default function MyTasks({
                                       </div>
                                       <span className="text-slate-500 font-bold">:</span>
                                       {/* بخش دقیقه */}
-                                      <div className="flex-1 flex items-center bg-[#070b14] border border-white/15 focus-within:border-cyan-400 rounded-lg overflow-hidden transition-colors">
+                                      <div className="flex-1 flex items-center border border-white/15 focus-within:border-cyan-400 rounded-lg overflow-hidden transition-colors" style={{ backgroundColor: 'var(--bg-input)' }}>
                                         <input
                                             type="number"
                                             min="0" max="59"
@@ -592,7 +592,7 @@ export default function MyTasks({
                               })()}
                             </div>
                           </div>
-                          <form onSubmit={e => { e.preventDefault(); if (!chatInput.trim()) return; onAddChatMessage(selectedTaskObj.task.id, userId, chatInput.trim()); setChatInput(''); }} className="p-4 sm:px-6 sm:py-4 bg-[#0d1323] border-t border-white/10 shrink-0 flex items-center gap-3">
+                          <form onSubmit={e => { e.preventDefault(); if (!chatInput.trim()) return; onAddChatMessage(selectedTaskObj.task.id, userId, chatInput.trim()); setChatInput(''); }} className="p-4 sm:px-6 sm:py-4 border-t border-white/10 shrink-0 flex items-center gap-3" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                             <input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Post a coordination update..." className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 shadow-inner" />
                             <button type="submit" disabled={!chatInput.trim()} className="bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-800 disabled:text-slate-650 text-white p-3 md:px-5 rounded-xl transition-colors shrink-0 flex items-center gap-2 font-bold text-xs shadow-lg shadow-cyan-500/10 active:scale-95 duration-100 cursor-pointer"><Send className="w-4 h-4" /><span className="hidden md:inline">Send</span></button>
                           </form>
@@ -629,8 +629,8 @@ export default function MyTasks({
 
                                     return (
                                         <div key={rep.id} className="relative group animate-fade-in">
-                                          <div className="absolute left-[-31px] top-1 w-2.5 h-2.5 bg-[#0a0f1d] border-2 border-cyan-400 rounded-full group-hover:bg-cyan-400 duration-150 shrink-0" />
-                                          <div className="bg-[#11192e] border border-white/5 rounded-2xl p-4 space-y-3 shadow-md hover:border-white/10 transition-colors">
+                                          <div className="absolute left-[-31px] top-1 w-2.5 h-2.5 border-2 border-cyan-400 rounded-full group-hover:bg-cyan-400 duration-150 shrink-0" style={{ backgroundColor: 'var(--bg-primary)' }} />
+                                          <div className="bg-white/5 border border-white/5 rounded-2xl p-4 space-y-3 shadow-md hover:border-white/10 transition-colors">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-2.5">
                                               <div className="flex items-center gap-2">
                                                 <span className="text-xs font-bold text-slate-200">{reporter?.username || 'User'}</span>
