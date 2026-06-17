@@ -367,7 +367,8 @@ export default function PersonalTasksPage({
                       {taskRoles && taskRoles.length > 0 && (
                           <div className="mt-2 space-y-1">
                             {taskRoles.map((role: any) => {
-                              const assignedUser = users.find(u => u.id === role.userId || u.id === role.user_id);
+                              const roleUserId = String(role.userId || role.user_id || role.user || '');
+                              const assignedUser = users.find(u => String(u.id) === roleUserId);
                               return (
                                   <div key={role.id} className="flex justify-between items-center bg-black/40 border border-white/5 px-2 py-1.5 rounded-lg text-[10px]">
                             <span className="text-slate-300">
