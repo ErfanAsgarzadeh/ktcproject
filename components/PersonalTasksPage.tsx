@@ -109,8 +109,11 @@ export default function PersonalTasksPage({
 
     setDurationHours(task.duration);
 
-    const executorId = task.resources?.[0]?.id;
-    if (executorId) setSelectedUserId(executorId);
+    const executorName = task.resources?.[0];
+    if (executorName) {
+      const matchedUser = users.find(u => u.username === executorName || u.username.toLowerCase() === String(executorName).toLowerCase());
+      if (matchedUser) setSelectedUserId(matchedUser.id);
+    }
 
     // دریافت نقش‌های این تسک از سرور (اختیاری: اگر بک‌اند این API را دارد)
     try {
@@ -519,9 +522,11 @@ export default function PersonalTasksPage({
                         </tr>
                     ) : (
                         personalTasks.map(task => {
-                          const executorId = task.resources?.[0];
-                          // @ts-ignore
-                          const executor = users.find(u => u.id === executorId?.id);
+                          // resources آرایه‌ای از نام‌ها هست (مثل ["Ali"])
+                          const executorName = task.resources?.[0];
+                          const executor = executorName
+                              ? users.find(u => u.username === executorName || u.username.toLowerCase() === String(executorName).toLowerCase())
+                              : null;
 
                           const isEditing = editingTaskId === task.id;
 
