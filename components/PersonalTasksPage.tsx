@@ -504,7 +504,7 @@ export default function PersonalTasksPage({
                     <tr className="bg-white/5 border-b border-white/10 text-slate-400 font-mono tracking-wider text-[10px] uppercase">
                       <th className="p-3 pl-4">System ID</th>
                       <th className="p-3">Personal Task Title</th>
-                      <th className="p-3">Assigned Executor</th>
+                      <th className="p-3">Assigned Team</th>
                       <th className="p-3">Proposed Start</th>
                       <th className="p-3 text-center">Duration</th>
                       <th className="p-3 text-center">Actions</th>
@@ -523,12 +523,6 @@ export default function PersonalTasksPage({
                         </tr>
                     ) : (
                         personalTasks.map(task => {
-                          // resources آرایه‌ای از نام‌ها هست (مثل ["Ali"])
-                          const executorName = task.resources?.[0];
-                          const executor = executorName
-                              ? users.find(u => u.username === executorName || u.username.toLowerCase() === String(executorName).toLowerCase())
-                              : null;
-
                           const isEditing = editingTaskId === task.id;
 
                           return (
@@ -544,11 +538,22 @@ export default function PersonalTasksPage({
                                 <td className="p-3 pl-4 font-mono font-bold text-cyan-400 text-[10px] tracking-wide">{task.code}</td>
                                 <td className="p-3 font-bold text-white max-w-sm truncate" title={task.name}>{task.name}</td>
                                 <td className="p-3">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-lg bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-[9px] font-bold text-indigo-400">
-                                      {executor?.username.split(' ').map(n=>n[0]).join('').toUpperCase() || 'U'}
-                                    </div>
-                                    <span className="font-bold text-slate-200">{executor?.username.toUpperCase() || 'Unknown Executor'}</span>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    {(task.resources && task.resources.length > 0) ? (
+                                        task.resources.map((resName: string, idx: number) => {
+                                          const matchedUser = users.find(u => u.username === resName || u.username.toLowerCase() === String(resName).toLowerCase());
+                                          return (
+                                              <div key={idx} className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1">
+                                                <div className="w-4 h-4 rounded bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-[8px] font-bold text-indigo-400 shrink-0">
+                                                  {(matchedUser?.username || resName).substring(0, 2).toUpperCase()}
+                                                </div>
+                                                <span className="text-[10px] font-medium text-slate-200">{matchedUser?.username || resName}</span>
+                                              </div>
+                                          );
+                                        })
+                                    ) : (
+                                        <span className="text-[10px] text-slate-500 italic">No one assigned</span>
+                                    )}
                                   </div>
                                 </td>
                                 <td className="p-3 font-mono text-[10px] text-slate-300">{task.startDate}</td>
