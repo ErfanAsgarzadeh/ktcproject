@@ -440,7 +440,7 @@ export default function MyTasks({
                     </div>
                   </div>
 
-                  <div className="flex-1 overflow-hidden relative">
+                  <div className="flex-1 overflow-hidden relative flex flex-col">
                     {isLoadingReports && (
                         <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                           <Gauge className="w-8 h-8 text-cyan-500 animate-spin" />
@@ -449,7 +449,7 @@ export default function MyTasks({
 
                     {/* --- REPORT TAB --- */}
                     {activeTab === 'report' && (
-                        <div className="h-full overflow-y-auto px-6 py-6 md:px-8 space-y-6 scrollbar-thin">
+                        <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8 space-y-6 scrollbar-thin">
                           {formSuccess ? (
                               <div className="flex flex-col items-center justify-center text-center p-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl space-y-4 max-w-xl mx-auto">
                                 <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-md animate-bounce"><Check className="w-8 h-8" /></div>
@@ -560,7 +560,7 @@ export default function MyTasks({
 
                     {/* --- CHAT TAB --- */}
                     {activeTab === 'chat' && (
-                        <div className="h-full flex flex-col overflow-hidden bg-transparent">
+                        <div className="flex-1 flex flex-col overflow-hidden">
                           <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8 space-y-4 scrollbar-thin flex flex-col">
                             <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-2"><MessageSquare className="w-4 h-4 text-cyan-400 animate-pulse" /> Live Coordination Thread</h3>
                             <div className="flex-1 flex flex-col gap-4">
@@ -729,7 +729,7 @@ export default function MyTasks({
 
                     {/* --- HISTORY TAB --- */}
                     {activeTab === 'history' && (
-                        <div className="h-full overflow-y-auto px-6 py-6 md:px-8 space-y-6 scrollbar-thin">
+                        <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8 space-y-6 scrollbar-thin">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><FileText className="w-4 h-4 text-cyan-400" />Formal Task Reports Historical Archive</h3>
                             <span className="text-[10px] text-slate-500 font-mono">Durable State Logs</span>
