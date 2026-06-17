@@ -278,7 +278,7 @@ export default function App() {
       const taskMessages = chatMessages.filter(m => m.taskId === chatTaskId).sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
       return (
-          <div className="h-screen w-full flex flex-col font-sans" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+          <div className="h-full w-full flex flex-col font-sans" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             <div className="bg-white/5 backdrop-blur-md px-4 py-3 border-b border-white/10 shrink-0 select-none flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -722,7 +722,7 @@ export default function App() {
   // 6. Main UI Render
   // ==========================================
   return (
-      <div className="flex flex-col h-screen w-full overflow-hidden font-sans relative" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div className="flex flex-col h-full w-full overflow-hidden font-sans relative" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <div className="absolute top-[-10%] left-[-10%] w-full h-[40%] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none z-0"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-full h-[50%] bg-cyan-600/15 blur-[150px] rounded-full pointer-events-none z-0"></div>
 

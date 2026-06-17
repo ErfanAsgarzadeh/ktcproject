@@ -89,7 +89,7 @@ export default function ApprovalsRoutePage() {
     // 5. هندل کردن وضعیت‌های لودینگ و خطا پیش از رندر کامپوننت اصلی
     if (isLoading) {
         return (
-            <div className="h-screen w-screen flex flex-col items-center justify-center font-mono space-y-4" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-accent)' }}>
+            <div className="h-full w-full flex flex-col items-center justify-center font-mono space-y-4" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-accent)' }}>
                 <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-sm">در حال بارگذاری سیستم مدیریت گزارشات...</p>
             </div>
@@ -98,7 +98,7 @@ export default function ApprovalsRoutePage() {
 
     if (error) {
         return (
-            <div className="h-screen w-screen flex flex-col items-center justify-center text-rose-400 space-y-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
+            <div className="h-full w-full flex flex-col items-center justify-center text-rose-400 space-y-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <p>⚠️ {error}</p>
                 <button
                     onClick={() => window.location.reload()}
@@ -112,7 +112,7 @@ export default function ApprovalsRoutePage() {
 
     // 6. رندر کامپوننت اصلی و پاس دادن دیتای آماده شده
     return (
-        <div className="h-screen w-screen overflow-hidden">
+        <div className="h-full w-full overflow-hidden">
             <ApprovalsPage
                 users={users}
                 currentUser={currentUser}

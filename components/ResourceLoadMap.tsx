@@ -267,7 +267,7 @@ export default function ResourceLoadMap({
   const project  = revision ? projects.find(p => p.id === revision.projectId) : null;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: "'DM Mono', 'JetBrains Mono', monospace" }}>
+    <div className="h-full w-full overflow-y-auto" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: "'DM Mono', 'JetBrains Mono', monospace" }}>
 
       {/* ── glow backdrop ── */}
       <div className="fixed inset-0 pointer-events-none">
