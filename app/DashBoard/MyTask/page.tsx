@@ -108,7 +108,7 @@ export default function MyTasksUser() {
     }
 
     return(
-        <div className="h-screen w-screen overflow-hidden">
+        <div className="h-full w-full overflow-hidden">
             <MyTasks
                 users={users} // فقط یک کاربر (کاربر لاگین شده) پاس داده می‌شود
                 currentUser={currentUser} // پاس دادن کاربر فعلی به کامپوننت فرزند
