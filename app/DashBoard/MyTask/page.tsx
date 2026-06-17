@@ -52,8 +52,11 @@ export default function MyTasksUser() {
                     id: chat.id,
                     taskId: chat.task,
                     userId: chat.user,
-                    text: chat.text,
-                    timestamp: chat.timestamp
+                    text: chat.text || '',
+                    timestamp: chat.timestamp,
+                    fileUrl: chat.file_url || null,
+                    fileName: chat.file_name || '',
+                    fileType: chat.file_type || '',
                 }));
                 setChatMessages(formattedChats);
 
@@ -67,19 +70,28 @@ export default function MyTasksUser() {
         fetchInitialData();
     }, []);
 
-    const handleAddChatMessage = async (taskId: string, userId: string, text: string) => {
+    const handleAddChatMessage = async (taskId: string, userId: string, text: string, file?: File | null) => {
         try {
-            const res = await apiClient.post('/planning/task-chats/', {
-                task: taskId,
-                text: text
+            const formData = new FormData();
+            formData.append('task', taskId);
+            formData.append('text', text || '');
+            if (file) {
+                formData.append('file', file);
+            }
+
+            const res = await apiClient.post('/planning/task-chats/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             const newMsg: ChatMessage = {
                 id: res.data.id,
                 taskId: res.data.task,
                 userId: res.data.user,
-                text: res.data.text,
-                timestamp: res.data.timestamp
+                text: res.data.text || '',
+                timestamp: res.data.timestamp,
+                fileUrl: res.data.file_url || null,
+                fileName: res.data.file_name || '',
+                fileType: res.data.file_type || '',
             };
             setChatMessages(prev => [...prev, newMsg]);
         } catch (error) {

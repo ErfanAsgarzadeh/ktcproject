@@ -105,6 +105,9 @@ export interface ChatMessage {
   userId: string;
   text: string;
   timestamp: string;
+  fileUrl?: string | null;
+  fileName?: string;
+  fileType?: string;
 }
 
 export interface TaskReport {
