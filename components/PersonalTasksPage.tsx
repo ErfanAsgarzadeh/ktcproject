@@ -59,6 +59,7 @@ export default function PersonalTasksPage({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [personalTasks, setPersonalTasks] = useState<ProjectNode[]>([]);
+  const [allTaskRolesMap, setAllTaskRolesMap] = useState<Record<string, any[]>>({});
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -71,6 +72,27 @@ export default function PersonalTasksPage({
         setIsLoading(true);
         const response = await apiClient.get('/planning/personal-tasks/');
         setPersonalTasks(response.data);
+
+        // Fetch all task roles for these tasks
+        const taskIds = response.data.map((t: any) => t.id);
+        if (taskIds.length > 0) {
+          try {
+            const rolesRes = await apiClient.get('/planning/task-roles/');
+            const allRoles = rolesRes.data.results || rolesRes.data || [];
+            // Group roles by taskId
+            const rolesMap: Record<string, any[]> = {};
+            allRoles.forEach((role: any) => {
+              const tid = String(role.taskId || role.task_id || role.task || '');
+              if (taskIds.includes(tid)) {
+                if (!rolesMap[tid]) rolesMap[tid] = [];
+                rolesMap[tid].push(role);
+              }
+            });
+            setAllTaskRolesMap(rolesMap);
+          } catch (err) {
+            console.error("Could not fetch task roles:", err);
+          }
+        }
       } catch (err: any) {
         console.error(err);
         setErrorMsg("Failed to load tasks from server.");
@@ -539,21 +561,30 @@ export default function PersonalTasksPage({
                                 <td className="p-3 font-bold text-white max-w-sm truncate" title={task.name}>{task.name}</td>
                                 <td className="p-3">
                                   <div className="flex flex-wrap items-center gap-1.5">
-                                    {(task.resources && task.resources.length > 0) ? (
-                                        task.resources.map((resName: string, idx: number) => {
-                                          const matchedUser = users.find(u => u.username === resName || u.username.toLowerCase() === String(resName).toLowerCase());
-                                          return (
-                                              <div key={idx} className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1">
-                                                <div className="w-4 h-4 rounded bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-[8px] font-bold text-indigo-400 shrink-0">
-                                                  {(matchedUser?.username || resName).substring(0, 2).toUpperCase()}
-                                                </div>
-                                                <span className="text-[10px] font-medium text-slate-200">{matchedUser?.username || resName}</span>
-                                              </div>
-                                          );
-                                        })
-                                    ) : (
-                                        <span className="text-[10px] text-slate-500 italic">No one assigned</span>
-                                    )}
+                                    {(() => {
+                                      const roles = allTaskRolesMap[task.id] || [];
+                                      if (roles.length === 0) {
+                                        return <span className="text-[10px] text-slate-500 italic">No one assigned</span>;
+                                      }
+                                      return roles.map((role: any, idx: number) => {
+                                        const roleUserId = String(role.userId || role.user_id || role.user || '');
+                                        const matchedUser = users.find(u => String(u.id) === roleUserId);
+                                        const roleName = role.role || 'assigned';
+                                        const roleColors: Record<string, string> = {
+                                          owner: 'bg-amber-500/10 border-amber-500/25 text-amber-300',
+                                          reviewer: 'bg-violet-500/10 border-violet-500/25 text-violet-300',
+                                          executor: 'bg-cyan-500/10 border-cyan-500/25 text-cyan-300',
+                                          'project manager': 'bg-emerald-500/10 border-emerald-500/25 text-emerald-300',
+                                        };
+                                        const colorClass = roleColors[roleName] || 'bg-white/5 border-white/10 text-slate-300';
+                                        return (
+                                            <div key={idx} className={`flex items-center gap-1 border rounded-lg px-2 py-1 ${colorClass}`}>
+                                              <span className="text-[9px] font-bold font-mono uppercase">{roleName.substring(0, 3)}</span>
+                                              <span className="text-[10px] font-medium">{matchedUser?.username || 'User'}</span>
+                                            </div>
+                                        );
+                                      });
+                                    })()}
                                   </div>
                                 </td>
                                 <td className="p-3 font-mono text-[10px] text-slate-300">{task.startDate}</td>
