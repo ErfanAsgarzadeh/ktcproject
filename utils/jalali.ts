@@ -16,10 +16,10 @@
  */
 
 function div(a: number, b: number): number {
-  return Math.floor(a / b);
+  return Math.trunc(a / b);
 }
 function mod(a: number, b: number): number {
-  return a - Math.floor(a / b) * b;
+  return a - Math.trunc(a / b) * b;
 }
 
 interface JalCal {
