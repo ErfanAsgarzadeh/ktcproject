@@ -258,7 +258,7 @@ export default function MyTasks({
   };
 
   return (
-      <div className="h-full bg-[#0a0f1d] flex flex-col font-sans text-slate-200">
+      <div className="h-full flex flex-col font-sans" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
         {/* --- MAIN CONTAINER --- */}
         <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
@@ -382,7 +382,7 @@ export default function MyTasks({
           </div>
 
           {/* --- RIGHT COLUMN: WORKSPACE --- */}
-          <div className="flex-1 flex flex-col overflow-hidden bg-[#0a0f1d] relative">
+          <div className="flex-1 flex flex-col overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
             {!selectedTaskObj ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-500 p-8 text-center space-y-5">

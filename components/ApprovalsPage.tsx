@@ -288,7 +288,7 @@ export default function ApprovalsPage({
     };
 
     return (
-        <div className="h-full bg-[#0a0f1d] flex flex-col font-sans text-slate-200 overflow-hidden relative">
+        <div className="h-full flex flex-col font-sans overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
 
             {/* BODY CONTEXT ROWS */}

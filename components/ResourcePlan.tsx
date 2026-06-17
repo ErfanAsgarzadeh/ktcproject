@@ -356,7 +356,7 @@ export default function ResourcePlan({
   const unassignedTasks  = nodes.filter(n => n.type === 'activity' && !taskRoles.some(r => r.taskId === n.id)).length;
 
   return (
-    <div className="min-h-screen bg-[#07090f] text-slate-200 font-sans">
+    <div className="min-h-screen font-sans" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
       {/* ── Background glows ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

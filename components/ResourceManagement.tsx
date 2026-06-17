@@ -325,7 +325,7 @@ export default function ResourceManagement({
 
     if (isLoading) {
         return (
-            <div className="h-full flex items-center justify-center bg-[#070b19]">
+            <div className="h-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <div className="flex flex-col items-center gap-4 text-cyan-500">
                     <Loader2 className="w-10 h-10 animate-spin" />
                     <span className="font-mono text-sm tracking-widest uppercase">Syncing with Django Backend...</span>
@@ -335,9 +335,9 @@ export default function ResourceManagement({
     }
 
     return (
-        <div className="h-full flex flex-col overflow-hidden bg-[#070b19] text-slate-200">
+        <div className="h-full flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             {/* Dynamic Tab Switcher bar */}
-            <div className="bg-[#0b1021]/80 px-6 py-3 border-b border-white/5 shrink-0 flex items-center justify-between select-none">
+            <div className="bg-white/5 px-6 py-3 border-b border-white/5 shrink-0 flex items-center justify-between select-none">
                 <div className="flex items-center gap-3">
                     <Layers className="w-5 h-5 text-cyan-400" />
                     <div>
@@ -349,7 +349,7 @@ export default function ResourceManagement({
 
             <div className="flex-grow flex overflow-hidden">
                 {/* Sub-navigation inside accounts view */}
-                <div className="w-[200px] sm:w-[240px] shrink-0 border-r border-white/5 bg-[#090e1e]/60 flex flex-col py-4 p-3 gap-1">
+                <div className="w-[200px] sm:w-[240px] shrink-0 border-r border-white/5 flex flex-col py-4 p-3 gap-1" style={{ backgroundColor: 'var(--overlay-bg)' }}>
                     <span className="text-[9px] font-mono font-bold tracking-widest text-slate-500 uppercase px-3 select-none mb-2">LEDGER SUB-MODULES</span>
 
                     <button
@@ -506,7 +506,7 @@ export default function ResourceManagement({
                             </div>
 
                             {/* Sub-section: Resource Skills Qualification mapping */}
-                            <div className="bg-[#0b1021]/50 border border-white/5 rounded-2xl p-5 space-y-4 shadow-lg">
+                            <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4 shadow-lg">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Award className="w-4 h-4 text-cyan-400" />

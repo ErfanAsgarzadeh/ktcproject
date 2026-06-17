@@ -157,7 +157,7 @@ export default function LoginPage({
   };
 
   return (
-      <div className="h-screen w-full bg-[#0a0f1d] text-slate-200 flex flex-col justify-between font-sans relative overflow-hidden">
+      <div className="h-screen w-full flex flex-col justify-between font-sans relative overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         {/* Background radial glowing ambient lights */}
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none z-0" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none z-0" />
