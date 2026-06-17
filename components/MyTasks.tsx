@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { CustomUser, TaskRole, Project, Revision, ChatMessage, TaskReport } from '../types/types'; // مسیر types خود را چک کنید
 import { apiClient } from '../lib/api'; // مسیر api خود را چک کنید
 import {
   ArrowLeft, CheckCircle, MessageSquare, Briefcase, Clock,
   Check, Send, Sun, Moon, AlertTriangle, Trash2,
-  AlertOctagon, Sparkles, FileText, Compass, Hourglass, Gauge
+  AlertOctagon, Sparkles, FileText, Compass, Hourglass, Gauge,
+  Paperclip, Image, File, X, Download
 } from 'lucide-react';
 
 interface MyTasksProps {
@@ -15,7 +16,7 @@ interface MyTasksProps {
   tasks: any[];
   chatMessages: ChatMessage[];
   onExit: () => void;
-  onAddChatMessage: (taskId: string, userId: string, text: string) => void;
+  onAddChatMessage: (taskId: string, userId: string, text: string, file?: File | null) => void;
   onGlobalProgressUpdate: (revisionId: string, taskId: string, progress: number) => void;
   isLightMode?: boolean;
   onToggleTheme?: () => void;
@@ -66,6 +67,9 @@ export default function MyTasks({
   const [blockersText, setBlockersText] = useState('');
   const [notesText, setNotesText] = useState('');
   const [chatInput, setChatInput] = useState('');
+  const [chatFile, setChatFile] = useState<File | null>(null);
+  const [chatFilePreview, setChatFilePreview] = useState<string | null>(null);
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
   const [formSuccess, setFormSuccess] = useState(false);
 
   // API Data States
@@ -573,9 +577,10 @@ export default function MyTasks({
                                   const sender = users?.find(u => u.id === msg.userId) || currentUser;
                                   const isMe = msg.userId === userId;
                                   const isReportNode = msg.text.includes('FORMAL TASK REPORT');
+                                  const isImage = msg.fileType?.startsWith('image/');
 
                                   return (
-                                      <div key={msg.id} className={`max-w-xl p-4 rounded-2xl shadow-md border ${isMe ? 'self-end bg-[#132244]/80 border-cyan-500/30' : isReportNode ? 'self-start bg-[#1c1c28] border-indigo-500/30 w-full' : 'self-start bg-slate-800/60 border-white/10'}`}>
+                                      <div key={msg.id} className={`max-w-xl p-4 rounded-2xl shadow-md border ${isMe ? 'self-end bg-white/10 border-cyan-500/30' : isReportNode ? 'self-start bg-white/5 border-indigo-500/30 w-full' : 'self-start bg-white/5 border-white/10'}`}>
                                         <div className="flex items-center justify-between gap-6 mb-2">
                                           <div className="flex items-center gap-1.5">
                                             <div className={`w-4 h-4 text-[9px] font-black font-mono rounded flex items-center justify-center ${isMe ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700 text-slate-300'}`}>
@@ -585,16 +590,139 @@ export default function MyTasks({
                                           </div>
                                           <span className="text-[10px] text-slate-500 font-mono">{new Date(msg.timestamp).toLocaleDateString()} {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>
-                                        <div className="text-xs text-slate-200 leading-relaxed font-sans whitespace-pre-wrap selection:bg-cyan-500/30">{msg.text}</div>
+
+                                        {/* Text content */}
+                                        {msg.text && (
+                                            <div className="text-xs text-slate-200 leading-relaxed font-sans whitespace-pre-wrap selection:bg-cyan-500/30">{msg.text}</div>
+                                        )}
+
+                                        {/* File attachment display */}
+                                        {msg.fileUrl && (
+                                            <div className="mt-3">
+                                              {isImage ? (
+                                                  <div className="rounded-xl overflow-hidden border border-white/10 max-w-[280px]">
+                                                    <img
+                                                        src={msg.fileUrl}
+                                                        alt={msg.fileName || 'Attached image'}
+                                                        className="w-full h-auto max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                        onClick={() => window.open(msg.fileUrl!, '_blank')}
+                                                    />
+                                                    <div className="flex items-center justify-between px-2.5 py-1.5 bg-black/20 text-[10px] text-slate-400">
+                                                      <span className="truncate max-w-[180px]">{msg.fileName}</span>
+                                                      <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300"><Download className="w-3 h-3" /></a>
+                                                    </div>
+                                                  </div>
+                                              ) : (
+                                                  <a
+                                                      href={msg.fileUrl}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-white/10 bg-black/20 hover:bg-white/5 transition-colors max-w-[280px]"
+                                                  >
+                                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center shrink-0">
+                                                      <File className="w-4 h-4 text-indigo-400" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                      <div className="text-xs text-slate-200 font-medium truncate">{msg.fileName || 'Attachment'}</div>
+                                                      <div className="text-[10px] text-slate-500 font-mono">{msg.fileType || 'file'}</div>
+                                                    </div>
+                                                    <Download className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                                                  </a>
+                                              )}
+                                            </div>
+                                        )}
                                       </div>
                                   )
                                 })
                               })()}
                             </div>
                           </div>
-                          <form onSubmit={e => { e.preventDefault(); if (!chatInput.trim()) return; onAddChatMessage(selectedTaskObj.task.id, userId, chatInput.trim()); setChatInput(''); }} className="p-4 sm:px-6 sm:py-4 border-t border-white/10 shrink-0 flex items-center gap-3" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-                            <input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Post a coordination update..." className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 shadow-inner" />
-                            <button type="submit" disabled={!chatInput.trim()} className="bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-800 disabled:text-slate-650 text-white p-3 md:px-5 rounded-xl transition-colors shrink-0 flex items-center gap-2 font-bold text-xs shadow-lg shadow-cyan-500/10 active:scale-95 duration-100 cursor-pointer"><Send className="w-4 h-4" /><span className="hidden md:inline">Send</span></button>
+
+                          {/* File preview bar */}
+                          {chatFile && (
+                              <div className="px-6 py-2 border-t border-white/5 flex items-center gap-3" style={{ backgroundColor: 'var(--overlay-bg)' }}>
+                                {chatFilePreview ? (
+                                    <img src={chatFilePreview} alt="preview" className="w-10 h-10 rounded-lg object-cover border border-white/10" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center">
+                                      <File className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs text-slate-200 font-medium truncate">{chatFile.name}</div>
+                                  <div className="text-[10px] text-slate-500 font-mono">{(chatFile.size / 1024).toFixed(1)} KB</div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => { setChatFile(null); setChatFilePreview(null); }}
+                                    className="p-1.5 hover:bg-white/5 text-slate-400 hover:text-rose-400 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                          )}
+
+                          {/* Chat input form with attach button */}
+                          <form
+                              onSubmit={e => {
+                                e.preventDefault();
+                                if (!chatInput.trim() && !chatFile) return;
+                                onAddChatMessage(selectedTaskObj.task.id, userId, chatInput.trim(), chatFile);
+                                setChatInput('');
+                                setChatFile(null);
+                                setChatFilePreview(null);
+                              }}
+                              className="p-4 sm:px-6 sm:py-4 border-t border-white/10 shrink-0 flex items-center gap-2"
+                              style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                          >
+                            {/* Hidden file input */}
+                            <input
+                                ref={chatFileInputRef}
+                                type="file"
+                                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.txt"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setChatFile(file);
+                                    if (file.type.startsWith('image/')) {
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => setChatFilePreview(ev.target?.result as string);
+                                      reader.readAsDataURL(file);
+                                    } else {
+                                      setChatFilePreview(null);
+                                    }
+                                  }
+                                  e.target.value = '';
+                                }}
+                            />
+
+                            {/* Attach button */}
+                            <button
+                                type="button"
+                                onClick={() => chatFileInputRef.current?.click()}
+                                className="p-2.5 hover:bg-white/5 text-slate-400 hover:text-cyan-400 rounded-xl border border-white/10 transition-colors shrink-0"
+                                title="Attach file or image"
+                            >
+                              <Paperclip className="w-4 h-4" />
+                            </button>
+
+                            {/* Text input */}
+                            <input
+                                value={chatInput}
+                                onChange={e => setChatInput(e.target.value)}
+                                placeholder="Post a coordination update..."
+                                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 shadow-inner"
+                            />
+
+                            {/* Send button */}
+                            <button
+                                type="submit"
+                                disabled={!chatInput.trim() && !chatFile}
+                                className="bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-800 disabled:text-slate-650 text-white p-3 md:px-5 rounded-xl transition-colors shrink-0 flex items-center gap-2 font-bold text-xs shadow-lg shadow-cyan-500/10 active:scale-95 duration-100 cursor-pointer"
+                            >
+                              <Send className="w-4 h-4" /><span className="hidden md:inline">Send</span>
+                            </button>
                           </form>
                         </div>
                     )}
