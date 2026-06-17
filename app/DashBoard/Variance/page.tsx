@@ -56,7 +56,7 @@ export default function EVMDashboardPage() {
 
     if (isLoading) {
         return (
-            <div className="h-screen w-full flex items-center justify-center bg-[#070b19]">
+            <div className="h-full w-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-cyan-400 font-mono text-sm tracking-widest font-bold uppercase">
@@ -68,7 +68,7 @@ export default function EVMDashboardPage() {
     }
 
     return (
-        <main className="h-screen w-full overflow-hidden">
+        <main className="h-full w-full overflow-hidden">
             <VarianceControlPage
                 projects={projects}
                 revisions={revisions}

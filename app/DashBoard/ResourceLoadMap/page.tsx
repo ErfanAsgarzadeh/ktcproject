@@ -31,13 +31,13 @@ export default function ResourceLoadMapPage() {
   }, []);
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-[#07090f]">
+    <div className="h-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   if (error) return (
-    <div className="h-screen flex items-center justify-center bg-[#07090f] text-rose-400 text-sm font-mono">
+    <div className="h-full flex items-center justify-center text-rose-400 text-sm font-mono" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {error}
     </div>
   );

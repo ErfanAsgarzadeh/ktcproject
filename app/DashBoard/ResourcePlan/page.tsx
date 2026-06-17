@@ -73,7 +73,7 @@ export default function ResourcePlanPage() {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#07090f] gap-4">
+      <div className="h-full w-full flex flex-col items-center justify-center gap-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="w-10 h-10 border-[3px] border-cyan-500 border-t-transparent rounded-full animate-spin" />
         <p className="text-xs font-mono text-slate-500">Loading resource plan…</p>
       </div>
@@ -82,7 +82,7 @@ export default function ResourcePlanPage() {
 
   if (error) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#07090f] gap-3">
+      <div className="h-full w-full flex flex-col items-center justify-center gap-3" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <p className="text-sm text-rose-400 font-mono">{error}</p>
         <button
           onClick={() => window.location.reload()}

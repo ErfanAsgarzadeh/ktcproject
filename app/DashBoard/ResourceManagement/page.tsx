@@ -83,7 +83,7 @@ export default function ResourceManagementPage() {
     // ==========================================
     if (isLoading) {
         return (
-            <div className="h-screen w-full flex items-center justify-center bg-[#070b19] text-cyan-500">
+            <div className="h-full w-full flex items-center justify-center text-cyan-500" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <div className="flex flex-col items-center gap-3">
                     <Loader2 className="w-8 h-8 animate-spin" />
                     <span className="font-mono text-sm tracking-widest uppercase">Loading Project Workspace...</span>
@@ -93,10 +93,10 @@ export default function ResourceManagementPage() {
     }
 
     return (
-        <div className={`h-screen w-full flex flex-col ${isLightMode ? 'bg-slate-50' : 'bg-[#070b19]'}`}>
+        <div className="h-full w-full flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
             {/* هدر صفحه */}
-            <header className="px-6 py-4 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#0b1021]">
+            <header className="px-6 py-4 border-b border-white/5 flex justify-between items-center shrink-0" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
                         <span className="text-white font-bold text-lg leading-none">R</span>
