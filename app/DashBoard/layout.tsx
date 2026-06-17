@@ -30,9 +30,9 @@ export default function DashboardLayout({
   }
 
   return (
-      <div className="h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div className="h-screen overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <Navbar />
-        <main className="transition-all duration-300">
+        <main className="flex-1 overflow-hidden transition-all duration-300">
           {children}
         </main>
       </div>
