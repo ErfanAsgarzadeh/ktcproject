@@ -296,7 +296,7 @@ export default function VarianceControlPage({
     // ----------------------------------------------------------------------
 
     return (
-        <div className="h-full flex flex-col overflow-hidden bg-[#070b19] text-slate-200 relative">
+        <div className="h-full flex flex-col overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
             {/* Overlay Loading State */}
     {(isLoading || isCalculating) && (
@@ -512,7 +512,7 @@ export default function VarianceControlPage({
 
     {/* Modal Form */}
     {showFormModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
         <div className="bg-[#0b1021] border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
         <div className="bg-[#11162a] px-6 py-4 border-b border-white/5 flex items-center justify-between">
         <h3 className="text-xs font-mono font-bold uppercase text-white"><Sparkles className="w-4 h-4 inline mr-2 text-cyan-400" />{editingReportId ? 'Edit Record' : 'Manual Entry'}</h3>

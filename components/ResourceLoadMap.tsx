@@ -85,8 +85,8 @@ function Tooltip({ data, onClose }: { data: TooltipData; onClose: () => void }) 
   const cfg = STATUS_CONFIG[data.bucket.status];
   return (
     <div
-      className="fixed z-50 w-72 rounded-2xl border border-white/10 bg-[#0d111e]/95 backdrop-blur-xl shadow-2xl shadow-black/60 p-4 text-xs"
-      style={{ left: data.x, top: data.y, transform: 'translate(-50%, -110%)' }}
+      className="fixed z-50 w-72 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl p-4 text-xs"
+      style={{ left: data.x, top: data.y, transform: 'translate(-50%, -110%)', backgroundColor: 'var(--bg-secondary)' }}
     >
       {/* header */}
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -267,7 +267,7 @@ export default function ResourceLoadMap({
   const project  = revision ? projects.find(p => p.id === revision.projectId) : null;
 
   return (
-    <div className="min-h-screen bg-[#07090f] text-slate-200" style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace" }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: "'DM Mono', 'JetBrains Mono', monospace" }}>
 
       {/* ── glow backdrop ── */}
       <div className="fixed inset-0 pointer-events-none">

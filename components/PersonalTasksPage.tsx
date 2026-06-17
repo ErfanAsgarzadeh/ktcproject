@@ -223,7 +223,7 @@ export default function PersonalTasksPage({
   };
 
   return (
-      <div className="h-full flex flex-col overflow-hidden bg-[#070b19] text-slate-200">
+      <div className="h-full flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         {/* Header */}
         <header className="bg-white/5 backdrop-blur-md border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl shrink-0 z-25">
           <div className="flex items-center gap-4">
@@ -258,8 +258,8 @@ export default function PersonalTasksPage({
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
           {/* Left Side: Create / Edit form */}
-          <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 bg-[#090e1e]/60 p-6 overflow-y-auto space-y-6">
-            <div className={`bg-[#11162a]/80 border ${editingTaskId ? 'border-amber-500/50' : 'border-white/10'} p-4 rounded-2xl relative shadow-md transition-colors`}>
+          <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 p-6 overflow-y-auto space-y-6" style={{ backgroundColor: 'var(--overlay-bg)' }}>
+            <div className={`bg-white/5 border ${editingTaskId ? 'border-amber-500/50' : 'border-white/10'} p-4 rounded-2xl relative shadow-md transition-colors`}>
               <div className="absolute top-2 right-2 flex gap-1">
                 <span className={`w-1.5 h-1.5 rounded-full animate-ping ${editingTaskId ? 'bg-amber-400' : 'bg-cyan-400'}`} />
                 <span className={`w-1.5 h-1.5 rounded-full ${editingTaskId ? 'bg-amber-600' : 'bg-indigo-400'}`} />
