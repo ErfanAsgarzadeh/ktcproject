@@ -7,7 +7,7 @@ import React, { useMemo, useRef, useCallback } from 'react';
 import { ProjectNode, ActivityNode, Dependency, ZoomLevel } from '../types/types';
 import { parseDateStr, formatDate, isWeekend } from '../utils/scheduler';
 import { jalaliFromDate, JALALI_MONTHS, JALALI_WEEKDAYS } from '../utils/jalali';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Crosshair } from 'lucide-react';
 
 interface GanttChartProps {
   flattenedNodes: { node: ProjectNode; depth: number; isHidden: boolean }[];
@@ -19,6 +19,8 @@ interface GanttChartProps {
   onGanttScroll: (e: React.UIEvent<HTMLDivElement>) => void;
   ganttContainerRef: React.RefObject<HTMLDivElement | null>;
   isEditMode?: boolean;
+  projectStart?: string | null;   // revision/project start (Gregorian)
+  projectEnd?: string | null;     // revision/project end (Gregorian)
 }
 
 export default function GanttChart({
@@ -31,15 +33,23 @@ export default function GanttChart({
                                      onGanttScroll,
                                      ganttContainerRef,
                                      isEditMode = true,
+                                     projectStart,
+                                     projectEnd,
                                    }: GanttChartProps) {
   const visibleRows = useMemo(() => flattenedNodes.filter(row => !row.isHidden), [flattenedNodes]);
 
-  // Determine timeline boundary dates based on the project spectrum
+  // Determine timeline boundary dates: from project start → last task end
   const { timelineStart, timelineEnd, calendarDays } = useMemo(() => {
     let minDate = '';
     let maxDate = '';
     let minMs = Infinity;
     let maxMs = -Infinity;
+
+    // Seed with the project/revision start & end if provided
+    const seedStart = projectStart ? projectStart.split('T')[0].split(' ')[0] : '';
+    const seedEnd = projectEnd ? projectEnd.split('T')[0].split(' ')[0] : '';
+    if (seedStart) { minMs = parseDateStr(seedStart).getTime(); minDate = seedStart; }
+    if (seedEnd) { maxMs = parseDateStr(seedEnd).getTime(); maxDate = seedEnd; }
 
     flattenedNodes.forEach(({ node }) => {
       if (!node.startDate || !node.endDate) return;
@@ -58,28 +68,26 @@ export default function GanttChart({
       maxDate = formatDate(future);
     }
 
-    // Buffer range: extract date-only for boundary alignment
     const startDateOnly = minDate.split('T')[0].split(' ')[0];
     const endDateOnly   = maxDate.split('T')[0].split(' ')[0];
 
+    // Small leading buffer (2 days) so the project start sits near the left edge
     const start = parseDateStr(startDateOnly);
-    const dayOfWeek = start.getDay(); // 0 is Sunday, 1 is Mon etc
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    start.setDate(start.getDate() - (daysToSubtract + 7)); // Add extra 1 week buffer
+    start.setDate(start.getDate() - 2);
 
+    // Small trailing buffer (7 days) after the last task / project end
     const end = parseDateStr(endDateOnly);
-    const daysToAdd = 5 - end.getDay();
-    end.setDate(end.getDate() + (daysToAdd <= 0 ? 7 : daysToAdd) + 14); // Add extra 2 weeks buffer
+    end.setDate(end.getDate() + 7);
 
     const totalMs = end.getTime() - start.getTime();
-    const daysCount = Math.ceil(totalMs / (24 * 60 * 60 * 1000));
+    const daysCount = Math.max(1, Math.ceil(totalMs / (24 * 60 * 60 * 1000)));
 
     return {
       timelineStart: start,
       timelineEnd: end,
       calendarDays: daysCount,
     };
-  }, [flattenedNodes]);
+  }, [flattenedNodes, projectStart, projectEnd]);
 
   const timelineStartStr = useMemo(() => formatDate(timelineStart), [timelineStart]);
 
@@ -386,6 +394,32 @@ export default function GanttChart({
     el.scrollBy({ left: amount, behavior: 'smooth' });
   }, [ganttContainerRef]);
 
+  // Recenter: scroll back to the project start (or today if it's in range).
+  const goToStart = useCallback(() => {
+    const el = ganttContainerRef.current;
+    if (!el) return;
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    // Prefer "today" if it falls within the visible timeline, else project start.
+    const now = new Date();
+    let targetMs = now.getTime();
+    if (now < timelineStart || now > timelineEnd) {
+      // jump to the project/timeline start instead
+      targetMs = timelineStart.getTime();
+    }
+    const daysFromStart = (targetMs - timelineStart.getTime()) / MS_PER_DAY;
+
+    let x = 0;
+    switch (zoomLevel) {
+      case 'hour': x = daysFromStart * 24 * columnWidth; break;
+      case 'day': x = daysFromStart * columnWidth; break;
+      case 'week': x = (daysFromStart / 7) * columnWidth; break;
+      case 'month': x = (daysFromStart / 30.43) * columnWidth; break;
+    }
+    // leave a little padding on the left
+    el.scrollTo({ left: Math.max(0, x - 80), behavior: 'smooth' });
+  }, [ganttContainerRef, timelineStart, timelineEnd, zoomLevel, columnWidth]);
+
   return (
       <div className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative select-none">
         {/* ◀ ▶ Floating navigation buttons */}
@@ -406,6 +440,18 @@ export default function GanttChart({
             title="Scroll right"
         >
           <ChevronRight className="w-4 h-4" />
+        </button>
+
+        {/* Recenter / "Go to start" button */}
+        <button
+            type="button"
+            onClick={goToStart}
+            className="absolute right-2 top-2 z-30 flex items-center gap-1.5 px-3 h-8 rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 text-[11px] font-bold"
+            style={{ backgroundColor: 'var(--text-accent)', color: '#ffffff', border: '1px solid var(--border-medium)' }}
+            title="بازگشت به شروع پروژه / امروز"
+        >
+          <Crosshair className="w-3.5 h-3.5" />
+          <span>برو به شروع</span>
         </button>
 
         {/* 1. Synced Double Header Timescale Row */}
