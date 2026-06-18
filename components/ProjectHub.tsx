@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Layers,
     Plus,
@@ -14,17 +14,19 @@ import {
     Building,
     Copy,
     Lock,
-    Edit2
+    Edit2,
+    CalendarDays
 } from 'lucide-react';
 import { Project, Revision } from '../types/types';
 import JalaliDatePicker from './JalaliDatePicker';
 import { gregorianToJalaliString } from '../utils/jalali';
+import { apiClient } from '../lib/api';
 
 interface ProjectHubProps {
     projects: Project[];
     activeProjectId: string | null;
     onSelectProject: (id: string) => void;
-    onAddProject: (name: string, description: string, startDate: string, endDate: string) => void;
+    onAddProject: (name: string, description: string, startDate: string, endDate: string, calendarId?: string | null) => void;
     onDeleteProject: (id: string) => void;
 
     revisions: Revision[];
@@ -37,6 +39,7 @@ interface ProjectHubProps {
 
     onEnterWorkspace: () => void;
     nodesCountByRevision: Record<string, number>;
+    onAttachCalendar?: (projectId: string, calendarId: string | null) => void;
 }
 
 export default function ProjectHub({
@@ -54,6 +57,7 @@ export default function ProjectHub({
                                        onUpdateRevisionDates,
                                        onEnterWorkspace,
                                        nodesCountByRevision,
+                                       onAttachCalendar,
                                    }: ProjectHubProps) {
     const [activeTab, setActiveTab] = useState<'projects' | 'create'>('projects');
 
@@ -62,6 +66,15 @@ export default function ProjectHub({
     const [newProjDesc, setNewProjDesc] = useState('');
     const [newProjStart, setNewProjStart] = useState(new Date().toISOString().split('T')[0]);
     const [newProjEnd, setNewProjEnd] = useState('');
+    const [newProjCalendarId, setNewProjCalendarId] = useState('');
+
+    // Available calendars (standalone templates)
+    const [calendars, setCalendars] = useState<any[]>([]);
+    useEffect(() => {
+        apiClient.get('/planning/calendars/?templates=true')
+            .then(res => setCalendars(res.data.results || res.data))
+            .catch(err => console.error('Failed to load calendars', err));
+    }, []);
 
     // States for new revision form
     const [newRevDesc, setNewRevDesc] = useState('');
@@ -77,9 +90,10 @@ export default function ProjectHub({
     const handleCreateProject = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newProjName.trim()) return;
-        onAddProject(newProjName.trim(), newProjDesc.trim(), newProjStart, newProjEnd);
+        onAddProject(newProjName.trim(), newProjDesc.trim(), newProjStart, newProjEnd, newProjCalendarId || null);
         setNewProjName('');
         setNewProjDesc('');
+        setNewProjCalendarId('');
         setActiveTab('projects');
     };
 
@@ -238,6 +252,21 @@ export default function ProjectHub({
                                                 <Building className="w-5 h-5 text-indigo-400" />
                                                 {selectedProject.name}
                                             </h2>
+                                            {/* الصاق/تغییر تقویم پروژه */}
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <CalendarDays className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                                                <select
+                                                    value={(selectedProject as any).calendarId ?? ''}
+                                                    onChange={(e) => onAttachCalendar?.(selectedProject.id, e.target.value || null)}
+                                                    className="bg-black/40 border border-white/10 hover:border-cyan-500/50 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
+                                                    title="تقویم کاری این پروژه"
+                                                >
+                                                    <option value="" className="bg-slate-950">— بدون تقویم —</option>
+                                                    {calendars.map(c => (
+                                                        <option key={c.id} value={c.id} className="bg-slate-950">{c.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                         <span className="text-xs text-slate-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full font-mono">
                       {selectedProjectRevisions.length} Relational Revisions
@@ -510,6 +539,28 @@ export default function ProjectHub({
                                         rows={3}
                                         className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans resize-none"
                                     />
+                                </div>
+
+                                {/* انتخاب تقویم کاری */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                                        <CalendarDays className="w-3.5 h-3.5 text-cyan-400" /> Work Calendar (تقویم کاری)
+                                    </label>
+                                    <select
+                                        value={newProjCalendarId}
+                                        onChange={(e) => setNewProjCalendarId(e.target.value)}
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-cyan-400 transition-all font-sans"
+                                    >
+                                        <option value="" className="bg-slate-950">— بدون تقویم (پیش‌فرض) —</option>
+                                        {calendars.map(c => (
+                                            <option key={c.id} value={c.id} className="bg-slate-950">{c.name}</option>
+                                        ))}
+                                    </select>
+                                    {calendars.length === 0 && (
+                                        <p className="text-[10px] text-amber-400/80 ml-1">
+                                            هنوز تقویمی تعریف نشده — از صفحه «مدیریت تقویم‌ها» یک تقویم بسازید.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="pt-2">

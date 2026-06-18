@@ -353,14 +353,15 @@ export default function App() {
 
   const handleSelectRevision = (id: string) => setActiveRevisionId(id);
 
-  const handleAddProject = async (name: string, description: string, startDate: string, endDate: string) => {
+  const handleAddProject = async (name: string, description: string, startDate: string, endDate: string, calendarId?: string | null) => {
     try {
       // ارسال پارامترهای جدید به بک‌اند
       const res = await apiClient.post('/planning/projects/', {
         name,
         description,
         start_date: startDate,
-        end_date: endDate
+        end_date: endDate,
+        calendarId: calendarId || null
       });
 
       setProjects([...projects, res.data]);
@@ -381,8 +382,18 @@ export default function App() {
     }
   };
 
-  const handleUpdateRevisionDates = async (revisionId: string, newStart: string, newEnd: string) => {
+  // الصاق/تغییر تقویم یک پروژه موجود
+  const handleAttachCalendar = async (projectId: string, calendarId: string | null) => {
     try {
+      const res = await apiClient.patch(`/planning/projects/${projectId}/`, { calendarId: calendarId || null });
+      setProjects(prev => prev.map(p => p.id === projectId ? res.data : p));
+    } catch (err) {
+      console.error("Error attaching calendar:", err);
+      alert("خطا در الصاق تقویم به پروژه.");
+    }
+  };
+
+  const handleUpdateRevisionDates = async (revisionId: string, newStart: string, newEnd: string) => {    try {
       // ارسال درخواست پچ به بک‌اند برای آپدیت تاریخ‌ها
       await apiClient.patch(`/planning/revisions/${revisionId}/`, {
         projectStart: newStart,
@@ -790,6 +801,7 @@ export default function App() {
                 onDeleteRevision={handleDeleteRevision}
                 onEnterWorkspace={() => setCurrentView('workspace')}
                 nodesCountByRevision={nodesCountByRevision}
+                onAttachCalendar={handleAttachCalendar}
             />
         ) : (
             <>
