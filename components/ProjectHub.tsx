@@ -121,7 +121,7 @@ export default function ProjectHub({
                             </div>
                             <div>
                                 <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
-                                    Nexus Project & Revision Hub
+                                    NOVIRA Project & Revision Hub
                                 </h1>
                                 <p className="text-xs text-slate-400">
                                     Select and replicate scheduled revisions aligned with critical path calculations.

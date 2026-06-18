@@ -173,7 +173,7 @@ export default function LoginPage({
             </div>
             <div>
               <span className="text-xs uppercase font-bold tracking-wider text-cyan-400 font-mono">Operations Portal v3.7</span>
-              <h1 className="text-base font-extrabold text-white tracking-tight">Nexus Workspace CPM</h1>
+              <h1 className="text-base font-extrabold text-white tracking-tight">NOVIRA Workspace CPM</h1>
             </div>
           </div>
 

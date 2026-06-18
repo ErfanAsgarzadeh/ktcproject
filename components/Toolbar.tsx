@@ -242,7 +242,7 @@ export default function Toolbar({
             </div>
             <div>
               <h1 className="text-lg font-semibold font-sans tracking-tight text-white flex items-center gap-2">
-                Nexus Enterprise
+                NOVIRA
                 <span className="text-xs font-mono font-normal text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/10 backdrop-blur-sm">
                 / {projectName}
               </span>
