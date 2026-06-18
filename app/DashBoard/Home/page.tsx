@@ -11,6 +11,7 @@ import {
     Users,
     CalendarRange,
     TrendingUp,
+    CalendarDays,
 } from 'lucide-react';
 
 const pages = [
@@ -49,6 +50,15 @@ const pages = [
         color: '#d97706',
         bgColor: 'rgba(217, 119, 6, 0.08)',
         borderColor: 'rgba(217, 119, 6, 0.2)',
+    },
+    {
+        title: 'Work Calendars',
+        description: 'Define working calendars (hours & holidays) and attach them to projects.',
+        href: '/DashBoard/Calendars',
+        icon: CalendarDays,
+        color: '#0ea5e9',
+        bgColor: 'rgba(14, 165, 233, 0.08)',
+        borderColor: 'rgba(14, 165, 233, 0.2)',
     },
     {
         title: 'Resource Plan',

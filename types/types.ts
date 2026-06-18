@@ -87,6 +87,8 @@ export interface Project {
   name: string;
   description: string;
   createdAt: string;
+  calendarId?: string | number | null;
+  calendarName?: string | null;
 }
 
 export interface Revision {
