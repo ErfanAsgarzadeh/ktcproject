@@ -204,15 +204,18 @@ export function getFlattenedHierarchyList(
 
   const result: { node: ProjectNode; depth: number; isHidden: boolean }[] = [];
 
-  // تابع کمکی برای مرتب‌سازی: اول بر اساس sequence دستی، سپس تاریخ شروع، سپس کد
+  // تابع کمکی برای مرتب‌سازی: اول بر اساس sequence (ترتیب دستی/ایجاد)، سپس تاریخ، سپس کد
   const sortChronologically = (a: ProjectNode, b: ProjectNode) => {
-    // اگر هر دو sequence معتبر دارند، بر اساس آن مرتب کن (ترتیب دستی drag & drop)
-    const seqA = (a as any).sequence;
-    const seqB = (b as any).sequence;
-    const hasSeqA = typeof seqA === 'number' && seqA > 0;
-    const hasSeqB = typeof seqB === 'number' && seqB > 0;
-    if (hasSeqA && hasSeqB && seqA !== seqB) {
+    const seqA = typeof (a as any).sequence === 'number' ? (a as any).sequence : 0;
+    const seqB = typeof (b as any).sequence === 'number' ? (b as any).sequence : 0;
+
+    // اگر هر دو sequence معتبر دارند → بر اساس آن مرتب کن
+    if (seqA > 0 && seqB > 0 && seqA !== seqB) {
       return seqA - seqB;
+    }
+    // اگر فقط یکی sequence دارد → آن که دارد جلوتر
+    if ((seqA > 0) !== (seqB > 0)) {
+      return seqA > 0 ? -1 : 1;
     }
 
     const timeA = a.startDate ? parseDateStr(a.startDate).getTime() : 0;

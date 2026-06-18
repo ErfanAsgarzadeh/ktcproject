@@ -217,6 +217,8 @@ export default function WbsTable({
                 if (isWbs || !isEditMode) return;
                 setDraggedId(node.id);
                 e.dataTransfer.effectAllowed = 'move';
+                // ضروری: بعضی مرورگرها بدون setData اصلاً drag رو شروع نمی‌کنند
+                e.dataTransfer.setData('text/plain', node.id);
               }}
               onDragOver={(e) => {
                 if (isWbs || !draggedId || draggedId === node.id) return;
