@@ -233,7 +233,7 @@ export default function Navbar() {
                                         <div className="h-px mx-2 mb-1" style={{ backgroundColor: 'var(--border-subtle)' }} />
 
                                         <Link
-                                            href="/Profile"
+                                            href="/DashBoard/Profile"
                                             onClick={() => setIsUserMenuOpen(false)}
                                             className="flex items-center w-full px-4 py-2.5 text-sm transition-colors"
                                             style={{ color: 'var(--text-secondary)' }}
