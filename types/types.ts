@@ -18,6 +18,7 @@ export interface WbsNode {
   duration: number; // working days
   progress: number; // 0 to 100
   resources?: string[];
+  sequence?: number; // manual/creation display order
 }
 
 export interface ActivityNode {
