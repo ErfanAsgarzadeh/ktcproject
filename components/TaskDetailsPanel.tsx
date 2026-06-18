@@ -45,7 +45,7 @@ export default function TaskDetailsPanel({
                                          }: TaskDetailsPanelProps) {
 
   const [selectedAssignee, setSelectedAssignee] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<string>('owner');
+  const [selectedRole, setSelectedRole] = useState<string>('executor');
 
   // استیت‌های فرم وابستگی
   const [selectedPredId, setSelectedPredId] = useState<string>('');
@@ -128,7 +128,7 @@ export default function TaskDetailsPanel({
     if (selectedAssignee && selectedRole) {
       onAddTaskRole(selectedNode.id, selectedAssignee, selectedRole as any);
       setSelectedAssignee('');
-      setSelectedRole('owner');
+      setSelectedRole('executor');
     }
   };
 
@@ -363,12 +363,9 @@ export default function TaskDetailsPanel({
                         <option value="" className="bg-slate-900 text-slate-500">Choose User...</option>
                         {users.map(u => <option key={u.id} value={u.id} className="bg-slate-950 text-slate-200">{u.username}</option>)}
                       </select>
-                      <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-205 focus:outline-none focus:border-cyan-400">
-                        <option value="owner" className="bg-slate-950 text-slate-202 text-xs">Owner</option>
-                        <option value="reviewer" className="bg-slate-950 text-slate-202 text-xs">Reviewer</option>
-                        <option value="executor" className="bg-slate-950 text-slate-202 text-xs">Executor</option>
-                        <option value="project manager" className="bg-slate-950 text-slate-202 text-xs">PM</option>
-                      </select>
+                      <div className="flex items-center justify-center px-2 py-1.5 text-xs font-bold rounded-lg bg-cyan-500/10 border border-cyan-500/25 text-cyan-300">
+                        Executor
+                      </div>
                       <button type="button" onClick={handleAssignUser} disabled={!selectedAssignee} className="px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 rounded-lg disabled:opacity-50"><Plus className="w-4 h-4" /></button>
                     </div>
                 )}
