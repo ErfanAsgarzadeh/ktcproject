@@ -450,6 +450,54 @@ export default function App() {
     } catch (error) { console.error("Error updating node:", error); }
   };
 
+  // جابجایی ترتیب تسک‌ها با drag & drop (فقط بین هم‌نیاهای زیر یک نود)
+  const handleReorderTask = async (draggedId: string, targetId: string) => {
+    if (!effectiveEditMode) return;
+    const dragged = nodes.find(n => n.id === draggedId);
+    const target = nodes.find(n => n.id === targetId);
+    if (!dragged || !target) return;
+    if (dragged.type !== 'activity' || target.type !== 'activity') return;
+    if (dragged.parentId !== target.parentId) return; // فقط داخل همان نود
+
+    // هم‌نیاهای فعلی به ترتیب نمایش (sequence سپس تاریخ)
+    const siblings = nodes
+        .filter(n => n.type === 'activity' && n.parentId === dragged.parentId)
+        .sort((a, b) => {
+          const sa = (a as any).sequence || 0;
+          const sb = (b as any).sequence || 0;
+          if (sa !== sb && sa > 0 && sb > 0) return sa - sb;
+          const ta = a.startDate ? new Date(a.startDate.replace(' ', 'T')).getTime() : 0;
+          const tb = b.startDate ? new Date(b.startDate.replace(' ', 'T')).getTime() : 0;
+          return ta - tb;
+        });
+
+    const fromIdx = siblings.findIndex(n => n.id === draggedId);
+    const toIdx = siblings.findIndex(n => n.id === targetId);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    const reordered = [...siblings];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // تخصیص sequence جدید 1..N
+    const updates = reordered.map((n, i) => ({ id: n.id, sequence: i + 1 }));
+
+    // آپدیت لوکال
+    setNodes(prev => prev.map(n => {
+      const u = updates.find(x => x.id === n.id);
+      return u ? ({ ...n, sequence: u.sequence } as any) : n;
+    }));
+
+    // ذخیره در بک‌اند
+    try {
+      await Promise.all(
+          updates.map(u => apiClient.patch(`/planning/activities/${u.id}/`, { sequence: u.sequence }))
+      );
+    } catch (error) {
+      console.error('Error reordering tasks:', error);
+    }
+  };
+
   const handleToggleExpand = (id: string) => {
     setNodes(prev => prev.map(n => n.id === id && n.type === 'wbs' ? { ...n, isExpanded: !n.isExpanded } : n));
   };
@@ -815,6 +863,7 @@ export default function App() {
                         taskRoles={taskRoles.filter(tr => tr.revisionId === activeRevisionId)}
                         users={users}
                         isEditMode={effectiveEditMode}
+                        onReorderTask={handleReorderTask}
                     />
                   </div>
 
