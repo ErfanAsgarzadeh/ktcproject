@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { 
+import {
   Folder, 
   FolderOpen, 
   CheckSquare, 
@@ -13,7 +13,8 @@ import {
   Plus, 
   Trash2, 
   Lock, 
-  UserSquare2 
+  UserSquare2,
+  GripVertical
 } from 'lucide-react';
 import { ProjectNode, WbsNode, ActivityNode, Dependency, TaskRole, CustomUser } from '../types/types';
 import { adjustToWorkingDay, addWorkingDays, calculateWorkingDays } from '../utils/scheduler';
@@ -36,6 +37,7 @@ interface WbsTableProps {
   taskRoles: TaskRole[];
   users: CustomUser[];
   isEditMode?: boolean;
+  onReorderTask?: (draggedId: string, targetId: string) => void;
 }
 
 export default function WbsTable({
@@ -54,10 +56,15 @@ export default function WbsTable({
   taskRoles,
   users,
   isEditMode = true,
+  onReorderTask,
 }: WbsTableProps) {
   // Cell inline editing state
   const [editingCell, setEditingCell] = useState<{ nodeId: string; field: keyof ActivityNode | 'predecessors' } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+
+  // Drag-and-drop reordering state
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const visibleRows = flattenedNodes.filter(row => !row.isHidden);
 
@@ -205,8 +212,33 @@ export default function WbsTable({
           return (
             <div 
               key={`${node.type}-${node.id}`}
+              draggable={!isWbs && isEditMode && !editingCell}
+              onDragStart={(e) => {
+                if (isWbs || !isEditMode) return;
+                setDraggedId(node.id);
+                e.dataTransfer.effectAllowed = 'move';
+              }}
+              onDragOver={(e) => {
+                if (isWbs || !draggedId || draggedId === node.id) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (dragOverId !== node.id) setDragOverId(node.id);
+              }}
+              onDragLeave={() => {
+                if (dragOverId === node.id) setDragOverId(null);
+              }}
+              onDrop={(e) => {
+                if (isWbs || !draggedId || draggedId === node.id) return;
+                e.preventDefault();
+                onReorderTask?.(draggedId, node.id);
+                setDraggedId(null);
+                setDragOverId(null);
+              }}
+              onDragEnd={() => { setDraggedId(null); setDragOverId(null); }}
               onClick={() => onSelectNode(node.id)}
-              className={`grid grid-cols-[minmax(180px,280px)_80px_100px_100px_60px_60px_120px_100px_50px] items-center h-10 text-xs text-slate-300 ${rowBgClass} transition-colors cursor-pointer border-b border-white/5`}
+              className={`grid grid-cols-[minmax(180px,280px)_80px_100px_100px_60px_60px_120px_100px_50px] items-center h-10 text-xs text-slate-300 ${rowBgClass} transition-colors cursor-pointer border-b border-white/5 ${
+                draggedId === node.id ? 'opacity-40' : ''
+              } ${dragOverId === node.id ? 'border-t-2 border-t-cyan-400' : ''}`}
             >
               {/* 1. Name & Hierarchical Indent */}
               <div 
@@ -228,7 +260,11 @@ export default function WbsTable({
                     )}
                   </button>
                 ) : (
-                  <span className="w-5.5" /> // spacer
+                  isEditMode ? (
+                    <GripVertical className="w-3.5 h-3.5 text-slate-500 hover:text-cyan-400 cursor-grab shrink-0 mr-0.5" />
+                  ) : (
+                    <span className="w-5.5" /> // spacer
+                  )
                 )}
 
                 {/* Micro Icons */}

@@ -34,6 +34,7 @@ export interface ActivityNode {
   constraintType: 'ASAP' | 'MANDATORY_START' | 'FINISH_NO_LATER_THAN';
   constraintDate?: string | null;
   notes: string;
+  sequence?: number; // manual display order within the parent node
 
 }
 
