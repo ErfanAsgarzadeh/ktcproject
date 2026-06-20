@@ -353,7 +353,7 @@ export default function App() {
 
   const handleSelectRevision = (id: string) => setActiveRevisionId(id);
 
-  const handleAddProject = async (name: string, description: string, startDate: string, endDate: string, calendarId?: string | null) => {
+  const handleAddProject = async (name: string, description: string, startDate: string, endDate: string, calendarId?: string | null, approverId?: string | null) => {
     try {
       // ارسال پارامترهای جدید به بک‌اند
       const res = await apiClient.post('/planning/projects/', {
@@ -370,12 +370,27 @@ export default function App() {
       // پس از ایجاد پروژه، بلافاصله لیست ریویژن‌های آن را درخواست می‌کنیم
       // تا ریویژن صفری که بک‌اند خودکار ساخته را دریافت کنیم.
       const revRes = await apiClient.get(`/planning/revisions/?project_id=${res.data.id}`);
-      setRevisions(revRes.data);
+      let revisionsList = revRes.data;
 
-      if (revRes.data.length > 0) {
-        // ریویژن صفر را به عنوان ریویژن فعال انتخاب می‌کنیم
-        const revZero = revRes.data.find((r: any) => r.number === 0) || revRes.data[0];
+      if (revisionsList.length > 0) {
+        const revZero = revisionsList.find((r: any) => r.number === 0) || revisionsList[0];
+
+        // اگر تاییدکننده انتخاب شده، روی Rev 0 ست کن
+        if (approverId) {
+          try {
+            const patched = await apiClient.patch(`/planning/revisions/${revZero.id}/`, {
+              designatedApproverId: approverId,
+            });
+            revisionsList = revisionsList.map((r: any) => r.id === revZero.id ? patched.data : r);
+          } catch (err) {
+            console.error("Failed to set designated approver on Rev 0", err);
+          }
+        }
+
+        setRevisions(revisionsList);
         setActiveRevisionId(revZero.id);
+      } else {
+        setRevisions(revisionsList);
       }
     } catch (err) {
       console.error("Error creating project:", err);
