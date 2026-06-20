@@ -12,6 +12,7 @@ import {
     CalendarRange,
     TrendingUp,
     CalendarDays,
+    Building2,
 } from 'lucide-react';
 
 const pages = [
@@ -59,6 +60,15 @@ const pages = [
         color: '#0ea5e9',
         bgColor: 'rgba(14, 165, 233, 0.08)',
         borderColor: 'rgba(14, 165, 233, 0.2)',
+    },
+    {
+        title: 'Organization',
+        description: 'Manage organizational units, assign staff and set their roles.',
+        href: '/DashBoard/Organization',
+        icon: Building2,
+        color: '#0d9488',
+        bgColor: 'rgba(13, 148, 136, 0.08)',
+        borderColor: 'rgba(13, 148, 136, 0.2)',
     },
     {
         title: 'Resource Plan',

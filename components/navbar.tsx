@@ -9,7 +9,7 @@ import { CustomUser } from '../types/types';
 import {
     User, Settings, LogOut, ChevronDown, Menu,
     LayoutDashboard, ListTodo, ClipboardCheck, UserCheck,
-    CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays
+    CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays, Building2
 } from 'lucide-react';
 
 const navPages = [
@@ -19,6 +19,7 @@ const navPages = [
     { title: 'Approve Tasks', href: '/DashBoard/ApproveTask', icon: ClipboardCheck, color: '#059669' },
     { title: 'Personal Tasks', href: '/DashBoard/PersonalTask', icon: UserCheck, color: '#d97706' },
     { title: 'Calendars', href: '/DashBoard/Calendars', icon: CalendarDays, color: '#0ea5e9' },
+    { title: 'Organization', href: '/DashBoard/Organization', icon: Building2, color: '#0d9488' },
     { title: 'Resource Plan', href: '/DashBoard/ResourcePlan', icon: CalendarRange, color: '#0ea5e9' },
     { title: 'Resource Load Map', href: '/DashBoard/ResourceLoadMap', icon: BarChart3, color: '#ec4899' },
     { title: 'Resource Management', href: '/DashBoard/ResourceManagement', icon: Users, color: '#8b5cf6' },
