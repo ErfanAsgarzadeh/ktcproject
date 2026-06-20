@@ -372,10 +372,19 @@ export default function ProjectHub({
                                                                 </div>
                                                             </div>
 
-                                                            <div className="text-[11px] font-mono text-slate-500 flex items-center gap-3 pt-2">
+                                                            <div className="text-[11px] font-mono text-slate-500 flex items-center gap-3 pt-2 flex-wrap">
                                                                 <span>Tasks Stacked: <strong className="text-white">{taskCount} Node elements</strong></span>
                                                                 <span>•</span>
                                                                 <span>Created: {gregorianToJalaliString(rev.createdAt)}</span>
+                                                                {(rev as any).designatedApproverName && (
+                                                                    <>
+                                                                        <span>•</span>
+                                                                        <span className="flex items-center gap-1">
+                                                                            <Lock className="w-2.5 h-2.5 text-amber-400" />
+                                                                            <span>Approver: <strong className="text-amber-300">{(rev as any).designatedApproverName}</strong></span>
+                                                                        </span>
+                                                                    </>
+                                                                )}
                                                             </div>
                                                         </div>
 

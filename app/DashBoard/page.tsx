@@ -644,9 +644,10 @@ export default function App() {
           r.id === activeRevisionId ? { ...r, approvedAt: new Date().toISOString() } : r
       ));
       setIsEditMode(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error approving revision", err);
-      alert("خطا در قفل کردن نسخه.");
+      const msg = err?.response?.data?.detail || "خطا در قفل کردن نسخه.";
+      alert(msg);
     }
   };
 
@@ -658,17 +659,37 @@ export default function App() {
       "لطفاً دلیل ساخت پیش‌نویس جدید را وارد کنید:\n(این فیلد اجباری است)",
       ""
     );
-
-    // اگر کاربر Cancel زد یا خالی گذاشت، متوقف شود
     if (!description || !description.trim()) {
       alert("وارد کردن توضیحات برای ساخت پیش‌نویس الزامی است.");
       return;
+    }
+
+    // انتخاب تاییدکننده — لیست کاربران را نشان بده تا کاربر یکی را انتخاب کند
+    let approverId: string | null = null;
+    try {
+      const usersList = users.length > 0
+          ? users
+          : (await apiClient.get('/auth/users/')).data;
+      const lines = usersList.map((u: any, i: number) => `${i + 1}- ${u.username}`).join('\n');
+      const pick = window.prompt(
+          `تاییدکننده‌ی این پیش‌نویس را انتخاب کنید (شماره را وارد کنید — برای رد کردن خالی بگذارید):\n\n${lines}`,
+          ""
+      );
+      if (pick && pick.trim()) {
+        const idx = parseInt(pick.trim(), 10) - 1;
+        if (!isNaN(idx) && idx >= 0 && idx < usersList.length) {
+          approverId = String(usersList[idx].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load users for approver selection", err);
     }
 
     try {
       setIsLaunching(true);
       const res = await apiClient.post(`/planning/revisions/${activeRevisionId}/create-draft/`, {
         description: description.trim(),
+        designatedApproverId: approverId,
       });
       setRevisions([...revisions, res.data]);
       setActiveRevisionId(res.data.id);
