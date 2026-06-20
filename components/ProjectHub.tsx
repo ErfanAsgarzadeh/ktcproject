@@ -76,6 +76,15 @@ export default function ProjectHub({
             .catch(err => console.error('Failed to load calendars', err));
     }, []);
 
+    // نقش سازمانی کاربر فعلی — برای کنترل دسترسی ساخت پروژه
+    const [currentRole, setCurrentRole] = useState<string>('member');
+    useEffect(() => {
+        apiClient.get('/auth/profile/')
+            .then(res => setCurrentRole(res.data.orgRole || 'member'))
+            .catch(() => setCurrentRole('member'));
+    }, []);
+    const canCreateProject = ['company_admin', 'company_pm', 'unit_manager'].includes(currentRole);
+
     // States for new revision form
     const [newRevDesc, setNewRevDesc] = useState('');
     const [newRevStart, setNewRevStart] = useState(new Date().toISOString().split('T')[0]);
@@ -90,6 +99,10 @@ export default function ProjectHub({
     const handleCreateProject = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newProjName.trim()) return;
+        if (!canCreateProject) {
+            alert('شما اجازه‌ی ساخت پروژه را ندارید (فقط مدیر شرکت یا مدیر واحد).');
+            return;
+        }
         onAddProject(newProjName.trim(), newProjDesc.trim(), newProjStart, newProjEnd, newProjCalendarId || null);
         setNewProjName('');
         setNewProjDesc('');
@@ -157,6 +170,7 @@ export default function ProjectHub({
                             <Database className="w-4 h-4" />
                             <span>Projects & Revisions</span>
                         </button>
+                        {canCreateProject && (
                         <button
                             onClick={() => setActiveTab('create')}
                             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
@@ -168,6 +182,7 @@ export default function ProjectHub({
                             <Plus className="w-4 h-4" />
                             <span>Create New Project</span>
                         </button>
+                        )}
                     </div>
                 </div>
 
