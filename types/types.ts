@@ -101,6 +101,8 @@ export interface Revision {
   createdAt: string;
   isBaseline: boolean;
   approvedAt?: string | null;
+  designatedApproverId?: string | number | null;
+  designatedApproverName?: string | null;
 }
 
 export interface ChatMessage {
