@@ -212,16 +212,19 @@ export default function WbsTable({
           return (
             <div 
               key={`${node.type}-${node.id}`}
-              draggable={!isWbs && isEditMode && !editingCell}
+              draggable={isEditMode && !editingCell}
               onDragStart={(e) => {
-                if (isWbs || !isEditMode) return;
+                if (!isEditMode) return;
                 setDraggedId(node.id);
                 e.dataTransfer.effectAllowed = 'move';
                 // ضروری: بعضی مرورگرها بدون setData اصلاً drag رو شروع نمی‌کنند
                 e.dataTransfer.setData('text/plain', node.id);
               }}
               onDragOver={(e) => {
-                if (isWbs || !draggedId || draggedId === node.id) return;
+                if (!draggedId || draggedId === node.id) return;
+                const dn = allNodes.find(n => n.id === draggedId);
+                // فقط بین هم‌نوع و هم‌والد اجازه جابجایی
+                if (!dn || dn.type !== node.type || (dn.parentId || null) !== (node.parentId || null)) return;
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 if (dragOverId !== node.id) setDragOverId(node.id);
@@ -230,7 +233,9 @@ export default function WbsTable({
                 if (dragOverId === node.id) setDragOverId(null);
               }}
               onDrop={(e) => {
-                if (isWbs || !draggedId || draggedId === node.id) return;
+                if (!draggedId || draggedId === node.id) return;
+                const dn = allNodes.find(n => n.id === draggedId);
+                if (!dn || dn.type !== node.type || (dn.parentId || null) !== (node.parentId || null)) return;
                 e.preventDefault();
                 onReorderTask?.(draggedId, node.id);
                 setDraggedId(null);
