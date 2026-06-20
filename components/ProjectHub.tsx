@@ -26,7 +26,7 @@ interface ProjectHubProps {
     projects: Project[];
     activeProjectId: string | null;
     onSelectProject: (id: string) => void;
-    onAddProject: (name: string, description: string, startDate: string, endDate: string, calendarId?: string | null) => void;
+    onAddProject: (name: string, description: string, startDate: string, endDate: string, calendarId?: string | null, approverId?: string | null) => void;
     onDeleteProject: (id: string) => void;
 
     revisions: Revision[];
@@ -67,6 +67,7 @@ export default function ProjectHub({
     const [newProjStart, setNewProjStart] = useState(new Date().toISOString().split('T')[0]);
     const [newProjEnd, setNewProjEnd] = useState('');
     const [newProjCalendarId, setNewProjCalendarId] = useState('');
+    const [newProjApproverId, setNewProjApproverId] = useState('');
 
     // Available calendars (standalone templates)
     const [calendars, setCalendars] = useState<any[]>([]);
@@ -74,6 +75,14 @@ export default function ProjectHub({
         apiClient.get('/planning/calendars/?templates=true')
             .then(res => setCalendars(res.data.results || res.data))
             .catch(err => console.error('Failed to load calendars', err));
+    }, []);
+
+    // Available users (for Approver dropdown)
+    const [allUsers, setAllUsers] = useState<any[]>([]);
+    useEffect(() => {
+        apiClient.get('/auth/users/')
+            .then(res => setAllUsers(res.data.results || res.data))
+            .catch(err => console.error('Failed to load users', err));
     }, []);
 
     // نقش سازمانی کاربر فعلی — برای کنترل دسترسی ساخت پروژه
@@ -103,10 +112,18 @@ export default function ProjectHub({
             alert('شما اجازه‌ی ساخت پروژه را ندارید (فقط مدیر شرکت یا مدیر واحد).');
             return;
         }
-        onAddProject(newProjName.trim(), newProjDesc.trim(), newProjStart, newProjEnd, newProjCalendarId || null);
+        onAddProject(
+            newProjName.trim(),
+            newProjDesc.trim(),
+            newProjStart,
+            newProjEnd,
+            newProjCalendarId || null,
+            newProjApproverId || null,
+        );
         setNewProjName('');
         setNewProjDesc('');
         setNewProjCalendarId('');
+        setNewProjApproverId('');
         setActiveTab('projects');
     };
 
@@ -585,6 +602,26 @@ export default function ProjectHub({
                                             هنوز تقویمی تعریف نشده — از صفحه «مدیریت تقویم‌ها» یک تقویم بسازید.
                                         </p>
                                     )}
+                                </div>
+
+                                {/* انتخاب تاییدکننده (Approver) برای Revision اولیه */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                                        <Lock className="w-3.5 h-3.5 text-amber-400" /> Designated Approver (تاییدکننده)
+                                    </label>
+                                    <select
+                                        value={newProjApproverId}
+                                        onChange={(e) => setNewProjApproverId(e.target.value)}
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-amber-400 transition-all font-sans"
+                                    >
+                                        <option value="" className="bg-slate-950">— بدون تاییدکننده تعیین‌شده —</option>
+                                        {allUsers.map(u => (
+                                            <option key={u.id} value={u.id} className="bg-slate-950">{u.username} {u.jobTitle ? `(${u.jobTitle})` : ''}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-[10px] text-slate-500 ml-1">
+                                        فقط این فرد می‌تواند نسخه‌ی پایه (Rev 0) را تایید/قفل کند.
+                                    </p>
                                 </div>
 
                                 <div className="pt-2">
