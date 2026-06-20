@@ -45,7 +45,8 @@ export default function TaskDetailsPanel({
                                          }: TaskDetailsPanelProps) {
 
   const [selectedAssignee, setSelectedAssignee] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<string>('executor');
+  const [selectedRole, setSelectedRole] = useState<string>('reviewer');
+  const [assignableUsers, setAssignableUsers] = useState<CustomUser[]>([]);
 
   // استیت‌های فرم وابستگی
   const [selectedPredId, setSelectedPredId] = useState<string>('');
@@ -73,6 +74,19 @@ export default function TaskDetailsPanel({
     setActualFinish(nodeActual?.actualFinish || '');
     setActualProgress(nodeActual?.progress ?? selectedNode?.progress ?? 0);
   }, [selectedNode?.id]);
+
+  // واکشی افراد قابل انتخاب برای نقش از بک‌اند (بر اساس قوانین فاز ۳)
+  useEffect(() => {
+    if (!selectedNode || selectedNode.type !== 'activity') {
+      setAssignableUsers([]);
+      return;
+    }
+    import('../lib/api').then(({ apiClient }) => {
+      apiClient.get(`/planning/task-roles/assignable-users/?taskId=${selectedNode.id}&role=${selectedRole}`)
+          .then(res => setAssignableUsers(res.data || []))
+          .catch(() => setAssignableUsers([]));
+    });
+  }, [selectedNode?.id, selectedRole]);
 
   const handleLocalChange = (field: string, val: any) => {
     setLocalNode(prev => prev ? { ...prev, [field]: val } : prev);
@@ -128,7 +142,7 @@ export default function TaskDetailsPanel({
     if (selectedAssignee && selectedRole) {
       onAddTaskRole(selectedNode.id, selectedAssignee, selectedRole as any);
       setSelectedAssignee('');
-      setSelectedRole('executor');
+      setSelectedRole('reviewer');
     }
   };
 
@@ -357,17 +371,17 @@ export default function TaskDetailsPanel({
                   })()}
                 </div>
 
-                {isEditMode && users.length > 0 && (
+                {isEditMode && (
                     <div className="grid grid-cols-[1fr_1fr_auto] gap-1.5 font-sans pt-1">
                       <select value={selectedAssignee} onChange={e => setSelectedAssignee(e.target.value)} className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-205 focus:outline-none focus:border-cyan-400">
-                        <option value="" className="bg-slate-900 text-slate-500">Choose User...</option>
-                        {users.map(u => <option key={u.id} value={u.id} className="bg-slate-950 text-slate-200">{u.username}</option>)}
+                        <option value="" className="bg-slate-900 text-slate-500">
+                          {assignableUsers.length === 0 ? 'بدون نیروی مجاز...' : 'Choose User...'}
+                        </option>
+                        {assignableUsers.map(u => <option key={u.id} value={u.id} className="bg-slate-950 text-slate-200">{u.username}</option>)}
                       </select>
                       <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="bg-black/40 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400">
-                        <option value="owner" className="bg-slate-950 text-slate-200 text-xs">Owner</option>
                         <option value="reviewer" className="bg-slate-950 text-slate-200 text-xs">Reviewer</option>
                         <option value="executor" className="bg-slate-950 text-slate-200 text-xs">Executor</option>
-                        <option value="project manager" className="bg-slate-950 text-slate-200 text-xs">PM</option>
                       </select>
                       <button type="button" onClick={handleAssignUser} disabled={!selectedAssignee} className="px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 rounded-lg disabled:opacity-50"><Plus className="w-4 h-4" /></button>
                     </div>
