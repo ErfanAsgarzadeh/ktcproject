@@ -461,18 +461,20 @@ export default function App() {
     } catch (error) { console.error("Error updating node:", error); }
   };
 
-  // جابجایی ترتیب تسک‌ها با drag & drop (فقط بین هم‌نیاهای زیر یک نود)
+  // جابجایی ترتیب تسک‌ها و نودهای WBS با drag & drop (فقط بین هم‌نوع و زیر یک والد)
   const handleReorderTask = async (draggedId: string, targetId: string) => {
     if (!effectiveEditMode) return;
     const dragged = nodes.find(n => n.id === draggedId);
     const target = nodes.find(n => n.id === targetId);
     if (!dragged || !target) return;
-    if (dragged.type !== 'activity' || target.type !== 'activity') return;
-    if (dragged.parentId !== target.parentId) return; // فقط داخل همان نود
+    if (dragged.type !== target.type) return;
+    if ((dragged.parentId || null) !== (target.parentId || null)) return; // فقط داخل همان والد
+
+    const nodeType = dragged.type; // 'activity' | 'wbs'
 
     // هم‌نیاهای فعلی به ترتیب نمایش (sequence سپس تاریخ)
     const siblings = nodes
-        .filter(n => n.type === 'activity' && n.parentId === dragged.parentId)
+        .filter(n => n.type === nodeType && (n.parentId || null) === (dragged.parentId || null))
         .sort((a, b) => {
           const sa = (a as any).sequence || 0;
           const sb = (b as any).sequence || 0;
@@ -501,11 +503,19 @@ export default function App() {
 
     // ذخیره در بک‌اند
     try {
-      await Promise.all(
-          updates.map(u => apiClient.patch(`/planning/activities/${u.id}/`, { sequence: u.sequence }))
-      );
+      if (nodeType === 'activity') {
+        await Promise.all(
+            updates.map(u => apiClient.patch(`/planning/activities/${u.id}/`, { sequence: u.sequence }))
+        );
+      } else {
+        // نودهای WBS: استفاده از endpoint امن (transaction + offset) به‌خاطر محدودیت یکتایی
+        await apiClient.post('/planning/wbs-nodes/reorder/', {
+          revisionId: activeRevisionId,
+          orderedIds: reordered.map(n => n.id),
+        });
+      }
     } catch (error) {
-      console.error('Error reordering tasks:', error);
+      console.error('Error reordering nodes:', error);
     }
   };
 
