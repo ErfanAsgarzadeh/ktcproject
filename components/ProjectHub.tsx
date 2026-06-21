@@ -77,13 +77,37 @@ export default function ProjectHub({
             .catch(err => console.error('Failed to load calendars', err));
     }, []);
 
-    // Available users (for Approver dropdown)
+    // Available users for Approver dropdown — فقط افراد واحد کاربر فعلی
     const [allUsers, setAllUsers] = useState<any[]>([]);
     useEffect(() => {
-        apiClient.get('/auth/users/')
+        apiClient.get('/auth/users/in-my-unit/')
             .then(res => setAllUsers(res.data.results || res.data))
-            .catch(err => console.error('Failed to load users', err));
+            .catch(err => {
+                console.error('Failed to load users in my unit, falling back to all', err);
+                // fallback به همه کاربران اگر endpoint جدید موجود نبود
+                apiClient.get('/auth/users/')
+                    .then(r => setAllUsers(r.data.results || r.data))
+                    .catch(e => console.error(e));
+            });
     }, []);
+
+    // Handler برای تغییر Approver یک Revision موجود
+    const handleChangeApprover = async (revisionId: string, approverId: string | null) => {
+        try {
+            const res = await apiClient.patch(`/planning/revisions/${revisionId}/`, {
+                designatedApproverId: approverId,
+            });
+            // اعلام به والد که این revision آپدیت شده — ساده‌تر: reload مستقیم state
+            // (revisions از prop می‌آد، پس از onUpdateRevisionDates مشابه نیست — اینجا فقط
+            //  state داخلی را رفرش نمی‌کنیم؛ بهترین کار: reload کامل از parent)
+            // برای تجربه روان، خود کارت پس از موفقیت به‌روز می‌شود وقتی parent fetch شود.
+            return res.data;
+        } catch (err: any) {
+            console.error('Failed to change approver', err);
+            const msg = err?.response?.data?.detail || 'خطا در تغییر تاییدکننده.';
+            alert(msg);
+        }
+    };
 
     // نقش سازمانی کاربر فعلی — برای کنترل دسترسی ساخت پروژه
     const [currentRole, setCurrentRole] = useState<string>('member');
@@ -393,14 +417,37 @@ export default function ProjectHub({
                                                                 <span>Tasks Stacked: <strong className="text-white">{taskCount} Node elements</strong></span>
                                                                 <span>•</span>
                                                                 <span>Created: {gregorianToJalaliString(rev.createdAt)}</span>
-                                                                {(rev as any).designatedApproverName && (
-                                                                    <>
-                                                                        <span>•</span>
-                                                                        <span className="flex items-center gap-1">
-                                                                            <Lock className="w-2.5 h-2.5 text-amber-400" />
-                                                                            <span>Approver: <strong className="text-amber-300">{(rev as any).designatedApproverName}</strong></span>
-                                                                        </span>
-                                                                    </>
+                                                            </div>
+
+                                                            {/* تاییدکننده‌ی این Revision (قابل تغییر اگر قفل نشده) */}
+                                                            <div className="flex items-center gap-2 mt-2 bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
+                                                                <Lock className="w-3 h-3 text-amber-400 shrink-0" />
+                                                                <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider shrink-0">Approver:</span>
+                                                                {isLocked ? (
+                                                                    <span className="text-xs text-white font-mono">
+                                                                        {(rev as any).designatedApproverName || '—'}
+                                                                    </span>
+                                                                ) : (
+                                                                    <select
+                                                                        value={(rev as any).designatedApproverId ?? ''}
+                                                                        onChange={async (e) => {
+                                                                            const newId = e.target.value || null;
+                                                                            await handleChangeApprover(rev.id, newId);
+                                                                            // به‌روزرسانی محلی نمایش — مقدار را در state مصرف‌شده تغییر بدهیم
+                                                                            (rev as any).designatedApproverId = newId;
+                                                                            const u = allUsers.find(x => String(x.id) === String(newId));
+                                                                            (rev as any).designatedApproverName = u?.username || null;
+                                                                            // فورس re-render با تغییر کوچک state
+                                                                            setDuplicateModeId(prev => prev);
+                                                                        }}
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        className="bg-black/40 border border-white/10 hover:border-amber-500/50 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-amber-400 font-mono cursor-pointer transition-colors"
+                                                                    >
+                                                                        <option value="" className="bg-slate-950">— بدون تاییدکننده —</option>
+                                                                        {allUsers.map(u => (
+                                                                            <option key={u.id} value={u.id} className="bg-slate-950">{u.username}</option>
+                                                                        ))}
+                                                                    </select>
                                                                 )}
                                                             </div>
                                                         </div>
