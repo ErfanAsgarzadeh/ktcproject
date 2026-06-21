@@ -84,10 +84,16 @@ export default function ApprovalsPage({
         progressPercent: data.progress_percent,
         blockers: data.blockers,
         notes: data.notes,
+        // workflow دو‌مرحله‌ای
+        approvalStatus: data.approval_status || (data.is_approved ? 'final_approved' : 'pending'),
+        reviewerApprovedBy: data.reviewer_approved_by,
+        reviewerApprovedAt: data.reviewer_approved_at,
+        finalApprovedBy: data.final_approved_by,
+        finalApprovedAt: data.final_approved_at,
+        // legacy
         isApproved: data.is_approved,
         approvedBy: data.approved_by,
         approvedAt: data.approved_at,
-        rejectionReason: data.notes?.includes("REJECTED:") ? data.notes : undefined
     });
 
     // === Fetch All Reports (Pending & Historic) ===
@@ -138,13 +144,26 @@ export default function ApprovalsPage({
 
             const reporter = users.find(u => String(u.id) === String(rep.userId));
 
+            // نگاشتِ وضعیتِ بک‌اند به وضعیتِ UI:
+            //   pending           → 'pending'        (منتظر تاییدِ بررسی‌کننده)
+            //   reviewer_approved → 'awaiting_final' (منتظر تاییدِ نهاییِ مدیر برنامه‌ریزی — فقط شرکتی)
+            //   final_approved    → 'approved'
+            //   rejected          → 'rejected'
+            const backendStatus = rep.approvalStatus || 'pending';
+            let uiStatus: 'pending' | 'awaiting_final' | 'approved' | 'rejected';
+            if (backendStatus === 'final_approved') uiStatus = 'approved';
+            else if (backendStatus === 'rejected') uiStatus = 'rejected';
+            else if (backendStatus === 'reviewer_approved') uiStatus = 'awaiting_final';
+            else uiStatus = 'pending';
+
             return {
                 ...rep,
                 node: taskItem || null,
                 rev: revItem || null,
                 proj: projItem || null,
                 reporter: reporter || null,
-                approvalStatus: rep.isApproved ? 'approved' : (rep.rejectionReason ? 'rejected' : 'pending')
+                approvalStatus: uiStatus,
+                isCompanyScope: (projItem as any)?.scope === 'company'
             };
         });
     }, [reports, tasks, taskRoles, revisions, projects, users]);
@@ -154,10 +173,11 @@ export default function ApprovalsPage({
         const query = searchQuery.toLowerCase().trim();
 
         return richReports.filter(rep => {
-            // Tab filter
-            const isPending = rep.approvalStatus === 'pending';
-            if (activeTab === 'pending' && !isPending) return false;
-            if (activeTab === 'historic' && isPending) return false;
+            // Tab filter — «pending» شاملِ مواردِ منتظرِ اقدام است:
+            // هم گزارش‌های pending (تاییدِ بررسی‌کننده) و هم awaiting_final (تاییدِ نهایی)
+            const needsAction = rep.approvalStatus === 'pending' || rep.approvalStatus === 'awaiting_final';
+            if (activeTab === 'pending' && !needsAction) return false;
+            if (activeTab === 'historic' && needsAction) return false;
 
             // Text query filter
             if (!query) return true;
@@ -173,7 +193,7 @@ export default function ApprovalsPage({
 
     // Statistics
     const stats = useMemo(() => {
-        const pending = richReports.filter(r => r.approvalStatus === 'pending').length;
+        const pending = richReports.filter(r => r.approvalStatus === 'pending' || r.approvalStatus === 'awaiting_final').length;
         const approved = richReports.filter(r => r.approvalStatus === 'approved').length;
         const rejected = richReports.filter(r => r.approvalStatus === 'rejected').length;
         const totalHours = richReports.reduce((acc, curr) => acc + (curr.timeSpentHours || 0), 0);
@@ -183,28 +203,41 @@ export default function ApprovalsPage({
 
     // === Handlers ===
 
-    // Approve via API
+    // Approve via API (stage-aware)
     const handleApproveReport = async (reportId: string) => {
         const rep = richReports.find(r => r.id === reportId);
         if (!rep) return;
 
         try {
-            await apiClient.post(`/planning/task-reports/${reportId}/approve/`);
+            const res = await apiClient.post(`/planning/task-reports/${reportId}/approve/`);
+            // بک‌اند وضعیتِ جدید را برمی‌گرداند: reviewer_approved یا final_approved
+            const newStatus: string = res.data?.approvalStatus || 'final_approved';
+            const isFinal = newStatus === 'final_approved';
 
             setReports(prev => prev.map(r =>
                 r.id === reportId
-                    ? { ...r, isApproved: true, approvedBy: currentUser?.id || undefined, approvedAt: new Date().toISOString() }
+                    ? {
+                        ...r,
+                        approvalStatus: newStatus as any,
+                        isApproved: isFinal,
+                        ...(isFinal
+                            ? { finalApprovedBy: currentUser?.id, finalApprovedAt: new Date().toISOString() }
+                            : { reviewerApprovedBy: currentUser?.id, reviewerApprovedAt: new Date().toISOString() }),
+                    }
                     : r
             ));
 
-            if (rep.rev && rep.node) {
+            // پیشرفت فقط هنگامِ تاییدِ نهایی روی گانت اعمال می‌شود
+            if (isFinal && rep.rev && rep.node) {
                 onGlobalProgressUpdate(rep.rev.id, rep.node.id, rep.progressPercent);
             }
 
-            const pmName = currentUser?.username || 'Project Manager';
-            const approvalPost = `⚡ **REPORT APPROVED BY PM**\nManager Context: **${pmName} (${currentUser?.jobTitle || 'Planner'})**\nAuthorized Progress Level: **${rep.progressPercent}% Consolidated**\nWork hours logged: **${formatDecimalTime(rep.timeSpentHours)}**\n\n*The construction master timeline has been updated with these actual progress values.*`;
+            const actorName = currentUser?.username || 'Reviewer';
+            const post = isFinal
+                ? `✅ **تاییدِ نهاییِ گزارش**\nتوسط: **${actorName}** (${currentUser?.jobTitle || 'مدیر برنامه‌ریزی'})\nپیشرفتِ ثبت‌شده: **${rep.progressPercent}%**\nزمانِ کارکرد: **${formatDecimalTime(rep.timeSpentHours)}**\n\n*برنامهٔ اصلی با این مقادیر به‌روزرسانی شد.*`
+                : `🔎 **تاییدِ بررسی‌کننده انجام شد**\nتوسط: **${actorName}**\nپیشرفتِ پیشنهادی: **${rep.progressPercent}%**\n\n*این گزارش در انتظارِ تاییدِ نهاییِ مدیرِ برنامه‌ریزی است. پیشرفت هنوز روی گانت اعمال نشده.*`;
 
-            onAddChatMessage(rep.taskId, currentUser?.id || 'pm_system', approvalPost);
+            onAddChatMessage(rep.taskId, currentUser?.id || 'pm_system', post);
 
         } catch (error: any) {
             console.error("خطا در تایید گزارش:", error);
@@ -228,28 +261,27 @@ export default function ApprovalsPage({
         const feedback = rejectionFeedback.trim() || 'Please revise the progress value. Notes lack detailing.';
 
         try {
-            const updatedNotes = `[REJECTED: ${feedback}]\n\nOriginal Notes: ${rep.notes}`;
-
-            await apiClient.patch(`/planning/task-reports/${rejectingReportId}/`, {
-                notes: updatedNotes
+            // استفاده از endpointِ واقعیِ reject (به‌جای هکِ نوشتن در notes)
+            await apiClient.post(`/planning/task-reports/${rejectingReportId}/reject/`, {
+                reason: feedback
             });
 
             setReports(prev => prev.map(r =>
                 r.id === rejectingReportId
-                    ? { ...r, notes: updatedNotes }
+                    ? { ...r, approvalStatus: 'rejected' as any, isApproved: false }
                     : r
             ));
 
-            const pmName = currentUser?.username || 'Project Manager';
-            const rejectionPost = `⚠️ **REPORT REJECTED / CHANGES REQUIRED**\nManager Context: **${pmName} (${currentUser?.jobTitle || 'Planner'})**\nAction Remarks: "${feedback}"\n\n*The progress shift to ${rep.progressPercent}% has been withheld. The assignee must review supervisor remarks and submit a corrected log.*`;
+            const pmName = currentUser?.username || 'Reviewer';
+            const rejectionPost = `⚠️ **گزارش رد شد / نیازمندِ اصلاح**\nتوسط: **${pmName}** (${currentUser?.jobTitle || 'بررسی‌کننده'})\nبازخورد: "${feedback}"\n\n*تغییرِ پیشرفت به ${rep.progressPercent}% اعمال نشد. مجری باید بازخورد را ببیند و گزارشِ اصلاح‌شده ثبت کند.*`;
 
             onAddChatMessage(rep.taskId, currentUser?.id || 'pm_system', rejectionPost);
 
             setRejectingReportId(null);
             setRejectionFeedback('');
-        } catch (error) {
+        } catch (error: any) {
             console.error("خطا در رد گزارش:", error);
-            alert("خطا در رد گزارش.");
+            alert(error.response?.data?.detail || "خطا در رد گزارش.");
         }
     };
 
@@ -400,7 +432,9 @@ export default function ApprovalsPage({
                                             ? 'border-emerald-500/10 hover:border-emerald-500/20'
                                             : rep.approvalStatus === 'rejected'
                                                 ? 'border-rose-500/10 hover:border-rose-500/20'
-                                                : 'border-white/5 hover:border-amber-500/20 shadow-md'
+                                                : rep.approvalStatus === 'awaiting_final'
+                                                    ? 'border-indigo-500/20 hover:border-indigo-500/30 shadow-md'
+                                                    : 'border-white/5 hover:border-amber-500/20 shadow-md'
                                     }`}
                                 >
                                     {/* Submitter Info */}
@@ -548,16 +582,16 @@ export default function ApprovalsPage({
                                                     )}
                                                 </div>
 
-                                                {rep.approvalStatus !== 'pending' && (
+                                                {(rep.approvalStatus === 'approved' || rep.approvalStatus === 'rejected') && (
                                                     <div className={`mt-3 p-3.5 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs font-mono leading-none ${
                                                         rep.approvalStatus === 'approved'
                                                             ? 'bg-emerald-500/5 text-emerald-300 border-emerald-500/10'
                                                             : 'bg-rose-500/5 text-rose-300 border-rose-500/10'
                                                     }`}>
                                                         <div className="flex items-center gap-1.5">
-                                                            <span>Supervisor: <strong>{rep.approvedBy || 'Project Manager'}</strong></span>
+                                                            <span>Supervisor: <strong>{rep.finalApprovedBy || rep.approvedBy || 'Project Manager'}</strong></span>
                                                             <span>//</span>
-                                                            <span>Reviewed {rep.approvedAt ? gregorianToJalaliDateTime(rep.approvedAt) : 'Recently'}</span>
+                                                            <span>Reviewed {rep.finalApprovedAt || rep.approvedAt ? gregorianToJalaliDateTime(rep.finalApprovedAt || rep.approvedAt!) : 'Recently'}</span>
                                                         </div>
 
                                                         <div className="flex items-center gap-3">
@@ -572,10 +606,28 @@ export default function ApprovalsPage({
                                                     </div>
                                                 )}
 
+                                                {/* مرحلهٔ دوم: تاییدِ بررسی‌کننده انجام شده، منتظرِ تاییدِ نهاییِ مدیر برنامه‌ریزی (پروژهٔ شرکتی) */}
+                                                {rep.approvalStatus === 'awaiting_final' && (
+                                                    <div className="space-y-3 pt-2">
+                                                        <div className="p-3 rounded-xl border bg-indigo-500/5 text-indigo-300 border-indigo-500/20 text-[11px] font-mono flex items-center gap-2">
+                                                            <ClipboardCheck className="w-4 h-4 shrink-0" />
+                                                            <span>تاییدِ بررسی‌کننده انجام شد{rep.reviewerApprovedBy ? ` (${rep.reviewerApprovedBy})` : ''} — منتظرِ <strong>تاییدِ نهاییِ مدیرِ برنامه‌ریزی</strong>. پیشرفت هنوز روی گانت اعمال نشده.</span>
+                                                        </div>
+                                                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                                            <button onClick={() => handleApproveReport(rep.id)} className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:to-indigo-400 text-white font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs">
+                                                                <CheckCircle className="w-4 h-4" /><span>تاییدِ نهایی (Final Approve)</span>
+                                                            </button>
+                                                            <button onClick={() => startRejectionFlow(rep.id)} className="bg-black/30 hover:bg-rose-500/10 border border-white/10 text-slate-350 hover:text-rose-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs">
+                                                                <X className="w-4 h-4" /><span>Reject (رد گزارش)</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {rep.approvalStatus === 'pending' && (
                                                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2">
                                                         <button onClick={() => handleApproveReport(rep.id)} className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:to-emerald-400 text-white font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs">
-                                                            <Check className="w-4 h-4" /><span>Approve (تایید گزارش)</span>
+                                                            <Check className="w-4 h-4" /><span>{rep.isCompanyScope ? 'تاییدِ بررسی‌کننده' : 'Approve (تایید گزارش)'}</span>
                                                         </button>
                                                         <button onClick={() => { setEditingReportId(rep.id); setEditProgress(rep.progressPercent); setEditHours(initialEditHours); setEditMinutes(initialEditMins); setEditNotes(rep.notes || ''); }} className="bg-black/30 hover:bg-amber-500/10 border border-white/10 text-slate-350 hover:text-amber-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs">
                                                             <Edit className="w-4 h-4 text-amber-400" /><span>Edit (ویرایش جزئی)</span>

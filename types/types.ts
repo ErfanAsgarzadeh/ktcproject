@@ -90,6 +90,8 @@ export interface Project {
   createdAt: string;
   calendarId?: string | number | null;
   calendarName?: string | null;
+  // دامنهٔ پروژه: شرکتی (تاییدِ نهایی با مدیر برنامه‌ریزی) یا درون‌واحدی
+  scope?: 'intra_unit' | 'company';
 }
 
 export interface Revision {
@@ -126,10 +128,18 @@ export interface TaskReport {
   notes?: string;
 
   // فیلدهای مربوط به سیستم تاییدات (Approvals)
+  // workflow دو‌مرحله‌ای: pending → reviewer_approved → final_approved / rejected
+  approvalStatus?: 'pending' | 'reviewer_approved' | 'final_approved' | 'rejected';
+  reviewerApprovedBy?: string | null;
+  reviewerApprovedAt?: string | null;
+  finalApprovedBy?: string | null;
+  finalApprovedAt?: string | null;
+
+  // legacy (نگه‌داشته برای سازگاری)
   isApproved?: boolean;
   approvedBy?: string;
   approvedAt?: string;
-  rejectionReason?: string; // <--- این خط را اضافه کنید
+  rejectionReason?: string;
 }
 
 
