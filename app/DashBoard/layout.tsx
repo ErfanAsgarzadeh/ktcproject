@@ -5,26 +5,24 @@ import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/navbar';
 import { apiClient } from '@/lib/api';
 
-// صفحاتی که گاردِ دسترسی روی آن‌ها اعمال نمی‌شود (همیشه در دسترس)
 const ALWAYS_ALLOWED = ['/DashBoard/Home', '/DashBoard/Profile'];
 
 export default function DashboardLayout({
-                                          children,
-                                        }: {
+  children,
+}: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // null = هنوز چک نشده
 
   useEffect(() => {
-    // با Cookie-based auth، احراز هویت را با صدا زدن profile endpoint چک می‌کنیم
-    // اگر Cookie معتبر باشد، 200 برمی‌گردد؛ وگرنه 401 که interceptor handle می‌کند
+    // فقط یک بار در mount چک می‌کنیم — نه هر بار pathname تغییر کرد
     apiClient.get('/auth/profile/')
       .then(res => {
         setIsAuthenticated(true);
 
-        // گاردِ دسترسیِ صفحه
+        // گارد دسترسی صفحه
         const allowed: string[] | null | undefined = res.data?.allowedPages;
         if (allowed == null) return;
         if (ALWAYS_ALLOWED.includes(pathname)) return;
@@ -33,25 +31,29 @@ export default function DashboardLayout({
         }
       })
       .catch(() => {
-        // 401 → interceptor به /Login هدایت می‌کند
+        setIsAuthenticated(false);
         router.push('/Login');
       });
-  }, [pathname, router]);
+  }, []); // ← فقط یک بار اجرا می‌شود
 
-  if (!isAuthenticated) {
+  // هنوز در حال چک کردن است
+  if (isAuthenticated === null) {
     return (
-        <div className="h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
-          <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+      <div className="h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
   }
 
+  // احراز هویت ناموفق — router.push در useEffect انجام می‌شود
+  if (!isAuthenticated) return null;
+
   return (
-      <div className="h-screen overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-        <Navbar />
-        <main className="flex-1 overflow-hidden transition-all duration-300">
-          {children}
-        </main>
-      </div>
+    <div className="h-screen overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <Navbar />
+      <main className="flex-1 overflow-hidden transition-all duration-300">
+        {children}
+      </main>
+    </div>
   );
 }
