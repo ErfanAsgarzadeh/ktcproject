@@ -73,6 +73,11 @@ export interface CustomUser {
   username: string;
   jobTitle: string;
   employeeCode: string;
+  orgRole?: string;
+  unitId?: string | null;
+  unitName?: string | null;
+  // کنترلِ دسترسی صفحه: null/undefined = همهٔ صفحات؛ لیست = فقط مسیرهای مجاز
+  allowedPages?: string[] | null;
 }
 
 export interface TaskRole {
