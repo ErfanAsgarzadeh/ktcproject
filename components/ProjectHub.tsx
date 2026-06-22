@@ -116,7 +116,7 @@ export default function ProjectHub({
             .then(res => setCurrentRole(res.data.orgRole || 'member'))
             .catch(() => setCurrentRole('member'));
     }, []);
-    const canCreateProject = ['company_admin', 'company_pm', 'unit_manager'].includes(currentRole);
+    const canCreateProject = ['company_admin', 'company_pm', 'unit_manager', 'project_manager'].includes(currentRole);
 
     // States for new revision form
     const [newRevDesc, setNewRevDesc] = useState('');
@@ -133,7 +133,7 @@ export default function ProjectHub({
         e.preventDefault();
         if (!newProjName.trim()) return;
         if (!canCreateProject) {
-            alert('شما اجازه‌ی ساخت پروژه را ندارید (فقط مدیر شرکت یا مدیر واحد).');
+            alert('شما اجازه‌ی ساخت پروژه را ندارید (فقط مدیر شرکت، مدیر واحد یا مدیر پروژه).');
             return;
         }
         onAddProject(
