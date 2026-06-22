@@ -62,7 +62,7 @@ export default function CalendarsPage() {
             setCalendars(res.data.results || res.data);
         } catch (err) {
             console.error(err);
-            setMessage({ type: 'error', text: 'خطا در بارگذاری تقویم‌ها.' });
+            setMessage({ type: 'error', text: 'Error loading calendars.' });
         } finally {
             setIsLoading(false);
         }
@@ -119,7 +119,7 @@ export default function CalendarsPage() {
         e.preventDefault();
         setMessage(null);
         if (!name.trim()) {
-            setMessage({ type: 'error', text: 'نام تقویم الزامی است.' });
+            setMessage({ type: 'error', text: 'Calendar name is required.' });
             return;
         }
 
@@ -141,26 +141,26 @@ export default function CalendarsPage() {
             } else {
                 await apiClient.post('/planning/calendars/', payload);
             }
-            setMessage({ type: 'success', text: 'تقویم با موفقیت ذخیره شد.' });
+            setMessage({ type: 'success', text: 'Calendar saved successfully.' });
             resetForm();
             fetchCalendars();
         } catch (err: any) {
             console.error(err);
-            setMessage({ type: 'error', text: 'خطا در ذخیره تقویم.' });
+            setMessage({ type: 'error', text: 'Error saving calendar.' });
         } finally {
             setIsSaving(false);
         }
     };
 
     const handleDelete = async (id: string | number) => {
-        if (!window.confirm('این تقویم حذف شود؟')) return;
+        if (!window.confirm('Delete this calendar?')) return;
         try {
             await apiClient.delete(`/planning/calendars/${id}/`);
             if (editingId === id) resetForm();
             fetchCalendars();
         } catch (err) {
             console.error(err);
-            setMessage({ type: 'error', text: 'خطا در حذف تقویم.' });
+            setMessage({ type: 'error', text: 'Error deleting calendar.' });
         }
     };
 
@@ -176,8 +176,8 @@ export default function CalendarsPage() {
                         <CalendarDays className="w-6 h-6" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">مدیریت تقویم‌های کاری</h1>
-                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>تقویم‌ها را مستقل تعریف کنید و هنگام ساخت/ویرایش پروژه به آن الصاق نمایید</p>
+                        <h1 className="text-2xl font-bold tracking-tight">Work Calendar Management</h1>
+                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Define calendars independently and attach them when creating/editing projects</p>
                     </div>
                 </div>
 
@@ -198,23 +198,23 @@ export default function CalendarsPage() {
                     <form onSubmit={handleSave} className="rounded-2xl p-5 space-y-5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text-accent)' }}>
-                                {editingId ? 'ویرایش تقویم' : 'تقویم جدید'}
+                                {editingId ? 'Edit Calendar' : 'New Calendar'}
                             </h2>
                             {editingId && (
                                 <button type="button" onClick={resetForm} className="text-[11px] px-2 py-1 rounded-lg" style={{ color: 'var(--text-tertiary)', backgroundColor: 'var(--overlay-bg)' }}>
-                                    لغو ویرایش
+                                    Cancel Edit
                                 </button>
                             )}
                         </div>
 
                         <div>
-                            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-tertiary)' }}>نام تقویم</label>
-                            <input className={`w-full ${inputClass}`} value={name} onChange={e => setName(e.target.value)} placeholder="مثلاً تقویم رسمی ایران ۱۴۰۵" />
+                            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-tertiary)' }}>Calendar Name</label>
+                            <input className={`w-full ${inputClass}`} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Iran Official Calendar 1405" />
                         </div>
 
                         {/* Working days */}
                         <div>
-                            <label className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>روزها و ساعات کاری</label>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Working Days & Hours</label>
                             <div className="space-y-1.5">
                                 {WEEKDAYS.map(w => (
                                     <div key={w.idx} className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export default function CalendarsPage() {
                                             <span className="text-xs">{w.label}</span>
                                         </button>
                                         <input type="time" disabled={!days[w.idx].working} value={days[w.idx].start} onChange={e => setDayTime(w.idx, 'start', e.target.value)} className={`${inputClass} disabled:opacity-40 flex-1`} />
-                                        <span style={{ color: 'var(--text-tertiary)' }}>تا</span>
+                                        <span style={{ color: 'var(--text-tertiary)' }}>to</span>
                                         <input type="time" disabled={!days[w.idx].working} value={days[w.idx].end} onChange={e => setDayTime(w.idx, 'end', e.target.value)} className={`${inputClass} disabled:opacity-40 flex-1`} />
                                     </div>
                                 ))}
@@ -237,18 +237,18 @@ export default function CalendarsPage() {
 
                         {/* Holidays */}
                         <div>
-                            <label className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>تعطیلات / استثناها</label>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Holidays / Exceptions</label>
                             <div className="flex items-end gap-2 mb-2">
                                 <div className="flex-1">
                                     <JalaliDatePicker value={newHolidayDate} onChange={(iso) => setNewHolidayDate(iso)} className={`w-full ${inputClass} flex items-center justify-between gap-2`} />
                                 </div>
-                                <input className={`flex-1 ${inputClass}`} value={newHolidayDesc} onChange={e => setNewHolidayDesc(e.target.value)} placeholder="توضیح (اختیاری)" />
+                                <input className={`flex-1 ${inputClass}`} value={newHolidayDesc} onChange={e => setNewHolidayDesc(e.target.value)} placeholder="Description (optional)" />
                                 <button type="button" onClick={addHoliday} disabled={!newHolidayDate} className="px-3 py-2 rounded-lg disabled:opacity-40" style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}>
                                     <Plus className="w-4 h-4" />
                                 </button>
                             </div>
                             <div className="space-y-1 max-h-40 overflow-y-auto">
-                                {holidays.length === 0 && <div className="text-[11px] italic" style={{ color: 'var(--text-tertiary)' }}>تعطیلی ثبت نشده.</div>}
+                                {holidays.length === 0 && <div className="text-[11px] italic" style={{ color: 'var(--text-tertiary)' }}>No holidays registered.</div>}
                                 {holidays.map(h => (
                                     <div key={h.date} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs" style={{ backgroundColor: 'var(--overlay-bg)' }}>
                                         <span className="font-mono">{gregorianToJalaliString(h.date)} {h.description && <span style={{ color: 'var(--text-tertiary)' }}>— {h.description}</span>}</span>
@@ -260,17 +260,17 @@ export default function CalendarsPage() {
 
                         <button type="submit" disabled={isSaving} className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60" style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}>
                             {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                            <span>{editingId ? 'ذخیره تغییرات' : 'ساخت تقویم'}</span>
+                            <span>{editingId ? 'Save Changes' : 'Create Calendar'}</span>
                         </button>
                     </form>
 
                     {/* ─── List ─── */}
                     <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
-                        <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-accent)' }}>تقویم‌های تعریف‌شده</h2>
+                        <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-accent)' }}>Defined Calendars</h2>
                         {isLoading ? (
                             <div className="flex items-center justify-center py-10" style={{ color: 'var(--text-accent)' }}><Loader2 className="w-6 h-6 animate-spin" /></div>
                         ) : calendars.length === 0 ? (
-                            <div className="text-center py-10 text-xs italic" style={{ color: 'var(--text-tertiary)' }}>هنوز تقویمی تعریف نشده است.</div>
+                            <div className="text-center py-10 text-xs italic" style={{ color: 'var(--text-tertiary)' }}>No calendars defined yet.</div>
                         ) : (
                             calendars.map(cal => (
                                 <div key={cal.id} className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: 'var(--overlay-bg)', border: '1px solid var(--border-subtle)' }}>
@@ -278,9 +278,9 @@ export default function CalendarsPage() {
                                         <div className="text-sm font-bold">{cal.name}</div>
                                         <div className="text-[10px] font-mono flex items-center gap-2 mt-1" style={{ color: 'var(--text-tertiary)' }}>
                                             <Clock className="w-3 h-3" />
-                                            <span>{(cal.intervals || []).length} روز کاری</span>
+                                            <span>{(cal.intervals || []).length} working days</span>
                                             <span>•</span>
-                                            <span>{(cal.exceptions || []).length} تعطیلی</span>
+                                            <span>{(cal.exceptions || []).length} holidays</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1.5">

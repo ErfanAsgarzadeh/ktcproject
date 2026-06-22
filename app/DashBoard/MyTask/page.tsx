@@ -104,7 +104,7 @@ export default function MyTasksUser() {
     };
 
     if (isLoading) {
-        return <div className="h-screen w-screen flex items-center justify-center font-mono text-sm" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-accent)' }}>در حال برقراری ارتباط با سرور...</div>;
+        return <div className="h-screen w-screen flex items-center justify-center font-mono text-sm" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-accent)' }}>Connecting to server...</div>;
     }
 
     return(

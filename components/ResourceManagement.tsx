@@ -114,7 +114,7 @@ export default function ResourceManagement({
 
             } catch (error) {
                 console.error("Error fetching resource data:", error);
-                alert("خطا در دریافت اطلاعات از سرور.");
+                alert("Error fetching data from server.");
             } finally {
                 setIsLoading(false);
             }
@@ -164,12 +164,12 @@ export default function ResourceManagement({
             setShowResourceModal(false);
         } catch (error) {
             console.error(error);
-            alert('خطا در ذخیره منبع.');
+            alert('Error saving resource.');
         }
     };
 
     const handleDeleteResource = async (id: string) => {
-        if (confirm('آیا از حذف این منبع و تمامی رکوردهای متصل به آن اطمینان دارید؟')) {
+        if (confirm('Are you sure you want to delete this resource and all its associated records?')) {
             try {
                 await apiClient.delete(`/resources/${id}/`);
                 setResources(resources.filter(r => r.id !== id));
@@ -178,7 +178,7 @@ export default function ResourceManagement({
                 setRates(rates.filter(r => r.resourceId !== id));
                 setAssignments(assignments.filter(a => a.resourceId !== id));
             } catch (error) {
-                alert('خطا در حذف منبع.');
+                alert('Error deleting resource.');
             }
         }
     };
@@ -193,16 +193,16 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/resource-pools/', { name: newPoolName, description: newPoolDesc });
             setPools([...pools, response.data]);
             setNewPoolName(''); setNewPoolDesc('');
-        } catch (error) { alert('خطا در ساخت Pool.'); }
+        } catch (error) { alert('Error creating pool.'); }
     };
 
     const handleDeletePool = async (id: string) => {
-        if (confirm('آیا از حذف این Pool اطمینان دارید؟')) {
+        if (confirm('Are you sure you want to delete this pool?')) {
             try {
                 await apiClient.delete(`planning/resource-pools/${id}/`);
                 setPools(pools.filter(p => p.id !== id));
                 setResources(resources.map(r => r.poolId === id ? { ...r, poolId: null } : r));
-            } catch (error) { alert('خطا در حذف.'); }
+            } catch (error) { alert('Error deleting.'); }
         }
     };
 
@@ -213,16 +213,16 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/resource-roles/', { name: newRoleName, description: newRoleDesc });
             setRoles([...roles, response.data]);
             setNewRoleName(''); setNewRoleDesc('');
-        } catch (error) { alert('خطا در ساخت Role.'); }
+        } catch (error) { alert('Error creating role.'); }
     };
 
     const handleDeleteRole = async (id: string) => {
-        if (confirm('آیا از حذف این نقش اطمینان دارید؟')) {
+        if (confirm('Are you sure you want to delete this role?')) {
             try {
                 await apiClient.delete(`/resource-roles/${id}/`);
                 setRoles(roles.filter(r => r.id !== id));
                 setResources(resources.map(r => r.roleId === id ? { ...r, roleId: null } : r));
-            } catch (error) { alert('خطا در حذف.'); }
+            } catch (error) { alert('Error deleting.'); }
         }
     };
 
@@ -233,16 +233,16 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/resource-skills/', { name: newSkillName });
             setSkills([...skills, response.data]);
             setNewSkillName('');
-        } catch (error) { alert('خطا در ساخت Skill.'); }
+        } catch (error) { alert('Error creating skill.'); }
     };
 
     const handleDeleteSkill = async (id: string) => {
-        if (confirm('آیا از حذف این مهارت اطمینان دارید؟')) {
+        if (confirm('Are you sure you want to delete this skill?')) {
             try {
                 await apiClient.delete(`planning/resource-skills/${id}/`);
                 setSkills(skills.filter(s => s.id !== id));
                 setSkillMappings(skillMappings.filter(m => m.skillId !== id));
-            } catch (error) { alert('خطا در حذف.'); }
+            } catch (error) { alert('Error deleting.'); }
         }
     };
 
@@ -254,7 +254,7 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/resource-skill-mappings/', payload);
             setSkillMappings([...skillMappings, response.data]);
             setShowSkillModal(false);
-        } catch (error) { alert('خطا در تخصیص مهارت (ممکن است تکراری باشد).'); }
+        } catch (error) { alert('Error assigning skill (may be duplicate).'); }
     };
 
     // =========================================================================
@@ -273,7 +273,7 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/resource-rates/', payload);
             setRates([...rates, response.data]);
             setShowRateModal(false);
-        } catch (error) { alert('خطا در ثبت نرخ.'); }
+        } catch (error) { alert('Error saving rate.'); }
     };
 
     const handleAddException = async (e: React.FormEvent) => {
@@ -290,7 +290,7 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/resource-exceptions/', payload);
             setExceptions([...exceptions, response.data]);
             setShowExceptionModal(false);
-        } catch (error) { alert('خطا در ثبت استثنا.'); }
+        } catch (error) { alert('Error saving exception.'); }
     };
 
     // =========================================================================
@@ -311,7 +311,7 @@ export default function ResourceManagement({
             const response = await apiClient.post('planning/assignments/', payload);
             setAssignments([...assignments, response.data]);
             setShowAsgModal(false);
-        } catch (error) { alert('خطا در تخصیص (احتمالاً این منبع قبلاً به این تسک تخصیص یافته است).'); }
+        } catch (error) { alert('Error assigning (this resource may already be assigned to this task).'); }
     };
 
     const handleUpdateActualHours = async (asgId: string, actualHours: number) => {
@@ -319,7 +319,7 @@ export default function ResourceManagement({
             const response = await apiClient.patch(`planning/assignments/${asgId}/`, { actual_hours: actualHours });
             setAssignments(assignments.map(a => a.id === asgId ? response.data : a));
         } catch (error) {
-            alert('خطا در بروزرسانی ساعت کارکرد.');
+            alert('Error updating work hours.');
         }
     };
 
@@ -562,7 +562,7 @@ export default function ResourceManagement({
                                                                     await apiClient.delete(`/resource-skill-mappings/${mapping.id}/`);
                                                                     setSkillMappings(skillMappings.filter(sm => sm.id !== mapping.id));
                                                                 } catch (e) {
-                                                                    alert('خطا در حذف این مورد.');
+                                                                    alert('Error deleting this item.');
                                                                 }
                                                             }
                                                         }}
@@ -801,7 +801,7 @@ export default function ResourceManagement({
                                                                             try {
                                                                                 await apiClient.delete(`/resource-rates/${r.id}/`);
                                                                                 setRates(rates.filter(rt => rt.id !== r.id));
-                                                                            } catch (e) { alert("خطا در حذف این مورد."); }
+                                                                            } catch (e) { alert("Error deleting this item."); }
                                                                         }
                                                                     }}
                                                                     className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded cursor-pointer"
@@ -873,7 +873,7 @@ export default function ResourceManagement({
                                                                     try {
                                                                         await apiClient.delete(`/resource-exceptions/${exc.id}/`);
                                                                         setExceptions(exceptions.filter(e => e.id !== exc.id));
-                                                                    } catch (e) { alert("خطا در حذف این مورد."); }
+                                                                    } catch (e) { alert("Error deleting this item."); }
                                                                 }
                                                             }}
                                                             className="p-1 rounded text-slate-500 hover:text-rose-400 group-hover:bg-rose-500/10 opacity-70 hover:opacity-100 cursor-pointer"
@@ -993,7 +993,7 @@ export default function ResourceManagement({
                                                                     try {
                                                                         await apiClient.delete(`/assignments/${asg.id}/`);
                                                                         setAssignments(assignments.filter(a => a.id !== asg.id));
-                                                                    } catch (e) { alert("خطا در حذف این مورد."); }
+                                                                    } catch (e) { alert("Error deleting this item."); }
                                                                 }
                                                             }}
                                                             className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded cursor-pointer"

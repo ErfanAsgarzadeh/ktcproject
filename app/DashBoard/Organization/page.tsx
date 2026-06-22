@@ -7,11 +7,11 @@ import {
 } from 'lucide-react';
 
 const ORG_ROLES = [
-    { value: 'company_admin', label: 'مدیر سیستم' },
-    { value: 'company_pm', label: 'مدیر پروژه شرکت' },
-    { value: 'unit_manager', label: 'مدیر واحد' },
-    { value: 'project_manager', label: 'مدیر پروژه' },
-    { value: 'member', label: 'عضو' },
+    { value: 'company_admin', label: 'System Admin' },
+    { value: 'company_pm', label: 'Company PM' },
+    { value: 'unit_manager', label: 'Unit Manager' },
+    { value: 'project_manager', label: 'Project Manager' },
+    { value: 'member', label: 'Member' },
 ];
 
 const roleLabel = (v: string) => ORG_ROLES.find(r => r.value === v)?.label || v;
@@ -58,7 +58,7 @@ export default function OrganizationPage() {
             setUsers(usersRes.data.results || usersRes.data);
         } catch (err) {
             console.error(err);
-            flash('error', 'خطا در بارگذاری اطلاعات سازمانی.');
+            flash('error', 'Error loading organization data.');
         } finally {
             setIsLoading(false);
         }
@@ -76,25 +76,25 @@ export default function OrganizationPage() {
             });
             setNewUnitName('');
             setNewUnitManager('');
-            flash('success', 'واحد ساخته شد.');
+            flash('success', 'Unit created.');
             fetchAll();
-        } catch (err) { console.error(err); flash('error', 'خطا در ساخت واحد.'); }
+        } catch (err) { console.error(err); flash('error', 'Error creating unit.'); }
     };
 
     const updateUnitManager = async (unitId: string, managerId: string) => {
         try {
             await apiClient.patch(`/auth/org-units/${unitId}/`, { managerId: managerId || null });
             fetchAll();
-        } catch (err) { console.error(err); flash('error', 'خطا در تغییر مدیر واحد.'); }
+        } catch (err) { console.error(err); flash('error', 'Error changing unit manager.'); }
     };
 
     const deleteUnit = async (unitId: string) => {
-        if (!window.confirm('این واحد حذف شود؟ نیروهای آن بدون واحد می‌شوند.')) return;
+        if (!window.confirm('Delete this unit? Its members will become unassigned.')) return;
         try {
             await apiClient.delete(`/auth/org-units/${unitId}/`);
-            flash('success', 'واحد حذف شد.');
+            flash('success', 'Unit deleted.');
             fetchAll();
-        } catch (err) { console.error(err); flash('error', 'خطا در حذف واحد.'); }
+        } catch (err) { console.error(err); flash('error', 'Error deleting unit.'); }
     };
 
     const updateUser = async (userId: string, fields: { unitId?: string | null; orgRole?: string }) => {
@@ -109,14 +109,14 @@ export default function OrganizationPage() {
                 ...(payload.unitId !== undefined ? { unitId: payload.unitId, unitName: units.find(x => String(x.id) === String(payload.unitId))?.name || null } : {}),
                 ...(payload.orgRole !== undefined ? { orgRole: payload.orgRole } : {}),
             } : u));
-            flash('success', 'نیرو به‌روزرسانی شد.');
-        } catch (err) { console.error(err); flash('error', 'خطا در به‌روزرسانی نیرو.'); }
+            flash('success', 'Member updated.');
+        } catch (err) { console.error(err); flash('error', 'Error updating member.'); }
     };
 
     const createUser = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!userForm.username.trim() || !userForm.password.trim()) {
-            flash('error', 'نام کاربری و رمز عبور الزامی است.');
+            flash('error', 'Username and password are required.');
             return;
         }
         try {
@@ -132,14 +132,14 @@ export default function OrganizationPage() {
             });
             setShowUserModal(false);
             setUserForm(emptyUserForm);
-            flash('success', 'کاربر ساخته شد.');
+            flash('success', 'User created.');
             fetchAll();
         } catch (err: any) {
             console.error(err);
             const data = err?.response?.data;
             const detail = data?.detail
                 || (data && typeof data === 'object' ? Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' | ') : null)
-                || 'خطا در ساخت کاربر.';
+                || 'Error creating user.';
             flash('error', detail);
         } finally {
             setCreatingUser(false);
@@ -158,8 +158,8 @@ export default function OrganizationPage() {
                         <Building2 className="w-6 h-6" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">واحدها و نیروها</h1>
-                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>واحدهای سازمانی را تعریف و نقش/واحد هر نیرو را تعیین کنید</p>
+                        <h1 className="text-2xl font-bold tracking-tight">Units & Personnel</h1>
+                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Define organizational units and assign roles/units to each member</p>
                     </div>
                 </div>
 
@@ -183,23 +183,23 @@ export default function OrganizationPage() {
                     <div className="lg:col-span-2 space-y-4">
                         <div className="rounded-2xl p-5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
                             <h2 className="text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
-                                <Building2 className="w-4 h-4" /> واحد جدید
+                                <Building2 className="w-4 h-4" /> New Unit
                             </h2>
                             <form onSubmit={createUnit} className="space-y-2.5">
-                                <input className={`w-full ${inputClass}`} value={newUnitName} onChange={e => setNewUnitName(e.target.value)} placeholder="نام واحد (مثلاً واحد فنی)" />
+                                <input className={`w-full ${inputClass}`} value={newUnitName} onChange={e => setNewUnitName(e.target.value)} placeholder="Unit name (e.g. Technical Unit)" />
                                 <select className={`w-full ${inputClass}`} value={newUnitManager} onChange={e => setNewUnitManager(e.target.value)}>
-                                    <option value="" className="bg-slate-950">— انتخاب مدیر واحد (اختیاری) —</option>
+                                    <option value="" className="bg-slate-950">— Select unit manager (optional) —</option>
                                     {users.map(u => <option key={u.id} value={u.id} className="bg-slate-950">{u.username}</option>)}
                                 </select>
                                 <button type="submit" className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2" style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}>
-                                    <Plus className="w-4 h-4" /> ساخت واحد
+                                    <Plus className="w-4 h-4" /> Create Unit
                                 </button>
                             </form>
                         </div>
 
                         <div className="rounded-2xl p-5 space-y-2" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
-                            <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-accent)' }}>واحدهای تعریف‌شده</h2>
-                            {units.length === 0 && <div className="text-xs italic py-4 text-center" style={{ color: 'var(--text-tertiary)' }}>واحدی تعریف نشده.</div>}
+                            <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-accent)' }}>Defined Units</h2>
+                            {units.length === 0 && <div className="text-xs italic py-4 text-center" style={{ color: 'var(--text-tertiary)' }}>No units defined.</div>}
                             {units.map(unit => (
                                 <div key={unit.id} className="p-3 rounded-xl" style={{ backgroundColor: 'var(--overlay-bg)', border: '1px solid var(--border-subtle)' }}>
                                     <div className="flex items-center justify-between mb-2">
@@ -207,12 +207,12 @@ export default function OrganizationPage() {
                                         <button onClick={() => deleteUnit(unit.id)} className="p-1.5 rounded-lg hover:bg-white/10 text-rose-400"><Trash2 className="w-3.5 h-3.5" /></button>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
-                                        <Users className="w-3 h-3" /><span>{unit.membersCount} نیرو</span>
+                                        <Users className="w-3 h-3" /><span>{unit.membersCount} members</span>
                                     </div>
                                     <div className="mt-2 flex items-center gap-1.5">
                                         <UserCog className="w-3 h-3 shrink-0" style={{ color: 'var(--text-tertiary)' }} />
-                                        <select value={unit.managerId ?? ''} onChange={e => updateUnitManager(unit.id, e.target.value)} className={`flex-1 ${inputClass} text-[11px]`} title="مدیر واحد">
-                                            <option value="" className="bg-slate-950">— مدیر واحد —</option>
+                                        <select value={unit.managerId ?? ''} onChange={e => updateUnitManager(unit.id, e.target.value)} className={`flex-1 ${inputClass} text-[11px]`} title="Unit Manager">
+                                            <option value="" className="bg-slate-950">— Unit Manager —</option>
                                             {users.map(u => <option key={u.id} value={u.id} className="bg-slate-950">{u.username}</option>)}
                                         </select>
                                     </div>
@@ -225,14 +225,14 @@ export default function OrganizationPage() {
                     <div className="lg:col-span-3 rounded-2xl p-5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
-                                <Users className="w-4 h-4" /> نیروها ({users.length})
+                                <Users className="w-4 h-4" /> Personnel ({users.length})
                             </h2>
                             <button
                                 onClick={() => { setUserForm(emptyUserForm); setShowUserModal(true); }}
                                 className="py-2 px-3 rounded-xl font-bold text-xs flex items-center gap-1.5"
                                 style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}
                             >
-                                <UserPlus className="w-4 h-4" /> کاربر جدید
+                                <UserPlus className="w-4 h-4" /> New User
                             </button>
                         </div>
                         <div className="space-y-2 max-h-[calc(100vh-260px)] overflow-y-auto pr-1">
@@ -249,13 +249,13 @@ export default function OrganizationPage() {
                                     </div>
 
                                     {/* org role */}
-                                    <select value={u.orgRole || 'member'} onChange={e => updateUser(u.id, { orgRole: e.target.value })} className={`${inputClass} text-[11px]`} title="نقش سازمانی">
+                                    <select value={u.orgRole || 'member'} onChange={e => updateUser(u.id, { orgRole: e.target.value })} className={`${inputClass} text-[11px]`} title="Organization Role">
                                         {ORG_ROLES.map(r => <option key={r.value} value={r.value} className="bg-slate-950">{r.label}</option>)}
                                     </select>
 
                                     {/* unit */}
-                                    <select value={u.unitId ?? ''} onChange={e => updateUser(u.id, { unitId: e.target.value })} className={`${inputClass} text-[11px]`} title="واحد سازمانی">
-                                        <option value="" className="bg-slate-950">— بدون واحد —</option>
+                                    <select value={u.unitId ?? ''} onChange={e => updateUser(u.id, { unitId: e.target.value })} className={`${inputClass} text-[11px]`} title="Organization Unit">
+                                        <option value="" className="bg-slate-950">— No Unit —</option>
                                         {units.map(unit => <option key={unit.id} value={unit.id} className="bg-slate-950">{unit.name}</option>)}
                                     </select>
 
@@ -273,44 +273,44 @@ export default function OrganizationPage() {
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <form onSubmit={createUser} className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)' }}>
                         <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--border-subtle)' }}>
-                            <h3 className="text-base font-bold flex items-center gap-2"><UserPlus className="w-5 h-5" style={{ color: 'var(--text-accent)' }} /> ساخت کاربر جدید</h3>
+                            <h3 className="text-base font-bold flex items-center gap-2"><UserPlus className="w-5 h-5" style={{ color: 'var(--text-accent)' }} /> Create New User</h3>
                             <button type="button" onClick={() => setShowUserModal(false)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-4 h-4" /></button>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
                             <div>
-                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>نام کاربری *</label>
+                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Username *</label>
                                 <input className={`w-full ${inputClass}`} value={userForm.username} onChange={e => setUserForm(f => ({ ...f, username: e.target.value }))} placeholder="username" autoComplete="off" />
                             </div>
                             <div>
-                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>رمز عبور *</label>
+                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Password *</label>
                                 <input type="password" className={`w-full ${inputClass}`} value={userForm.password} onChange={e => setUserForm(f => ({ ...f, password: e.target.value }))} placeholder="••••••••" autoComplete="new-password" />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>عنوان شغلی</label>
-                                    <input className={`w-full ${inputClass}`} value={userForm.jobTitle} onChange={e => setUserForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="مثلاً برنامه‌ریز" />
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Job Title</label>
+                                    <input className={`w-full ${inputClass}`} value={userForm.jobTitle} onChange={e => setUserForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="e.g. Planner" />
                                 </div>
                                 <div>
-                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>کد پرسنلی</label>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Employee Code</label>
                                     <input className={`w-full ${inputClass}`} value={userForm.employeeCode} onChange={e => setUserForm(f => ({ ...f, employeeCode: e.target.value }))} placeholder="EMP-001" />
                                 </div>
                             </div>
                             <div>
-                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>ایمیل</label>
+                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Email</label>
                                 <input type="email" className={`w-full ${inputClass}`} value={userForm.email} onChange={e => setUserForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" autoComplete="off" />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>نقش سازمانی</label>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Organization Role</label>
                                     <select className={`w-full ${inputClass}`} value={userForm.orgRole} onChange={e => setUserForm(f => ({ ...f, orgRole: e.target.value }))}>
                                         {ORG_ROLES.map(r => <option key={r.value} value={r.value} className="bg-slate-950">{r.label}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>واحد سازمانی</label>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>Organization Unit</label>
                                     <select className={`w-full ${inputClass}`} value={userForm.unitId} onChange={e => setUserForm(f => ({ ...f, unitId: e.target.value }))}>
-                                        <option value="" className="bg-slate-950">— بدون واحد —</option>
+                                        <option value="" className="bg-slate-950">— No Unit —</option>
                                         {units.map(unit => <option key={unit.id} value={unit.id} className="bg-slate-950">{unit.name}</option>)}
                                     </select>
                                 </div>
@@ -320,9 +320,9 @@ export default function OrganizationPage() {
                         <div className="flex items-center gap-2 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
                             <button type="submit" disabled={creatingUser} className="flex-1 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 disabled:opacity-50" style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}>
                                 {creatingUser ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                                <span>{creatingUser ? 'در حال ساخت...' : 'ساخت کاربر'}</span>
+                                <span>{creatingUser ? 'Creating...' : 'Create User'}</span>
                             </button>
-                            <button type="button" onClick={() => setShowUserModal(false)} className="py-2.5 px-4 rounded-xl font-semibold text-xs border" style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}>انصراف</button>
+                            <button type="button" onClick={() => setShowUserModal(false)} className="py-2.5 px-4 rounded-xl font-semibold text-xs border" style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}>Cancel</button>
                         </div>
                     </form>
                 </div>

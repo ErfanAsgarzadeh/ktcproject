@@ -35,7 +35,7 @@ export default function ApprovalsRoutePage() {
                 const loggedInUser = profileRes.data.results ? profileRes.data.results[0] : profileRes.data;
 
                 if (!loggedInUser || !loggedInUser.id) {
-                    throw new Error("اطلاعات کاربری یافت نشد. لطفاً دوباره وارد شوید.");
+                    throw new Error("User info not found. Please log in again.");
                 }
 
                 setCurrentUser(loggedInUser);
@@ -58,7 +58,7 @@ export default function ApprovalsRoutePage() {
 
             } catch (err: any) {
                 console.error("خطا در دریافت اطلاعات مسیر:", err);
-                setError(err.message || "خطا در برقراری ارتباط با سرور");
+                setError(err.message || "Error connecting to server");
             } finally {
                 setIsLoading(false);
             }
@@ -91,7 +91,7 @@ export default function ApprovalsRoutePage() {
         return (
             <div className="h-full w-full flex flex-col items-center justify-center font-mono space-y-4" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-accent)' }}>
                 <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-sm">در حال بارگذاری سیستم مدیریت گزارشات...</p>
+                <p className="text-sm">Loading report management system...</p>
             </div>
         );
     }
@@ -104,7 +104,7 @@ export default function ApprovalsRoutePage() {
                     onClick={() => window.location.reload()}
                     className="px-4 py-2 bg-rose-500/20 rounded-lg text-xs hover:bg-rose-500/30 transition"
                 >
-                    تلاش مجدد
+                    Retry
                 </button>
             </div>
         );

@@ -448,10 +448,10 @@ export default function GanttChart({
             onClick={goToStart}
             className="absolute right-2 top-2 z-30 flex items-center gap-1.5 px-3 h-8 rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 text-[11px] font-bold"
             style={{ backgroundColor: 'var(--text-accent)', color: '#ffffff', border: '1px solid var(--border-medium)' }}
-            title="بازگشت به شروع پروژه / امروز"
+            title="Go to project start / today"
         >
           <Crosshair className="w-3.5 h-3.5" />
-          <span>برو به شروع</span>
+          <span>Go to Start</span>
         </button>
 
         {/* 1. Synced Double Header Timescale Row */}

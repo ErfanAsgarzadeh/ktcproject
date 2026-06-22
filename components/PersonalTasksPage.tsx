@@ -217,7 +217,7 @@ export default function PersonalTasksPage({
     if (!selectedAssignee || !selectedRole) return;
 
     if (!editingTaskId) {
-      alert("ابتدا تسک را ایجاد (Commit) کنید، سپس روی آن کلیک کنید تا بتوانید نقش‌های جدید اضافه نمایید.");
+      alert("Please create (Commit) the task first, then click on it to add new roles.");
       return;
     }
 
@@ -234,7 +234,7 @@ export default function PersonalTasksPage({
       setSelectedRole('owner');
     } catch (err) {
       console.error("Error saving task role:", err);
-      alert("خطا در تخصیص کاربر! ممکن است این نقش قبلاً برای کاربر انتخاب شده باشد.");
+      alert("Error assigning user! This role may already be assigned to the selected user.");
     }
   };
 
@@ -245,7 +245,7 @@ export default function PersonalTasksPage({
       setTaskRoles(prev => prev.filter(tr => tr.id !== id));
     } catch (err) {
       console.error("Error deleting task role:", err);
-      alert("خطا در حذف تخصیص کاربر.");
+      alert("Error removing user assignment.");
     }
   };
 

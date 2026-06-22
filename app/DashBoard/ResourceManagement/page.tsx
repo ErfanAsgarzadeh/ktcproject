@@ -57,7 +57,7 @@ export default function ResourceManagementPage() {
 
             } catch (error) {
                 console.error("Error fetching baseline data from backend:", error);
-                alert("خطا در دریافت اطلاعات پایه پروژه از سرور.");
+                alert("Error fetching baseline project data from server.");
             } finally {
                 setIsLoading(false);
             }

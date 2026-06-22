@@ -750,7 +750,7 @@ export default function App() {
         setTaskRoles(taskRoles.filter(tr => tr.id !== id));
       } catch (err) {
         console.error("Error deleting task role:", err);
-        alert("خطا در حذف تخصیص کاربر.");
+        alert("Error removing user assignment.");
       }
     }
   };
@@ -816,7 +816,7 @@ export default function App() {
 
     } catch (error) {
       console.error("Failed to execute CPM engine:", error);
-      alert("ارتباط با سرور برای انجام محاسبات قطع شد.");
+      alert("Connection to server for calculations was lost.");
     } finally {
       // setIsLoading(false);
     }

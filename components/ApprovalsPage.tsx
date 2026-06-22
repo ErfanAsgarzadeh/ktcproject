@@ -234,14 +234,14 @@ export default function ApprovalsPage({
 
             const actorName = currentUser?.username || 'Reviewer';
             const post = isFinal
-                ? `✅ **تاییدِ نهاییِ گزارش**\nتوسط: **${actorName}** (${currentUser?.jobTitle || 'مدیر برنامه‌ریزی'})\nپیشرفتِ ثبت‌شده: **${rep.progressPercent}%**\nزمانِ کارکرد: **${formatDecimalTime(rep.timeSpentHours)}**\n\n*برنامهٔ اصلی با این مقادیر به‌روزرسانی شد.*`
-                : `🔎 **تاییدِ بررسی‌کننده انجام شد**\nتوسط: **${actorName}**\nپیشرفتِ پیشنهادی: **${rep.progressPercent}%**\n\n*این گزارش در انتظارِ تاییدِ نهاییِ مدیرِ برنامه‌ریزی است. پیشرفت هنوز روی گانت اعمال نشده.*`;
+                ? `✅ **Final Report Approval**\nBy: **${actorName}** (${currentUser?.jobTitle || 'Planning Manager'})\nRecorded Progress: **${rep.progressPercent}%**\nWork Duration: **${formatDecimalTime(rep.timeSpentHours)}**\n\n*The main schedule has been updated with these values.*`
+                : `🔎 **Reviewer Approval Completed**\nBy: **${actorName}**\nProposed Progress: **${rep.progressPercent}%**\n\n*This report is awaiting final approval by the planning manager. Progress has not yet been applied to the Gantt chart.*`;
 
             onAddChatMessage(rep.taskId, currentUser?.id || 'pm_system', post);
 
         } catch (error: any) {
             console.error("خطا در تایید گزارش:", error);
-            alert(error.response?.data?.detail || "خطا در برقراری ارتباط با سرور");
+            alert(error.response?.data?.detail || "Error connecting to server");
         }
     };
 
@@ -273,7 +273,7 @@ export default function ApprovalsPage({
             ));
 
             const pmName = currentUser?.username || 'Reviewer';
-            const rejectionPost = `⚠️ **گزارش رد شد / نیازمندِ اصلاح**\nتوسط: **${pmName}** (${currentUser?.jobTitle || 'بررسی‌کننده'})\nبازخورد: "${feedback}"\n\n*تغییرِ پیشرفت به ${rep.progressPercent}% اعمال نشد. مجری باید بازخورد را ببیند و گزارشِ اصلاح‌شده ثبت کند.*`;
+            const rejectionPost = `⚠️ **Report Rejected / Needs Revision**\nBy: **${pmName}** (${currentUser?.jobTitle || 'Reviewer'})\nFeedback: "${feedback}"\n\n*Progress change to ${rep.progressPercent}% was not applied. The executor must review the feedback and submit a revised report.*`;
 
             onAddChatMessage(rep.taskId, currentUser?.id || 'pm_system', rejectionPost);
 
@@ -281,7 +281,7 @@ export default function ApprovalsPage({
             setRejectionFeedback('');
         } catch (error: any) {
             console.error("خطا در رد گزارش:", error);
-            alert(error.response?.data?.detail || "خطا در رد گزارش.");
+            alert(error.response?.data?.detail || "Error rejecting report.");
         }
     };
 
@@ -305,7 +305,7 @@ export default function ApprovalsPage({
             setEditingReportId(null);
         } catch (error) {
             console.error("خطا در ویرایش:", error);
-            alert("خطا در ویرایش گزارش.");
+            alert("Error editing report.");
         }
     };
 
@@ -390,7 +390,7 @@ export default function ApprovalsPage({
                 {isLoading ? (
                     <div className="text-center py-24 border border-dashed border-white/5 rounded-3xl p-8 bg-black/20">
                         <Hourglass className="w-12 h-12 text-cyan-500 mx-auto mb-4 animate-spin" />
-                        <h3 className="text-sm font-bold text-slate-400 capitalize">در حال دریافت اطلاعات از سرور...</h3>
+                        <h3 className="text-sm font-bold text-slate-400 capitalize">Loading data from server...</h3>
                     </div>
                 ) : filteredReports.length === 0 ? (
                     <div className="text-center py-24 border border-dashed border-white/5 rounded-3xl p-8 bg-black/20">
@@ -530,7 +530,7 @@ export default function ApprovalsPage({
 
                                                 <div className="flex items-center gap-3 pt-2">
                                                     <button onClick={() => handleSaveEdit(rep.id)} className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs">
-                                                        <Check className="w-4 h-4" /><span>Save Adjustments (ذخیره)</span>
+                                                        <Check className="w-4 h-4" /><span>Save Adjustments</span>
                                                     </button>
                                                     <button onClick={() => setEditingReportId(null)} className="bg-black/30 hover:bg-white/5 border border-white/10 text-slate-300 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1 text-xs">
                                                         <X className="w-4 h-4" /><span>Cancel</span>
@@ -611,14 +611,14 @@ export default function ApprovalsPage({
                                                     <div className="space-y-3 pt-2">
                                                         <div className="p-3 rounded-xl border bg-indigo-500/5 text-indigo-300 border-indigo-500/20 text-[11px] font-mono flex items-center gap-2">
                                                             <ClipboardCheck className="w-4 h-4 shrink-0" />
-                                                            <span>تاییدِ بررسی‌کننده انجام شد{rep.reviewerApprovedBy ? ` (${rep.reviewerApprovedBy})` : ''} — منتظرِ <strong>تاییدِ نهاییِ مدیرِ برنامه‌ریزی</strong>. پیشرفت هنوز روی گانت اعمال نشده.</span>
+                                                            <span>Reviewer approval completed{rep.reviewerApprovedBy ? ` (${rep.reviewerApprovedBy})` : ''} — awaiting <strong>final approval by planning manager</strong>. Progress not yet applied to Gantt chart.</span>
                                                         </div>
                                                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                                             <button onClick={() => handleApproveReport(rep.id)} className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:to-indigo-400 text-white font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs">
-                                                                <CheckCircle className="w-4 h-4" /><span>تاییدِ نهایی (Final Approve)</span>
+                                                                <CheckCircle className="w-4 h-4" /><span>Final Approve</span>
                                                             </button>
                                                             <button onClick={() => startRejectionFlow(rep.id)} className="bg-black/30 hover:bg-rose-500/10 border border-white/10 text-slate-350 hover:text-rose-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs">
-                                                                <X className="w-4 h-4" /><span>Reject (رد گزارش)</span>
+                                                                <X className="w-4 h-4" /><span>Reject Report</span>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -627,13 +627,13 @@ export default function ApprovalsPage({
                                                 {rep.approvalStatus === 'pending' && (
                                                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2">
                                                         <button onClick={() => handleApproveReport(rep.id)} className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:to-emerald-400 text-white font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs">
-                                                            <Check className="w-4 h-4" /><span>{rep.isCompanyScope ? 'تاییدِ بررسی‌کننده' : 'Approve (تایید گزارش)'}</span>
+                                                            <Check className="w-4 h-4" /><span>{rep.isCompanyScope ? 'Reviewer Approval' : 'Approve Report'}</span>
                                                         </button>
                                                         <button onClick={() => { setEditingReportId(rep.id); setEditProgress(rep.progressPercent); setEditHours(initialEditHours); setEditMinutes(initialEditMins); setEditNotes(rep.notes || ''); }} className="bg-black/30 hover:bg-amber-500/10 border border-white/10 text-slate-350 hover:text-amber-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs">
-                                                            <Edit className="w-4 h-4 text-amber-400" /><span>Edit (ویرایش جزئی)</span>
+                                                            <Edit className="w-4 h-4 text-amber-400" /><span>Edit (Partial)</span>
                                                         </button>
                                                         <button onClick={() => startRejectionFlow(rep.id)} className="bg-black/30 hover:bg-rose-500/10 border border-white/10 text-slate-350 hover:text-rose-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs">
-                                                            <X className="w-4 h-4" /><span>Reject (رد گزارش)</span>
+                                                            <X className="w-4 h-4" /><span>Reject Report</span>
                                                         </button>
                                                     </div>
                                                 )}
@@ -661,7 +661,7 @@ export default function ApprovalsPage({
                         </div>
 
                         <div className="space-y-1.5 text-right sm:text-left">
-                            <label className="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-wider block">REACTION REMARKS & INSTRUCTIONS (علت رد گزارش)</label>
+                            <label className="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-wider block">REACTION REMARKS & INSTRUCTIONS (Rejection reason)</label>
                             <textarea required value={rejectionFeedback} onChange={e => setRejectionFeedback(e.target.value)} rows={4} placeholder="Describe what needs to be reviewed or corrected..." className="w-full bg-[#1b1115] border border-rose-500/30 focus:border-rose-550 focus:border-rose-500 py-3 px-4 rounded-xl text-xs placeholder-rose-900/40 select-all font-sans text-slate-200 focus:outline-none focus:ring-1 focus:ring-rose-500/20 transition-all text-right sm:text-left" />
                             <span className="text-[9px] text-rose-400 font-mono block mt-1">This feedback is permanently recorded in the task's historic archive logs.</span>
                         </div>

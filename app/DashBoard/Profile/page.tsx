@@ -48,7 +48,7 @@ export default function ProfilePage() {
                 });
             } catch (err) {
                 console.error('Failed to load profile', err);
-                setMessage({ type: 'error', text: 'خطا در بارگذاری اطلاعات کاربری.' });
+                setMessage({ type: 'error', text: 'Error loading user profile.' });
             } finally {
                 setIsLoading(false);
             }
@@ -65,7 +65,7 @@ export default function ProfilePage() {
         setMessage(null);
 
         if (password && password !== confirmPassword) {
-            setMessage({ type: 'error', text: 'رمز عبور و تکرار آن یکسان نیستند.' });
+            setMessage({ type: 'error', text: 'Password and confirmation do not match.' });
             return;
         }
 
@@ -82,14 +82,14 @@ export default function ProfilePage() {
         try {
             setIsSaving(true);
             await apiClient.patch('/auth/profile/', payload);
-            setMessage({ type: 'success', text: 'اطلاعات کاربری با موفقیت ذخیره شد.' });
+            setMessage({ type: 'success', text: 'Profile saved successfully.' });
             setPassword('');
             setConfirmPassword('');
         } catch (err: any) {
             console.error('Failed to update profile', err);
             const detail = err?.response?.data
                 ? Object.values(err.response.data).flat().join(' ')
-                : 'خطا در ذخیره اطلاعات.';
+                : 'Error saving profile.';
             setMessage({ type: 'error', text: detail });
         } finally {
             setIsSaving(false);
@@ -124,10 +124,10 @@ export default function ProfilePage() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                            ویرایش اطلاعات کاربری
+                            Edit Profile
                         </h1>
                         <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                            اطلاعات حساب و رمز عبور خود را به‌روزرسانی کنید
+                            Update your account information and password
                         </p>
                     </div>
                 </div>
@@ -155,11 +155,11 @@ export default function ProfilePage() {
                         style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}
                     >
                         <h2 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
-                            <User className="w-4 h-4" /> اطلاعات حساب
+                            <User className="w-4 h-4" /> Account Information
                         </h2>
 
                         <div>
-                            <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>نام کاربری</label>
+                            <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>Username</label>
                             <div className="relative">
                                 <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
                                 <input className={inputClass} value={form.username} onChange={e => handleChange('username', e.target.value)} placeholder="username" required />
@@ -168,23 +168,23 @@ export default function ProfilePage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>نام</label>
+                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>First Name</label>
                                 <div className="relative">
                                     <IdCard className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
-                                    <input className={inputClass} value={form.first_name} onChange={e => handleChange('first_name', e.target.value)} placeholder="نام" />
+                                    <input className={inputClass} value={form.first_name} onChange={e => handleChange('first_name', e.target.value)} placeholder="First name" />
                                 </div>
                             </div>
                             <div>
-                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>نام خانوادگی</label>
+                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>Last Name</label>
                                 <div className="relative">
                                     <IdCard className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
-                                    <input className={inputClass} value={form.last_name} onChange={e => handleChange('last_name', e.target.value)} placeholder="نام خانوادگی" />
+                                    <input className={inputClass} value={form.last_name} onChange={e => handleChange('last_name', e.target.value)} placeholder="Last name" />
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>ایمیل</label>
+                            <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>Email</label>
                             <div className="relative">
                                 <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
                                 <input type="email" className={inputClass} value={form.email} onChange={e => handleChange('email', e.target.value)} placeholder="email@example.com" />
@@ -193,17 +193,17 @@ export default function ProfilePage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>عنوان شغلی</label>
+                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>Job Title</label>
                                 <div className="relative">
                                     <Briefcase className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
-                                    <input className={inputClass} value={form.jobTitle} onChange={e => handleChange('jobTitle', e.target.value)} placeholder="مثلاً مدیر پروژه" />
+                                    <input className={inputClass} value={form.jobTitle} onChange={e => handleChange('jobTitle', e.target.value)} placeholder="e.g. Project Manager" />
                                 </div>
                             </div>
                             <div>
-                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>کد پرسنلی</label>
+                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>Employee Code</label>
                                 <div className="relative">
                                     <Hash className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
-                                    <input className={inputClass} value={form.employeeCode} onChange={e => handleChange('employeeCode', e.target.value)} placeholder="کد پرسنلی" />
+                                    <input className={inputClass} value={form.employeeCode} onChange={e => handleChange('employeeCode', e.target.value)} placeholder="Employee code" />
                                 </div>
                             </div>
                         </div>
@@ -215,22 +215,22 @@ export default function ProfilePage() {
                         style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}
                     >
                         <h2 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
-                            <Lock className="w-4 h-4" /> تغییر رمز عبور
+                            <Lock className="w-4 h-4" /> Change Password
                         </h2>
                         <p className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
-                            در صورت عدم تمایل به تغییر رمز، این فیلدها را خالی بگذارید.
+                            Leave these fields empty if you do not wish to change your password.
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>رمز عبور جدید</label>
+                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>New Password</label>
                                 <div className="relative">
                                     <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
                                     <input type="password" className={inputClass} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" autoComplete="new-password" />
                                 </div>
                             </div>
                             <div>
-                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>تکرار رمز عبور</label>
+                                <label className={labelClass} style={{ color: 'var(--text-tertiary)' }}>Confirm Password</label>
                                 <div className="relative">
                                     <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }} />
                                     <input type="password" className={inputClass} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" autoComplete="new-password" />
@@ -247,7 +247,7 @@ export default function ProfilePage() {
                         style={{ backgroundColor: 'var(--text-accent)', color: '#ffffff' }}
                     >
                         {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        <span>{isSaving ? 'در حال ذخیره...' : 'ذخیره تغییرات'}</span>
+                        <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
                     </button>
                 </form>
             </div>

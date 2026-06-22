@@ -98,7 +98,7 @@ export default function AccessControlPage() {
         return (
             <div className="h-full w-full flex flex-col items-center justify-center gap-3" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
                 <Lock className="w-10 h-10 text-rose-400" />
-                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>این صفحه فقط برای مدیرِ سیستم در دسترس است.</p>
+                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>This page is only accessible to system administrators.</p>
             </div>
         );
     }
@@ -113,8 +113,8 @@ export default function AccessControlPage() {
                         <ShieldCheck className="w-6 h-6" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">کنترل دسترسی صفحات</h1>
-                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>برای هر کاربر مشخص کنید به چه صفحاتی دسترسی داشته باشد</p>
+                        <h1 className="text-2xl font-bold tracking-tight">Page Access Control</h1>
+                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Define which pages each user can access</p>
                     </div>
                 </div>
 
@@ -137,7 +137,7 @@ export default function AccessControlPage() {
                     {/* ─── Users column ─── */}
                     <div className="lg:col-span-2 rounded-2xl p-4" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)' }}>
                         <div className="relative mb-3">
-                            <input className={`w-full ${inputClass} pl-8`} value={search} onChange={e => setSearch(e.target.value)} placeholder="جستجوی کاربر..." />
+                            <input className={`w-full ${inputClass} pl-8`} value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users..." />
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
                         </div>
                         <div className="space-y-1.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
@@ -159,11 +159,11 @@ export default function AccessControlPage() {
                                             color: full ? '#059669' : '#f59e0b',
                                             borderColor: full ? 'rgba(5,150,105,0.3)' : 'rgba(245,158,11,0.3)',
                                             backgroundColor: full ? 'rgba(5,150,105,0.08)' : 'rgba(245,158,11,0.08)',
-                                        }}>{full ? 'کامل' : 'محدود'}</span>
+                                        }}>{full ? 'Full' : 'Limited'}</span>
                                     </button>
                                 );
                             })}
-                            {filteredUsers.length === 0 && <div className="text-xs italic py-6 text-center" style={{ color: 'var(--text-tertiary)' }}>کاربری یافت نشد.</div>}
+                            {filteredUsers.length === 0 && <div className="text-xs italic py-6 text-center" style={{ color: 'var(--text-tertiary)' }}>No users found.</div>}
                         </div>
                     </div>
 
@@ -172,17 +172,17 @@ export default function AccessControlPage() {
                         {!selectedUser ? (
                             <div className="flex flex-col items-center justify-center h-full py-20 gap-3 text-center">
                                 <ShieldCheck className="w-10 h-10" style={{ color: 'var(--text-tertiary)' }} />
-                                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>یک کاربر را از لیست انتخاب کنید</p>
+                                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Select a user from the list</p>
                             </div>
                         ) : (
                             <>
                                 <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-sm font-bold">دسترسی‌های: <span style={{ color: 'var(--text-accent)' }}>{selectedUser.username}</span></h2>
+                                    <h2 className="text-sm font-bold">Access for: <span style={{ color: 'var(--text-accent)' }}>{selectedUser.username}</span></h2>
                                     <button onClick={handleSave} disabled={saving}
                                         className="py-2 px-4 rounded-xl font-bold text-xs flex items-center gap-2 disabled:opacity-50"
                                         style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}>
                                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                        <span>ذخیره</span>
+                                        <span>Save</span>
                                     </button>
                                 </div>
 
@@ -191,8 +191,8 @@ export default function AccessControlPage() {
                                     <input type="checkbox" checked={fullAccess} onChange={e => setFullAccess(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
                                     <Globe className="w-4 h-4 text-emerald-400" />
                                     <div>
-                                        <div className="text-xs font-bold">دسترسی کامل به همهٔ صفحات</div>
-                                        <div className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>با فعال بودن، کاربر همهٔ صفحات (حتی صفحاتِ آینده) را می‌بیند</div>
+                                        <div className="text-xs font-bold">Full access to all pages</div>
+                                        <div className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>When enabled, the user can see all pages (even future ones)</div>
                                     </div>
                                 </label>
 
@@ -213,7 +213,7 @@ export default function AccessControlPage() {
                                     })}
                                 </div>
                                 <p className="text-[10px] mt-3" style={{ color: 'var(--text-tertiary)' }}>
-                                    * صفحهٔ Home و پروفایل همیشه در دسترس‌اند. این کنترل، منو و دسترسیِ مسیرها را تعیین می‌کند؛ مجوزهای امنیتیِ API همچنان بر اساس نقش اعمال می‌شوند.
+                                    * Home and Profile pages are always accessible. This control determines menu and route access; API security permissions are still enforced based on role.
                                 </p>
                             </>
                         )}

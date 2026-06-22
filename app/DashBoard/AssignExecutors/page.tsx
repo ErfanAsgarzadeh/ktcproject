@@ -67,8 +67,8 @@ const formatDate = (dt: string | null): string => {
 const formatDuration = (hours: number): string => {
     if (!hours) return '—';
     const days = hours / 8;
-    if (days >= 1) return `${days.toFixed(1)} روز`;
-    return `${hours} ساعت`;
+    if (days >= 1) return `${days.toFixed(1)} days`;
+    return `${hours} hours`;
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ export default function AssignExecutorsPage() {
             setUnitId(res.data.unitId);
         } catch (err: any) {
             console.error(err);
-            setError(err?.response?.data?.detail || 'خطا در دریافت تسک‌ها.');
+            setError(err?.response?.data?.detail || 'Error loading tasks.');
         } finally {
             setIsLoading(false);
         }
@@ -249,9 +249,9 @@ export default function AssignExecutorsPage() {
                                 <UserCheck className="w-5 h-5" style={{ color: '#059669' }} />
                             </div>
                             <div>
-                                <h1 className="text-xl font-extrabold tracking-tight">انتخاب انجام‌دهنده تسک‌ها</h1>
+                                <h1 className="text-xl font-extrabold tracking-tight">Assign Task Executors</h1>
                                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
-                                    تسک‌هایی که شما به عنوان بررسی‌کننده روی آن‌ها مسئولیت دارید
+                                    Tasks where you are assigned as reviewer
                                 </p>
                             </div>
                         </div>
@@ -267,15 +267,15 @@ export default function AssignExecutorsPage() {
                             color: 'var(--text-secondary)',
                         }}
                     >
-                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin inline" /> : 'بازخوانی'}
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin inline" /> : 'Refresh'}
                     </button>
                 </div>
 
                 {/* ═══ Stats Cards ═══ */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <StatCard label="کل تسک‌ها" value={stats.total} color="#0d9488" icon={FolderOpen} />
-                    <StatCard label="دارای مجری" value={stats.withExecutor} color="#059669" icon={CheckCircle2} />
-                    <StatCard label="بدون مجری" value={stats.withoutExecutor} color="#d97706" icon={AlertCircle} />
+                    <StatCard label="Total Tasks" value={stats.total} color="#0d9488" icon={FolderOpen} />
+                    <StatCard label="Has Executor" value={stats.withExecutor} color="#059669" icon={CheckCircle2} />
+                    <StatCard label="No Executor" value={stats.withoutExecutor} color="#d97706" icon={AlertCircle} />
                 </div>
 
                 {/* ═══ Notice ═══ */}
@@ -304,7 +304,7 @@ export default function AssignExecutorsPage() {
                             type="text"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            placeholder="جستجو در نام تسک، WBS، یا پروژه..."
+                            placeholder="Search by task name, WBS, or project..."
                             className="w-full text-xs px-3 py-2.5 pr-10 rounded-lg border outline-none focus:border-cyan-400"
                             style={{
                                 backgroundColor: 'var(--overlay-bg)',
@@ -326,7 +326,7 @@ export default function AssignExecutorsPage() {
                                 color: 'var(--text-primary)',
                             }}
                         >
-                            <option value="all">همه پروژه‌ها</option>
+                            <option value="all">All Projects</option>
                             {projectOptions.map(p => (
                                 <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
@@ -348,8 +348,8 @@ export default function AssignExecutorsPage() {
                         className="p-6 rounded-xl border text-center text-sm"
                         style={{ backgroundColor: 'rgba(217, 119, 6, 0.05)', borderColor: 'rgba(217, 119, 6, 0.25)', color: '#d97706' }}
                     >
-                        شما به هیچ واحد سازمانی منتسب نیستید — بنابراین نمی‌توانید مجری انتخاب کنید.
-                        لطفاً با مدیر سیستم تماس بگیرید.
+                        You are not assigned to any organizational unit — therefore you cannot assign executors.
+                        Please contact the system administrator.
                     </div>
                 ) : filteredTasks.length === 0 ? (
                     <div
@@ -359,8 +359,8 @@ export default function AssignExecutorsPage() {
                         <UserCheck className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--text-tertiary)' }} />
                         <p className="text-sm font-medium mb-1">
                             {tasks.length === 0
-                                ? 'شما در حال حاضر روی هیچ تسکی به‌عنوان بررسی‌کننده تعیین نشده‌اید.'
-                                : 'با این فیلترها هیچ تسکی یافت نشد.'}
+                                ? 'You are not currently assigned as a reviewer on any task.'
+                                : 'No tasks found with these filters.'}
                         </p>
                     </div>
                 ) : (
@@ -483,13 +483,13 @@ function TaskCard({
                 <div className="flex items-center gap-2">
                     <Users className="w-3.5 h-3.5" style={{ color: 'var(--text-tertiary)' }} />
                     <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
-                        مجریان فعلی ({task.executors.length})
+                        Current Executors ({task.executors.length})
                     </span>
                 </div>
 
                 {task.executors.length === 0 ? (
                     <p className="text-xs italic py-1" style={{ color: 'var(--text-tertiary)' }}>
-                        هنوز مجری انتخاب نشده است.
+                        No executor assigned yet.
                     </p>
                 ) : (
                     <div className="flex flex-wrap gap-2">
@@ -511,7 +511,7 @@ function TaskCard({
                                     onClick={() => onRemove(ex)}
                                     disabled={removingRoleId === ex.taskRoleId}
                                     className="hover:bg-red-500/20 rounded p-0.5 transition-colors disabled:opacity-50 cursor-pointer"
-                                    title="حذف مجری"
+                                    title="Remove executor"
                                 >
                                     {removingRoleId === ex.taskRoleId ? (
                                         <Loader2 className="w-3 h-3 animate-spin" />
@@ -538,7 +538,7 @@ function TaskCard({
                                 color: 'var(--text-primary)',
                             }}
                         >
-                            <option value="">— انتخاب کاربر از واحد شما —</option>
+                            <option value="">— Select a user from your unit —</option>
                             {availableMembers.map(m => (
                                 <option key={m.id} value={m.id}>
                                     {m.username} {m.jobTitle ? `(${m.jobTitle})` : ''}
@@ -559,14 +559,14 @@ function TaskCard({
                             ) : (
                                 <>
                                     <Plus className="w-3.5 h-3.5" />
-                                    <span>افزودن</span>
+                                    <span>Add</span>
                                 </>
                             )}
                         </button>
                     </div>
                 ) : (
                     <p className="text-[11px] italic mt-2" style={{ color: 'var(--text-tertiary)' }}>
-                        تمام اعضای واحد شما به این تسک تخصیص داده شده‌اند.
+                        All members of your unit have been assigned to this task.
                     </p>
                 )}
             </div>

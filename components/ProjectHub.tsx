@@ -104,7 +104,7 @@ export default function ProjectHub({
             return res.data;
         } catch (err: any) {
             console.error('Failed to change approver', err);
-            const msg = err?.response?.data?.detail || 'خطا در تغییر تاییدکننده.';
+            const msg = err?.response?.data?.detail || 'Error changing approver.';
             alert(msg);
         }
     };
@@ -133,7 +133,7 @@ export default function ProjectHub({
         e.preventDefault();
         if (!newProjName.trim()) return;
         if (!canCreateProject) {
-            alert('شما اجازه‌ی ساخت پروژه را ندارید (فقط مدیر شرکت، مدیر واحد یا مدیر پروژه).');
+            alert('You do not have permission to create projects (only company admin, unit manager, or project manager).');
             return;
         }
         onAddProject(
@@ -155,7 +155,7 @@ export default function ProjectHub({
         e.preventDefault();
         if (!activeProjectId) return;
         if (!newRevDesc.trim()) {
-            alert("وارد کردن توضیحات (دلیل ساخت نسخه جدید) الزامی است.");
+            alert("Entering a description (reason for creating new revision) is required.");
             return;
         }
         onAddRevision(activeProjectId, newRevDesc.trim(), newRevStart);
@@ -315,9 +315,9 @@ export default function ProjectHub({
                                                     value={(selectedProject as any).calendarId ?? ''}
                                                     onChange={(e) => onAttachCalendar?.(selectedProject.id, e.target.value || null)}
                                                     className="bg-black/40 border border-white/10 hover:border-cyan-500/50 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
-                                                    title="تقویم کاری این پروژه"
+                                                    title="Project work calendar"
                                                 >
-                                                    <option value="" className="bg-slate-950">— بدون تقویم —</option>
+                                                    <option value="" className="bg-slate-950">— No Calendar —</option>
                                                     {calendars.map(c => (
                                                         <option key={c.id} value={c.id} className="bg-slate-950">{c.name}</option>
                                                     ))}
@@ -443,7 +443,7 @@ export default function ProjectHub({
                                                                         onClick={(e) => e.stopPropagation()}
                                                                         className="bg-black/40 border border-white/10 hover:border-amber-500/50 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-amber-400 font-mono cursor-pointer transition-colors"
                                                                     >
-                                                                        <option value="" className="bg-slate-950">— بدون تاییدکننده —</option>
+                                                                        <option value="" className="bg-slate-950">— No Approver —</option>
                                                                         {allUsers.map(u => (
                                                                             <option key={u.id} value={u.id} className="bg-slate-950">{u.username}</option>
                                                                         ))}
@@ -632,21 +632,21 @@ export default function ProjectHub({
                                 {/* انتخاب تقویم کاری */}
                                 <div className="space-y-2">
                                     <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                                        <CalendarDays className="w-3.5 h-3.5 text-cyan-400" /> Work Calendar (تقویم کاری)
+                                        <CalendarDays className="w-3.5 h-3.5 text-cyan-400" /> Work Calendar
                                     </label>
                                     <select
                                         value={newProjCalendarId}
                                         onChange={(e) => setNewProjCalendarId(e.target.value)}
                                         className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-cyan-400 transition-all font-sans"
                                     >
-                                        <option value="" className="bg-slate-950">— بدون تقویم (پیش‌فرض) —</option>
+                                        <option value="" className="bg-slate-950">— No Calendar (default) —</option>
                                         {calendars.map(c => (
                                             <option key={c.id} value={c.id} className="bg-slate-950">{c.name}</option>
                                         ))}
                                     </select>
                                     {calendars.length === 0 && (
                                         <p className="text-[10px] text-amber-400/80 ml-1">
-                                            هنوز تقویمی تعریف نشده — از صفحه «مدیریت تقویم‌ها» یک تقویم بسازید.
+                                            No calendars defined yet — create one from the "Calendar Management" page.
                                         </p>
                                     )}
                                 </div>
@@ -654,20 +654,20 @@ export default function ProjectHub({
                                 {/* انتخاب تاییدکننده (Approver) برای Revision اولیه */}
                                 <div className="space-y-2">
                                     <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                                        <Lock className="w-3.5 h-3.5 text-amber-400" /> Designated Approver (تاییدکننده)
+                                        <Lock className="w-3.5 h-3.5 text-amber-400" /> Designated Approver
                                     </label>
                                     <select
                                         value={newProjApproverId}
                                         onChange={(e) => setNewProjApproverId(e.target.value)}
                                         className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-amber-400 transition-all font-sans"
                                     >
-                                        <option value="" className="bg-slate-950">— بدون تاییدکننده تعیین‌شده —</option>
+                                        <option value="" className="bg-slate-950">— No Designated Approver —</option>
                                         {allUsers.map(u => (
                                             <option key={u.id} value={u.id} className="bg-slate-950">{u.username} {u.jobTitle ? `(${u.jobTitle})` : ''}</option>
                                         ))}
                                     </select>
                                     <p className="text-[10px] text-slate-500 ml-1">
-                                        فقط این فرد می‌تواند نسخه‌ی پایه (Rev 0) را تایید/قفل کند.
+                                        Only this person can approve/lock the baseline revision (Rev 0).
                                     </p>
                                 </div>
 

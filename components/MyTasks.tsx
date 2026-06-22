@@ -249,7 +249,7 @@ export default function MyTasks({
       }, 1200);
     } catch (error) {
       console.error("خطا در ثبت:", error);
-      alert("خطا در ارتباط با سرور جهت ثبت گزارش.");
+      alert("Error connecting to server to submit report.");
     }
   };
 
@@ -429,13 +429,13 @@ export default function MyTasks({
                   <div className="border-b border-white/10 px-6 py-2 flex items-center justify-between shrink-0" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setActiveTab('report')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${activeTab === 'report' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'}`}>
-                        <FileText className="w-4 h-4 text-cyan-400" /><span>Submit Report (ثبت عملکرد)</span>
+                        <FileText className="w-4 h-4 text-cyan-400" /><span>Submit Report</span>
                       </button>
                       <button onClick={() => setActiveTab('chat')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${activeTab === 'chat' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'}`}>
-                        <MessageSquare className="w-4 h-4 text-cyan-400" /><span>Collaborate Thread (چت)</span>
+                        <MessageSquare className="w-4 h-4 text-cyan-400" /><span>Collaborate Thread</span>
                       </button>
                       <button onClick={() => setActiveTab('history')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border relative ${activeTab === 'history' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'}`}>
-                        <Clock className="w-4 h-4 text-[#818cf8]" /><span>Report Archive (گزارشات)</span>
+                        <Clock className="w-4 h-4 text-[#818cf8]" /><span>Report Archive</span>
                         <span className="text-[9px] font-mono px-1.5 py-0.2 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">{reports.length}</span>
                       </button>
                     </div>
@@ -513,7 +513,7 @@ export default function MyTasks({
                                         <span className="text-[10px] text-slate-500 pr-2 font-mono">m</span>
                                       </div>
                                     </div>
-                                    <span className="text-[9px] text-slate-500 font-mono block">ساعت و دقیقه صرف شده برای این وظیفه</span>
+                                    <span className="text-[9px] text-slate-500 font-mono block">Hours and minutes spent on this task</span>
                                   </div>
                                 </div>
 
@@ -522,37 +522,37 @@ export default function MyTasks({
                                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                                     <button type="button" onClick={() => setReportStatus('on-track')} className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col items-start gap-1 justify-between ${reportStatus === 'on-track' ? 'bg-cyan-500/10 border-cyan-500/50 text-[#22d3ee] shadow-lg shadow-cyan-500/5' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/15 hover:bg-white/5'}`}>
                                       <div className="flex items-center justify-between w-full"><CheckCircle className={`w-4 h-4 ${reportStatus === 'on-track' ? 'text-cyan-400' : 'text-slate-500'}`} /><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /></div>
-                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">On Track</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">برنامه‌ریزی‌شده</span></div>
+                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">On Track</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">As planned</span></div>
                                     </button>
                                     <button type="button" onClick={() => setReportStatus('at-risk')} className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col items-start gap-1 justify-between ${reportStatus === 'at-risk' ? 'bg-amber-500/10 border-amber-500/50 text-[#fbbf24] shadow-lg shadow-amber-500/5' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/15 hover:bg-white/5'}`}>
                                       <div className="flex items-center justify-between w-full"><AlertTriangle className={`w-4 h-4 ${reportStatus === 'at-risk' ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} /><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /></div>
-                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">At Risk</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">در معرض تاخیر/خطر</span></div>
+                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">At Risk</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">Potential delay/risk</span></div>
                                     </button>
                                     <button type="button" onClick={() => setReportStatus('blocked')} className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col items-start gap-1 justify-between ${reportStatus === 'blocked' ? 'bg-rose-500/10 border-rose-500/50 text-[#f43f5e] shadow-lg shadow-rose-500/5' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/15 hover:bg-white/5'}`}>
                                       <div className="flex items-center justify-between w-full"><AlertOctagon className={`w-4 h-4 ${reportStatus === 'blocked' ? 'text-rose-400 animate-shake' : 'text-slate-500'}`} /><span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" /></div>
-                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">Blocked</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">متوقف / بلاک‌شده</span></div>
+                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">Blocked</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">Stopped / blocked</span></div>
                                     </button>
                                     <button type="button" onClick={() => { setReportStatus('completed'); setReportProgress(100); }} className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col items-start gap-1 justify-between ${reportStatus === 'completed' ? 'bg-emerald-500/10 border-emerald-500/50 text-[#34d399] shadow-lg shadow-emerald-500/5' : 'bg-black/20 border-white/5 text-slate-400 hover:border-white/15 hover:bg-white/5'}`}>
                                       <div className="flex items-center justify-between w-full"><CheckCircle className={`w-4 h-4 ${reportStatus === 'completed' ? 'text-emerald-400' : 'text-slate-500'}`} /><span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /></div>
-                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">Completed</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">کامل‌شده و تحویلی</span></div>
+                                      <div><h5 className="text-[11px] font-bold tracking-tight text-white uppercase mt-2">Completed</h5><span className="text-[9px] text-slate-500 font-sans block mt-0.5">Done & delivered</span></div>
                                     </button>
                                   </div>
                                 </div>
 
                                 {(reportStatus === 'blocked' || reportStatus === 'at-risk') && (
                                     <div className="space-y-1 animate-fade-in duration-300">
-                                      <label className="text-[11px] font-bold font-mono text-rose-400 uppercase tracking-widest flex items-center gap-1.5"><AlertOctagon className="w-3.5 h-3.5 text-rose-500" /> Obstacles & Critical Blockers (موانع عینی)</label>
+                                      <label className="text-[11px] font-bold font-mono text-rose-400 uppercase tracking-widest flex items-center gap-1.5"><AlertOctagon className="w-3.5 h-3.5 text-rose-500" /> Obstacles & Critical Blockers</label>
                                       <textarea required value={blockersText} onChange={e => setBlockersText(e.target.value)} rows={3} placeholder="Describe the dependencies, material shortages, or code errors..." className="w-full bg-[#1b1115] border border-rose-505 border-rose-500/30 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 text-slate-200 placeholder-rose-900/60 rounded-xl px-4 py-3 text-xs focus:outline-none transition-all font-sans" />
                                     </div>
                                 )}
 
                                 <div className="space-y-1">
-                                  <label className="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-widest block">Progress Description & Notes (توضیحات پیشرفت کار)</label>
+                                  <label className="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-widest block">Progress Description & Notes</label>
                                   <textarea required value={notesText} onChange={e => setNotesText(e.target.value)} rows={4} placeholder="Type a verbose log of kpi achievements, files edited..." className="w-full bg-black/40 border border-white/10 focus:border-cyan-400 text-slate-200 placeholder-slate-650 rounded-xl px-4 py-3 text-xs focus:outline-none transition-all font-sans" />
                                 </div>
 
                                 <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-xl shadow-cyan-500/10 flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 duration-155">
-                                  <CheckCircle className="w-5 h-5 text-white" /><span>Submit Report to Project Board (ثبت گزارش)</span>
+                                  <CheckCircle className="w-5 h-5 text-white" /><span>Submit Report to Project Board</span>
                                 </button>
                               </form>
                           )}

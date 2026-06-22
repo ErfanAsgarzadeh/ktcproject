@@ -103,7 +103,7 @@ export default function VarianceControlPage({
             await apiClient.post('planning/variance-reports/calculate/', { project_id: selectedProjectId });
             await fetchVarianceData(); // Reload data after engine finishes
         } catch (error) {
-            alert("خطا در اجرای موتور محاسباتی EVM.");
+            alert("Error running EVM calculation engine.");
         } finally {
             setIsCalculating(false);
         }
@@ -140,17 +140,17 @@ export default function VarianceControlPage({
             setShowFormModal(false);
         } catch (error) {
             console.error("Error saving report", error);
-            alert("ذخیره گزارش با خطا مواجه شد.");
+            alert("Error saving report.");
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm('آیا از حذف این رکورد انحراف اطمینان دارید؟')) {
+        if (confirm('Are you sure you want to delete this variance record?')) {
             try {
                 await apiClient.delete(`/variance-reports/${id}/`);
                 await fetchVarianceData();
             } catch (error) {
-                alert("حذف رکورد با خطا مواجه شد.");
+                alert("Error deleting record.");
             }
         }
     };
