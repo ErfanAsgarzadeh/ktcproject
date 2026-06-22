@@ -150,13 +150,13 @@ export default function AssignExecutorsPage() {
     const handleAddExecutor = async (task: ReviewerTask) => {
         const userId = selectedUserPerTask[task.taskId];
         if (!userId) {
-            setNotice({ type: 'error', text: 'لطفاً ابتدا یک کاربر را انتخاب کنید.' });
+            setNotice({ type: 'error', text: 'Please select a user first.' });
             return;
         }
 
         // جلوگیری از افزودن تکراری در سمت کلاینت
         if (task.executors.some(e => e.userId === Number(userId))) {
-            setNotice({ type: 'error', text: 'این کاربر قبلاً به‌عنوان مجری انتخاب شده است.' });
+            setNotice({ type: 'error', text: 'This user is already assigned as executor.' });
             return;
         }
 
@@ -197,11 +197,11 @@ export default function AssignExecutorsPage() {
                 return next;
             });
 
-            setNotice({ type: 'success', text: `${newExecutorUser?.username} به‌عنوان مجری اضافه شد.` });
+            setNotice({ type: 'success', text: `${newExecutorUser?.username} added as executor.` });
         } catch (err: any) {
             console.error(err);
             const msg = err?.response?.data?.detail
-                || 'خطا در افزودن مجری. ممکن است این کاربر قبلاً انتخاب شده باشد.';
+                || 'Error adding executor. This user may already be assigned.';
             setNotice({ type: 'error', text: msg });
         } finally {
             setSavingTask(null);
@@ -209,7 +209,7 @@ export default function AssignExecutorsPage() {
     };
 
     const handleRemoveExecutor = async (task: ReviewerTask, executor: Executor) => {
-        if (!window.confirm(`حذف ${executor.username} از مجریان این تسک؟`)) return;
+        if (!window.confirm(`Remove ${executor.username} from this task's executors?`)) return;
 
         setRemovingRole(executor.taskRoleId);
         try {
@@ -221,10 +221,10 @@ export default function AssignExecutorsPage() {
                     : t
             ));
 
-            setNotice({ type: 'success', text: `${executor.username} از مجریان حذف شد.` });
+            setNotice({ type: 'success', text: `${executor.username} removed from executors.` });
         } catch (err: any) {
             console.error(err);
-            setNotice({ type: 'error', text: 'خطا در حذف مجری.' });
+            setNotice({ type: 'error', text: 'Error removing executor.' });
         } finally {
             setRemovingRole(null);
         }

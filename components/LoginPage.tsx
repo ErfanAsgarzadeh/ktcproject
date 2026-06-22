@@ -72,7 +72,7 @@ export default function LoginPage({
     e.preventDefault();
     setLoginError('');
     if (!username.trim() || !password.trim()) {
-      setLoginError('لطفاً نام کاربری و رمز عبور خود را وارد کنید.');
+      setLoginError('Please enter your username and password.');
       return;
     }
 
@@ -93,7 +93,7 @@ export default function LoginPage({
       console.error("Login failed:", error);
       setLoginError(
           error.response?.data?.detail ||
-          'اطلاعات ورود نامعتبر است. لطفاً نام کاربری و رمز عبور را بررسی کنید.'
+          'Invalid credentials. Please check your username and password.'
       );
     } finally {
       setLoginLoading(false);
@@ -105,7 +105,7 @@ export default function LoginPage({
     e.preventDefault();
     setRegError('');
     if (!regName.trim() || !regJob.trim() || !regCode.trim() || !regPassword.trim()) {
-      setRegError('لطفاً تمام فیلدها را پر کنید.');
+      setRegError('Please fill in all fields.');
       return;
     }
 
@@ -133,7 +133,7 @@ export default function LoginPage({
     } catch (error: any) {
       console.error("Registration failed:", error.response?.data);
       // نمایش ارورهای دریافتی از سریالایزر جنگو (مثل تکراری بودن نام کاربری)
-      const errorMsg = error.response?.data?.username?.[0] || 'خطایی در ثبت‌نام رخ داد. نام کاربری یا کد پرسنلی ممکن است تکراری باشد.';
+      const errorMsg = error.response?.data?.username?.[0] || 'Registration failed. Username or employee code may already exist.';
       setRegError(errorMsg);
     } finally {
       setRegLoading(false);
@@ -296,7 +296,7 @@ export default function LoginPage({
                                   type="text"
                                   value={username}
                                   onChange={e => setUsername(e.target.value)}
-                                  placeholder="نام کاربری خود را وارد کنید"
+                                  placeholder="Enter your username"
                                   className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
                               />
                             </div>
@@ -394,7 +394,7 @@ export default function LoginPage({
                               required
                               value={regName}
                               onChange={e => setRegName(e.target.value)}
-                              placeholder="نام کاربری (انگلیسی)"
+                              placeholder="Username"
                               className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
                           />
                         </div>
@@ -409,7 +409,7 @@ export default function LoginPage({
                               required
                               value={regJob}
                               onChange={e => setRegJob(e.target.value)}
-                              placeholder="عنوان شغلی"
+                              placeholder="Job Title"
                               className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
                           />
                         </div>

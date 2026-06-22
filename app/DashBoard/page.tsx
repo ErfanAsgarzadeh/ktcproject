@@ -88,7 +88,7 @@ export default function App() {
       });
       setAssignments(prev => [...prev, res.data]);
     } catch (err) {
-      alert("خطا در تخصیص منبع. احتمالاً قبلاً اضافه شده است.");
+      alert("Error assigning resource. It may already be assigned.");
     }
   };
 
@@ -124,7 +124,7 @@ export default function App() {
       ));
     } catch (err) {
       console.error("Error saving actual data:", err);
-      alert("خطا در ذخیره اطلاعات واقعی تسک.");
+      alert("Error saving actual task data.");
     }
   };
   // ==========================================
@@ -180,7 +180,7 @@ export default function App() {
 
     // اطمینان از انتخاب پروژه و نسخه
     if (!activeProjectId || !activeRevisionId) {
-      alert("لطفاً ابتدا یک پروژه و نسخه (Revision) فعال را انتخاب کنید.");
+      alert("Please select an active project and revision first.");
       return;
     }
 
@@ -200,7 +200,7 @@ export default function App() {
         },
       });
 
-      alert(`اطلاعات با موفقیت به نسخه جاری اضافه شد! ${res.data.tasks} تسک و ${res.data.wbs_nodes} گره WBS اضافه گردید.`);
+      alert(`Import successful! ${res.data.tasks} tasks and ${res.data.wbs_nodes} WBS nodes added.`);
 
       // رفرش کردن اطلاعات صفحه برای نمایش تغییرات جدید
       // دریافت مجدد دیتای گانت‌چارت برای نسخه فعلی
@@ -216,7 +216,7 @@ export default function App() {
 
     } catch (error) {
       console.error("Error importing MSP file:", error);
-      alert("خطا در ایمپورت فایل. لطفاً مطمئن شوید فایل خروجی استاندارد XML است.");
+      alert("Error importing file. Please ensure it is a standard XML export.");
     } finally {
       setIsLaunching(false);
       if (e.target) e.target.value = '';
@@ -404,7 +404,7 @@ export default function App() {
       setProjects(prev => prev.map(p => p.id === projectId ? res.data : p));
     } catch (err) {
       console.error("Error attaching calendar:", err);
-      alert("خطا در الصاق تقویم به پروژه.");
+      alert("Error attaching calendar to project.");
     }
   };
 
@@ -651,7 +651,7 @@ export default function App() {
   // ==========================================
   const handleApproveRevision = async () => {
     if (!activeRevisionId) return;
-    if (!window.confirm("آیا از تایید و قفل کردن این نسخه اطمینان دارید؟ بعد از تایید، هیچ تغییری در این نسخه امکان‌پذیر نخواهد بود.")) return;
+    if (!window.confirm("Are you sure you want to approve and lock this revision? No changes will be possible after approval.")) return;
 
     try {
       await apiClient.post(`/planning/revisions/${activeRevisionId}/approve/`);
@@ -661,7 +661,7 @@ export default function App() {
       setIsEditMode(false);
     } catch (err: any) {
       console.error("Error approving revision", err);
-      const msg = err?.response?.data?.detail || "خطا در قفل کردن نسخه.";
+      const msg = err?.response?.data?.detail || "Error locking revision.";
       alert(msg);
     }
   };
@@ -671,11 +671,11 @@ export default function App() {
 
     // دریافت دلیل/توضیح از کاربر (اجباری)
     const description = window.prompt(
-      "لطفاً دلیل ساخت پیش‌نویس جدید را وارد کنید:\n(این فیلد اجباری است)",
+      "Please enter the reason for creating a new draft:\n(This field is required)",
       ""
     );
     if (!description || !description.trim()) {
-      alert("وارد کردن توضیحات برای ساخت پیش‌نویس الزامی است.");
+      alert("A description is required to create a draft.");
       return;
     }
 
@@ -687,7 +687,7 @@ export default function App() {
           : (await apiClient.get('/auth/users/')).data;
       const lines = usersList.map((u: any, i: number) => `${i + 1}- ${u.username}`).join('\n');
       const pick = window.prompt(
-          `تاییدکننده‌ی این پیش‌نویس را انتخاب کنید (شماره را وارد کنید — برای رد کردن خالی بگذارید):\n\n${lines}`,
+          `Select the approver for this draft (enter number — leave empty to skip):\n\n${lines}`,
           ""
       );
       if (pick && pick.trim()) {
@@ -711,7 +711,7 @@ export default function App() {
       setIsEditMode(true);
     } catch (err) {
       console.error("Error creating draft", err);
-      alert("خطا در ساخت پیش‌نویس جدید.");
+      alert("Error creating new draft.");
     } finally {
       setIsLaunching(false);
     }
@@ -736,7 +736,7 @@ export default function App() {
         setTaskRoles([...taskRoles, res.data]);
       } catch (err) {
         console.error("Error saving task role:", err);
-        alert("خطا در تخصیص کاربر! ممکن است این نقش قبلاً برای کاربر انتخاب شده باشد.");
+        alert("Error assigning role! This role may already be assigned to this user.");
       }
     }
   };

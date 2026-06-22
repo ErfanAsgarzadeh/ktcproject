@@ -35,7 +35,7 @@ export default function AccessControlPage() {
             setUsers(res.data.results || res.data);
         } catch (err: any) {
             if (err?.response?.status === 403) setDeniedAccess(true);
-            else flash('error', 'خطا در دریافت کاربران.');
+            else flash('error', 'Error loading users.');
         } finally {
             setIsLoading(false);
         }
@@ -76,9 +76,9 @@ export default function AccessControlPage() {
             await apiClient.patch(`/auth/manage-users/${selectedUserId}/`, payload);
             setUsers(prev => prev.map(u => String(u.id) === String(selectedUserId)
                 ? { ...u, allowedPages: payload.allowedPages } : u));
-            flash('success', 'دسترسی‌های کاربر ذخیره شد.');
+            flash('success', 'User access saved.');
         } catch (err: any) {
-            flash('error', err?.response?.data?.detail || 'خطا در ذخیرهٔ دسترسی‌ها.');
+            flash('error', err?.response?.data?.detail || 'Error saving access permissions.');
         } finally {
             setSaving(false);
         }

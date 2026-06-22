@@ -238,7 +238,7 @@ export default function Navbar() {
                                         }}
                                     >
                                         <div className="px-4 py-2 text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>
-                                            حساب کاربری
+                                            Account
                                         </div>
                                         <div className="h-px mx-2 mb-1" style={{ backgroundColor: 'var(--border-subtle)' }} />
 
@@ -251,7 +251,7 @@ export default function Navbar() {
                                             onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                                         >
                                             <User className="mr-2 h-4 w-4" />
-                                            <span className="mr-2">پروفایل من</span>
+                                            <span className="mr-2">My Profile</span>
                                         </Link>
 
                                         <Link
@@ -263,7 +263,7 @@ export default function Navbar() {
                                             onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                                         >
                                             <Settings className="mr-2 h-4 w-4" />
-                                            <span className="mr-2">تنظیمات</span>
+                                            <span className="mr-2">Settings</span>
                                         </Link>
 
                                         <div className="h-px mx-2 my-1" style={{ backgroundColor: 'var(--border-subtle)' }} />
@@ -275,7 +275,7 @@ export default function Navbar() {
                                             onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                                         >
                                             <LogOut className="mr-2 h-4 w-4" />
-                                            <span className="mr-2">خروج</span>
+                                            <span className="mr-2">Logout</span>
                                         </button>
                                     </div>
                                 )}

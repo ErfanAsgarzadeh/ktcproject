@@ -10,13 +10,13 @@ import { gregorianToJalaliString } from '@/utils/jalali';
 
 // WorkingInterval.weekday choices in backend: 0=Mon ... 6=Sun
 const WEEKDAYS = [
-    { idx: 5, label: 'شنبه' },
-    { idx: 6, label: 'یکشنبه' },
-    { idx: 0, label: 'دوشنبه' },
-    { idx: 1, label: 'سه‌شنبه' },
-    { idx: 2, label: 'چهارشنبه' },
-    { idx: 3, label: 'پنجشنبه' },
-    { idx: 4, label: 'جمعه' },
+    { idx: 5, label: 'Saturday' },
+    { idx: 6, label: 'Sunday' },
+    { idx: 0, label: 'Monday' },
+    { idx: 1, label: 'Tuesday' },
+    { idx: 2, label: 'Wednesday' },
+    { idx: 3, label: 'Thursday' },
+    { idx: 4, label: 'Friday' },
 ];
 
 interface DayState {
