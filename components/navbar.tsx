@@ -8,7 +8,7 @@ import { apiClient } from '../lib/api';
 import { CustomUser } from '../types/types';
 import {
     User, Settings, LogOut, ChevronDown, Menu,
-    LayoutDashboard, ListTodo, ClipboardCheck, UserCheck,
+    LayoutDashboard, ListTodo, ClipboardCheck, UserCheck, UserPlus,
     CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays, Building2, ShieldCheck
 } from 'lucide-react';
 
@@ -17,6 +17,7 @@ export const navPages = [
     { title: 'Project Workspace', href: '/DashBoard', icon: LayoutDashboard, color: '#0d9488' },
     { title: 'My Tasks', href: '/DashBoard/MyTask', icon: ListTodo, color: '#6366f1' },
     { title: 'Approve Tasks', href: '/DashBoard/ApproveTask', icon: ClipboardCheck, color: '#059669' },
+    { title: 'Assign Executors', href: '/DashBoard/AssignExecutors', icon: UserPlus, color: '#0d9488' },
     { title: 'Personal Tasks', href: '/DashBoard/PersonalTask', icon: UserCheck, color: '#d97706' },
     { title: 'Calendars', href: '/DashBoard/Calendars', icon: CalendarDays, color: '#0ea5e9' },
     { title: 'Organization', href: '/DashBoard/Organization', icon: Building2, color: '#0d9488' },
