@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/api';
 import {
-    Building2, Plus, Trash2, Loader2, CheckCircle2, AlertCircle, X, Users, UserCog, Edit2, Save
+    Building2, Plus, Trash2, Loader2, CheckCircle2, AlertCircle, X, Users, UserCog, Edit2, Save, UserPlus
 } from 'lucide-react';
 
 const ORG_ROLES = [
     { value: 'company_admin', label: 'مدیر سیستم' },
     { value: 'company_pm', label: 'مدیر پروژه شرکت' },
     { value: 'unit_manager', label: 'مدیر واحد' },
+    { value: 'project_manager', label: 'مدیر پروژه' },
     { value: 'member', label: 'عضو' },
 ];
 
@@ -18,6 +19,7 @@ const roleColor = (v: string) => ({
     company_admin: 'bg-rose-500/10 text-rose-300 border-rose-500/25',
     company_pm: 'bg-violet-500/10 text-violet-300 border-violet-500/25',
     unit_manager: 'bg-amber-500/10 text-amber-300 border-amber-500/25',
+    project_manager: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/25',
     member: 'bg-slate-500/10 text-slate-300 border-slate-500/25',
 }[v] || 'bg-slate-500/10 text-slate-300 border-slate-500/25');
 
@@ -30,6 +32,15 @@ export default function OrganizationPage() {
     // New unit form
     const [newUnitName, setNewUnitName] = useState('');
     const [newUnitManager, setNewUnitManager] = useState('');
+
+    // New user (admin-created) form
+    const emptyUserForm = {
+        username: '', password: '', email: '', jobTitle: '',
+        employeeCode: '', orgRole: 'member', unitId: '',
+    };
+    const [showUserModal, setShowUserModal] = useState(false);
+    const [userForm, setUserForm] = useState(emptyUserForm);
+    const [creatingUser, setCreatingUser] = useState(false);
 
     const flash = (type: 'success' | 'error', text: string) => {
         setMessage({ type, text });
@@ -100,6 +111,39 @@ export default function OrganizationPage() {
             } : u));
             flash('success', 'نیرو به‌روزرسانی شد.');
         } catch (err) { console.error(err); flash('error', 'خطا در به‌روزرسانی نیرو.'); }
+    };
+
+    const createUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!userForm.username.trim() || !userForm.password.trim()) {
+            flash('error', 'نام کاربری و رمز عبور الزامی است.');
+            return;
+        }
+        try {
+            setCreatingUser(true);
+            await apiClient.post('/auth/manage-users/', {
+                username: userForm.username.trim(),
+                password: userForm.password,
+                email: userForm.email.trim() || '',
+                jobTitle: userForm.jobTitle.trim() || '',
+                employeeCode: userForm.employeeCode.trim() || null,
+                orgRole: userForm.orgRole,
+                unitId: userForm.unitId || null,
+            });
+            setShowUserModal(false);
+            setUserForm(emptyUserForm);
+            flash('success', 'کاربر ساخته شد.');
+            fetchAll();
+        } catch (err: any) {
+            console.error(err);
+            const data = err?.response?.data;
+            const detail = data?.detail
+                || (data && typeof data === 'object' ? Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' | ') : null)
+                || 'خطا در ساخت کاربر.';
+            flash('error', detail);
+        } finally {
+            setCreatingUser(false);
+        }
     };
 
     const inputClass = "bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400";
@@ -179,9 +223,18 @@ export default function OrganizationPage() {
 
                     {/* ─── Users column ─── */}
                     <div className="lg:col-span-3 rounded-2xl p-5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
-                        <h2 className="text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
-                            <Users className="w-4 h-4" /> نیروها ({users.length})
-                        </h2>
+                        <div className="flex items-center justify-between mb-3">
+                            <h2 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
+                                <Users className="w-4 h-4" /> نیروها ({users.length})
+                            </h2>
+                            <button
+                                onClick={() => { setUserForm(emptyUserForm); setShowUserModal(true); }}
+                                className="py-2 px-3 rounded-xl font-bold text-xs flex items-center gap-1.5"
+                                style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}
+                            >
+                                <UserPlus className="w-4 h-4" /> کاربر جدید
+                            </button>
+                        </div>
                         <div className="space-y-2 max-h-[calc(100vh-260px)] overflow-y-auto pr-1">
                             {users.map(u => (
                                 <div key={u.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl" style={{ backgroundColor: 'var(--overlay-bg)', border: '1px solid var(--border-subtle)' }}>
@@ -214,6 +267,66 @@ export default function OrganizationPage() {
                 </div>
                 )}
             </div>
+
+            {/* ─── Create User Modal ─── */}
+            {showUserModal && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <form onSubmit={createUser} className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)' }}>
+                        <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--border-subtle)' }}>
+                            <h3 className="text-base font-bold flex items-center gap-2"><UserPlus className="w-5 h-5" style={{ color: 'var(--text-accent)' }} /> ساخت کاربر جدید</h3>
+                            <button type="button" onClick={() => setShowUserModal(false)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-4 h-4" /></button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                            <div>
+                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>نام کاربری *</label>
+                                <input className={`w-full ${inputClass}`} value={userForm.username} onChange={e => setUserForm(f => ({ ...f, username: e.target.value }))} placeholder="username" autoComplete="off" />
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>رمز عبور *</label>
+                                <input type="password" className={`w-full ${inputClass}`} value={userForm.password} onChange={e => setUserForm(f => ({ ...f, password: e.target.value }))} placeholder="••••••••" autoComplete="new-password" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>عنوان شغلی</label>
+                                    <input className={`w-full ${inputClass}`} value={userForm.jobTitle} onChange={e => setUserForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="مثلاً برنامه‌ریز" />
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>کد پرسنلی</label>
+                                    <input className={`w-full ${inputClass}`} value={userForm.employeeCode} onChange={e => setUserForm(f => ({ ...f, employeeCode: e.target.value }))} placeholder="EMP-001" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>ایمیل</label>
+                                <input type="email" className={`w-full ${inputClass}`} value={userForm.email} onChange={e => setUserForm(f => ({ ...f, email: e.target.value }))} placeholder="user@example.com" autoComplete="off" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>نقش سازمانی</label>
+                                    <select className={`w-full ${inputClass}`} value={userForm.orgRole} onChange={e => setUserForm(f => ({ ...f, orgRole: e.target.value }))}>
+                                        {ORG_ROLES.map(r => <option key={r.value} value={r.value} className="bg-slate-950">{r.label}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-bold block mb-1" style={{ color: 'var(--text-tertiary)' }}>واحد سازمانی</label>
+                                    <select className={`w-full ${inputClass}`} value={userForm.unitId} onChange={e => setUserForm(f => ({ ...f, unitId: e.target.value }))}>
+                                        <option value="" className="bg-slate-950">— بدون واحد —</option>
+                                        {units.map(unit => <option key={unit.id} value={unit.id} className="bg-slate-950">{unit.name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+                            <button type="submit" disabled={creatingUser} className="flex-1 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 disabled:opacity-50" style={{ backgroundColor: 'var(--text-accent)', color: '#fff' }}>
+                                {creatingUser ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                                <span>{creatingUser ? 'در حال ساخت...' : 'ساخت کاربر'}</span>
+                            </button>
+                            <button type="button" onClick={() => setShowUserModal(false)} className="py-2.5 px-4 rounded-xl font-semibold text-xs border" style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}>انصراف</button>
+                        </div>
+                    </form>
+                </div>
+            )}
         </div>
     );
 }
