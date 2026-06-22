@@ -467,7 +467,7 @@ export default function WbsTable({
                         return (
                           <div className="flex flex-wrap gap-1 max-w-full overflow-hidden">
                             {assignedRoles.map(tr => {
-                              const userObj = users.find(u => u.id === tr.userId);
+                              const userObj = users.find(u => String(u.id) === String(tr.userId));
                               let roleAbbrev = 'O';
                               let badgeColor = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/20';
                               if (tr.role === 'reviewer') {

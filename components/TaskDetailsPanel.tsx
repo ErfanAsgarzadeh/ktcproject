@@ -355,7 +355,8 @@ export default function TaskDetailsPanel({
                     const assignedRoles = taskRoles.filter(tr => tr.taskId === selectedNode.id);
                     if (assignedRoles.length === 0) return <div className="text-[10px] italic text-slate-600 pl-1">No roles allocated.</div>;
                     return assignedRoles.map(role => {
-                      const assignee = users.find(u => String(u.id) === String(role.userId));
+                      const assignee = users.find(u => String(u.id) === String(role.userId))
+                          || assignableUsers.find(u => String(u.id) === String(role.userId));
                       return (
                           <div key={role.id} className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/5 text-xs font-sans group">
                             <div className="space-y-0.5">
