@@ -18,28 +18,25 @@ export default function DashboardLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      router.push('/Login');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
-
-  // گاردِ دسترسیِ صفحه: اگر کاربر اجازهٔ این مسیر را نداشته باشد، به Home هدایت می‌شود.
-  useEffect(() => {
-    if (!isAuthenticated) return;
+    // با Cookie-based auth، احراز هویت را با صدا زدن profile endpoint چک می‌کنیم
+    // اگر Cookie معتبر باشد، 200 برمی‌گردد؛ وگرنه 401 که interceptor handle می‌کند
     apiClient.get('/auth/profile/')
       .then(res => {
+        setIsAuthenticated(true);
+
+        // گاردِ دسترسیِ صفحه
         const allowed: string[] | null | undefined = res.data?.allowedPages;
-        if (allowed == null) return; // null = دسترسی به همه
+        if (allowed == null) return;
         if (ALWAYS_ALLOWED.includes(pathname)) return;
         if (!allowed.includes(pathname)) {
           router.replace('/DashBoard/Home');
         }
       })
-      .catch(() => { /* در صورت خطا، گارد اعمال نمی‌شود */ });
-  }, [isAuthenticated, pathname, router]);
+      .catch(() => {
+        // 401 → interceptor به /Login هدایت می‌کند
+        router.push('/Login');
+      });
+  }, [pathname, router]);
 
   if (!isAuthenticated) {
     return (

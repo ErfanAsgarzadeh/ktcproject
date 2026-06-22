@@ -51,14 +51,11 @@ export default function Navbar() {
 
     const handleLogout = async () => {
         try {
-            await apiClient.post('/auth/logout/', {
-                refresh: localStorage.getItem('refresh_token')
-            });
+            await apiClient.post('/auth/logout/');
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
+            // Cookie توسط بک‌اند پاک می‌شود — فقط state لوکال را reset کن
             setUser(null);
             router.push('/Login');
         }

@@ -79,20 +79,15 @@ export default function LoginPage({
     setLoginLoading(true);
 
     try {
-      // 1. دریافت توکن از جنگو
-      const tokenResponse = await apiClient.post('/token/', {
+      // login endpoint توکن‌ها را در httpOnly Cookie ذخیره می‌کند
+      // و اطلاعات پروفایل را هم در همان پاسخ برمی‌گرداند
+      const response = await apiClient.post('/auth/login/', {
         username: username.trim(),
         password: password
       });
 
-      // ذخیره توکن در لوکال استوریج (apiClient از این به بعد از این توکن استفاده می‌کند)
-      localStorage.setItem('access_token', tokenResponse.data.access);
-      localStorage.setItem('refresh_token', tokenResponse.data.refresh);
-
-      // 2. دریافت اطلاعات کامل پروفایل برای آپدیت State سیستم
-      const profileResponse = await apiClient.get('/auth/profile/');
-
-      onLoginSuccess(profileResponse.data);
+      // دیگر نیازی به ذخیره در localStorage نیست — Cookie خودکار مدیریت می‌شود
+      onLoginSuccess(response.data.user);
 
     } catch (error: any) {
       console.error("Login failed:", error);
