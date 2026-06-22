@@ -1,8 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/navbar';
+import { apiClient } from '@/lib/api';
+
+// صفحاتی که گاردِ دسترسی روی آن‌ها اعمال نمی‌شود (همیشه در دسترس)
+const ALWAYS_ALLOWED = ['/DashBoard/Home', '/DashBoard/Profile'];
 
 export default function DashboardLayout({
                                           children,
@@ -10,6 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -20,6 +25,21 @@ export default function DashboardLayout({
       setIsAuthenticated(true);
     }
   }, [router]);
+
+  // گاردِ دسترسیِ صفحه: اگر کاربر اجازهٔ این مسیر را نداشته باشد، به Home هدایت می‌شود.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    apiClient.get('/auth/profile/')
+      .then(res => {
+        const allowed: string[] | null | undefined = res.data?.allowedPages;
+        if (allowed == null) return; // null = دسترسی به همه
+        if (ALWAYS_ALLOWED.includes(pathname)) return;
+        if (!allowed.includes(pathname)) {
+          router.replace('/DashBoard/Home');
+        }
+      })
+      .catch(() => { /* در صورت خطا، گارد اعمال نمی‌شود */ });
+  }, [isAuthenticated, pathname, router]);
 
   if (!isAuthenticated) {
     return (

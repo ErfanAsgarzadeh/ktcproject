@@ -9,10 +9,10 @@ import { CustomUser } from '../types/types';
 import {
     User, Settings, LogOut, ChevronDown, Menu,
     LayoutDashboard, ListTodo, ClipboardCheck, UserCheck,
-    CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays, Building2
+    CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays, Building2, ShieldCheck
 } from 'lucide-react';
 
-const navPages = [
+export const navPages = [
     { title: 'Home', href: '/DashBoard/Home', icon: Home, color: '#0d9488' },
     { title: 'Project Workspace', href: '/DashBoard', icon: LayoutDashboard, color: '#0d9488' },
     { title: 'My Tasks', href: '/DashBoard/MyTask', icon: ListTodo, color: '#6366f1' },
@@ -20,11 +20,15 @@ const navPages = [
     { title: 'Personal Tasks', href: '/DashBoard/PersonalTask', icon: UserCheck, color: '#d97706' },
     { title: 'Calendars', href: '/DashBoard/Calendars', icon: CalendarDays, color: '#0ea5e9' },
     { title: 'Organization', href: '/DashBoard/Organization', icon: Building2, color: '#0d9488' },
+    { title: 'Access Control', href: '/DashBoard/AccessControl', icon: ShieldCheck, color: '#f43f5e' },
     { title: 'Resource Plan', href: '/DashBoard/ResourcePlan', icon: CalendarRange, color: '#0ea5e9' },
     { title: 'Resource Load Map', href: '/DashBoard/ResourceLoadMap', icon: BarChart3, color: '#ec4899' },
     { title: 'Resource Management', href: '/DashBoard/ResourceManagement', icon: Users, color: '#8b5cf6' },
     { title: 'Variance Control', href: '/DashBoard/Variance', icon: TrendingUp, color: '#ef4444' },
 ];
+
+// صفحاتی که همیشه در دسترس‌اند (تا کاربر قفل نشود)
+const ALWAYS_ALLOWED = ['/DashBoard/Home'];
 
 export default function Navbar() {
     const [user, setUser] = useState<CustomUser | null>(null);
@@ -62,6 +66,12 @@ export default function Navbar() {
 
     // Find current page title for the nav button label
     const currentPage = navPages.find(p => p.href === pathname) || navPages[0];
+
+    // فیلترِ منو بر اساس دسترسیِ صفحه: null/undefined = همه؛ لیست = فقط مجازها (+ صفحاتِ همیشه‌مجاز)
+    const allowed = user?.allowedPages;
+    const visiblePages = (allowed == null)
+        ? navPages
+        : navPages.filter(p => allowed.includes(p.href) || ALWAYS_ALLOWED.includes(p.href));
 
     return (
         <header
@@ -118,7 +128,7 @@ export default function Navbar() {
                                 </div>
                                 <div className="h-px mx-2 mb-1" style={{ backgroundColor: 'var(--border-subtle)' }} />
 
-                                {navPages.map((page) => {
+                                {visiblePages.map((page) => {
                                     const Icon = page.icon;
                                     const isActive = pathname === page.href;
                                     return (
