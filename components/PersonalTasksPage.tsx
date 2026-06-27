@@ -250,17 +250,11 @@ export default function PersonalTasksPage({
   };
 
   return (
-      <div className="h-full flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div className=" flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         {/* Header */}
         <header className="bg-white/5 backdrop-blur-md border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl shrink-0 z-25">
           <div className="flex items-center gap-4">
-            <button
-                onClick={onExit}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-[#131b31]/80 hover:border-white/20 text-slate-300 hover:text-white rounded-xl transition-all text-xs cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4 text-cyan-400" />
-              <span className="font-semibold">Back to Hub</span>
-            </button>
+
 
             <div className="h-5 w-px bg-white/10 hidden sm:block" />
 
@@ -270,30 +264,21 @@ export default function PersonalTasksPage({
               </div>
               <div>
                 <h1 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono">Personal Task Transaction Center</h1>
-                <p className="text-[10px] text-slate-400 font-sans">Commit and audit atomic user tasks directly into Django Backend.</p>
+                <p className="text-[10px] text-slate-400 font-sans">Commit and audit atomic user tasks.</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="text-[10px] text-emerald-300 font-mono font-bold uppercase tracking-wider">Axios API: Active</span>
-          </div>
+
         </header>
 
         {/* Main Container Workspace */}
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
           {/* Left Side: Create / Edit form */}
-          <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 p-6 overflow-y-auto space-y-6" style={{ backgroundColor: 'var(--overlay-bg)' }}>
-            <div className={`bg-white/5 border ${editingTaskId ? 'border-amber-500/50' : 'border-white/10'} p-4 rounded-2xl relative shadow-md transition-colors`}>
-              <div className="absolute top-2 right-2 flex gap-1">
-                <span className={`w-1.5 h-1.5 rounded-full animate-ping ${editingTaskId ? 'bg-amber-400' : 'bg-cyan-400'}`} />
-                <span className={`w-1.5 h-1.5 rounded-full ${editingTaskId ? 'bg-amber-600' : 'bg-indigo-400'}`} />
-              </div>
-            </div>
+          <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 p-6  space-y-6" style={{ backgroundColor: 'var(--overlay-bg)' }}>
 
-            <form onSubmit={handleSubmitTask} className="space-y-4">
+            <form onSubmit={handleSubmitTask} className="space-y-4 scrollbar-thin scrollbar-thumb-white/5">
               <div className="flex items-center justify-between">
                 <h3 className={`text-xs font-bold uppercase font-mono tracking-wider ${editingTaskId ? 'text-amber-400' : 'text-slate-300'}`}>
                   {editingTaskId ? 'Edit Personal Task' : 'Commit Personal Task'}
@@ -422,7 +407,8 @@ export default function PersonalTasksPage({
                     placeholder="e.g. Audit regional compliance permits documentation"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
-                    className="w-full bg-[#11162a]/90 border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-sans"
+                    className="w-full  border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-sans"
+                    style={{background:"--bg-input"}}
                 />
               </div>
 
@@ -433,7 +419,8 @@ export default function PersonalTasksPage({
                     placeholder="Description..."
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    className="w-full resize-y bg-[#11162a]/90 border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-sans"
+                    className="w-full resize-y  border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-sans"
+                    style={{background:"--bg-input"}}
                 />
               </div>
 
@@ -554,10 +541,12 @@ export default function PersonalTasksPage({
                                   onClick={() => handleRowClick(task)}
                                   className={`cursor-pointer transition-colors ${
                                       isEditing
-                                          ? 'bg-amber-500/10 border-l-2 border-amber-500'
+                                          ? '--bg-active '
                                           : 'hover:bg-white/[0.03]'
                                   }`}
-                              >
+                                  style={{
+                                    backgroundColor: isEditing ? 'var(--overlay-bg)' : undefined,
+                                  }}                             >
                                 <td className="p-3 pl-4 font-mono font-bold text-cyan-400 text-[10px] tracking-wide">{task.code}</td>
                                 <td className="p-3 font-bold text-white max-w-sm truncate" title={task.name}>{task.name}</td>
                                 <td className="p-3">

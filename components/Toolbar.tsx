@@ -238,7 +238,7 @@ export default function Toolbar({
             </button>
             <div className="h-4 w-px bg-white/10 mx-1" />
             <div className="bg-cyan-500 rounded-lg w-8 h-8 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/20">
-              P
+              N
             </div>
             <div>
               <h1 className="text-lg font-semibold font-sans tracking-tight text-white flex items-center gap-2">

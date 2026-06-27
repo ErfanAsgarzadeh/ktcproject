@@ -13,7 +13,7 @@ export default function LoginRoute() {
     const handleLoginSuccess = (user: CustomUser) => {
         // میتونید اطلاعات کاربر رو در Context یا State منیجر ذخیره کنید
         // و بعد کاربر رو به صفحه داشبورد بفرستید
-        router.push('/DashBoard');
+        router.push('/Home');
     };
 
     const toggleTheme = () => {

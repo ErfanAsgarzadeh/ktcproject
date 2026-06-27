@@ -86,7 +86,7 @@ html.light {
   --bg-hover: #ede8e0;          /* Warm bisque hover — tactile feedback */
   --bg-active: #e5dfd5;         /* Toasted cream — active/pressed state */
   --bg-header: #fffffe;         /* Crisp white header — clarity */
-  --bg-input: #ffffff;          /* Clean input fields */
+  --bg-input: #faf8f5;          /* Clean input fields */
   --bg-input-danger: #fef2f2;   /* Pale rose — danger context */
   --bg-surface: #ffffff;        /* Floating surfaces */
   --bg-elevated: #ffffff;       /* Cards & modals */

@@ -167,7 +167,7 @@ export default function CalendarsPage() {
     const inputClass = "bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400";
 
     return (
-        <div className="h-full w-full overflow-y-auto p-6 md:p-10" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        <div className="h-full w-full overflow-y-auto p-2 md:p-10" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             <div className="max-w-5xl mx-auto">
 
                 {/* Header */}

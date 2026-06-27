@@ -265,10 +265,10 @@ export default function ResourceManagement({
         if (!rateForm.resourceId || !rateForm.effectiveFrom) return;
         try {
             const payload = {
-                resource: rateForm.resourceId,
-                effective_from: rateForm.effectiveFrom,
-                regular_rate: Number(rateForm.regularRate),
-                overtime_rate: Number(rateForm.overtimeRate)
+                resourceId: rateForm.resourceId,
+                effectiveFrom: rateForm.effectiveFrom,
+                regularRate: Number(rateForm.regularRate),
+                overtimeRate: Number(rateForm.overtimeRate)
             };
             const response = await apiClient.post('planning/resource-rates/', payload);
             setRates([...rates, response.data]);
@@ -338,11 +338,11 @@ export default function ResourceManagement({
     return (
         <div className="h-full flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             {/* Dynamic Tab Switcher bar */}
-            <div className="bg-white/5 px-6 py-3 border-b border-white/5 shrink-0 flex items-center justify-between select-none">
+            <div className="px-6 py-3 border-b shrink-0 flex items-center justify-between select-none" style={{backgroundColor:"var(--overlay-bg)", borderColor:"var(--border-subtle)"}}>
                 <div className="flex items-center gap-3">
                     <Layers className="w-5 h-5 text-cyan-400" />
                     <div>
-                        <h1 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono">Resource Control & Governance Terminal</h1>
+                        <h1 className="text-sm font-extrabold uppercase tracking-wider font-mono" style={{color:"var(--text-primary)"}}>Resource Control & Governance Terminal</h1>
                         <p className="text-[10px] text-slate-400 font-sans">Multi-Scale Workload heatmaps, structural pools and detailed ledger rates accounts.</p>
                     </div>
                 </div>
@@ -350,7 +350,7 @@ export default function ResourceManagement({
 
             <div className="flex-grow flex overflow-hidden">
                 {/* Sub-navigation inside accounts view */}
-                <div className="w-[200px] sm:w-[240px] shrink-0 border-r border-white/5 flex flex-col py-4 p-3 gap-1" style={{ backgroundColor: 'var(--overlay-bg)' }}>
+                <div className="w-[200px] sm:w-[240px] shrink-0 flex flex-col py-4 p-3 gap-1" style={{ backgroundColor: "var(--overlay-bg)", borderRight:"1px solid var(--border-subtle)" }}>
                     <span className="text-[9px] font-mono font-bold tracking-widest text-slate-500 uppercase px-3 select-none mb-2">LEDGER SUB-MODULES</span>
 
                     <button
@@ -401,8 +401,8 @@ export default function ResourceManagement({
                         <span>Task Assignments</span>
                     </button>
 
-                    <div className="mt-auto p-4 bg-white/[0.02] border border-white/5 rounded-2xl text-[10px] space-y-1 text-slate-400 shadow-sm leading-relaxed select-none">
-                        <span className="text-white block font-bold font-mono">💡 MODEL SCHEMA RULE</span>
+                    <div className="mt-auto p-4 rounded-2xl text-[10px] space-y-1 shadow-sm leading-relaxed select-none" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)",color:"var(--text-tertiary)"}}>
+                        <span className="block font-bold font-mono" style={{color:"var(--text-primary)"}}>💡 MODEL SCHEMA RULE</span>
                         <span>Labor rates and exceptions validate timeline schedules, preventing over-allocation conflicts during revisions.</span>
                     </div>
                 </div>
@@ -415,7 +415,7 @@ export default function ResourceManagement({
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-base font-extrabold text-white tracking-tight">Enterprise Resources Directory</h2>
+                                    <h2 className="text-base font-extrabold tracking-tight" style={{color:"var(--text-primary)"}}>Enterprise Resources Directory</h2>
                                     <p className="text-[11px] text-slate-400 mt-1">Deploy, inspect and delete project-wide assets, labor personnel, and manufacturing resources.</p>
                                 </div>
                                 <button
@@ -427,10 +427,10 @@ export default function ResourceManagement({
                             </div>
 
                             {/* Display list as table */}
-                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
-                                <table className="w-full text-left text-xs border-collapse">
+                            <div className="rounded-2xl overflow-hidden shadow-xl" style={{background:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                <table className="w-full text-left text-xs border-collapse" >
                                     <thead>
-                                    <tr className="bg-white/5 border-b border-white/10 text-slate-400 font-mono tracking-wider text-[10px] uppercase">
+                                    <tr className="font-mono tracking-wider text-[10px] uppercase" style={{backgroundColor:"var(--overlay-bg)",borderBottom:"1px solid var(--border-medium)",color:"var(--text-tertiary)"}} >
                                         <th className="p-3 pl-4">Code</th>
                                         <th className="p-3">Resource Name</th>
                                         <th className="p-3">Type</th>
@@ -442,7 +442,7 @@ export default function ResourceManagement({
                                         <th className="p-3 pr-4 text-center">Actions</th>
                                     </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/5">
+                                    <tbody className="divide-y" style={{borderColor:"var(--border-subtle)"}}>
                                     {resources.length === 0 ? (
                                         <tr>
                                             <td colSpan={9} className="p-12 text-center text-slate-500 italic">No resources defined inside pools. Click Add New Resource to start.</td>
@@ -453,9 +453,9 @@ export default function ResourceManagement({
                                             const role = roles.find(r => r.id === item.roleId);
 
                                             return (
-                                                <tr key={item.id} className="hover:bg-white/[0.01] transition-colors">
+                                                <tr key={item.id} className="transition-colors" style={{}} onMouseEnter={e=>(e.currentTarget.style.backgroundColor="var(--bg-hover)")} onMouseLeave={e=>(e.currentTarget.style.backgroundColor="")}>
                                                     <td className="p-3 pl-4 font-mono font-bold text-cyan-400 whitespace-nowrap">{item.code}</td>
-                                                    <td className="p-3 font-bold text-white whitespace-nowrap">
+                                                    <td className="p-3 font-bold whitespace-nowrap" style={{color:"var(--text-primary)"}}>
                                                         <div className="flex items-center gap-2">
                                                             <span className="w-2 h-2 rounded bg-indigo-500 shrink-0" />
                                                             <span>{item.name}</span>
@@ -507,11 +507,11 @@ export default function ResourceManagement({
                             </div>
 
                             {/* Sub-section: Resource Skills Qualification mapping */}
-                            <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4 shadow-lg">
+                            <div className="rounded-2xl p-5 space-y-4 shadow-lg" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Award className="w-4 h-4 text-cyan-400" />
-                                        <h3 className="text-sm font-bold text-white">Specific Performance Skills Mapping</h3>
+                                        <h3 className="text-sm font-bold" style={{color:"var(--text-primary)"}}>Specific Performance Skills Mapping</h3>
                                     </div>
                                     <button
                                         onClick={() => {
@@ -522,7 +522,7 @@ export default function ResourceManagement({
                                             });
                                             setShowSkillModal(true);
                                         }}
-                                        className="bg-white/5 hover:bg-white/10 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] flex items-center gap-1.5 cursor-pointer border border-white/10"
+                                        className="font-bold px-3 py-1.5 rounded-xl text-[10px] flex items-center gap-1.5 cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     >
                                         <Plus className="w-3.5 h-3.5" /> Map Specialist Qualification
                                     </button>
@@ -540,10 +540,10 @@ export default function ResourceManagement({
                                             if (!resource || !skill) return null;
 
                                             return (
-                                                <div key={mapping.id} className="bg-black/40 border border-white/5 rounded-xl p-3.5 flex items-start justify-between gap-3 shadow group hover:border-cyan-500/20 transition-all">
+                                                <div key={mapping.id} className="rounded-xl p-3.5 flex items-start justify-between gap-3 shadow group transition-all" style={{backgroundColor:"var(--bg-elevated)",border:"1px solid var(--border-subtle)"}}>
                                                     <div className="min-w-0">
                                                         <span className="text-[10px] font-bold text-cyan-400 block truncate">{resource.name}</span>
-                                                        <p className="text-[11px] text-white mt-1 leading-normal font-sans group-hover:text-cyan-100 transition-colors">{skill.name}</p>
+                                                        <p className="text-[11px] mt-1 leading-normal font-sans transition-colors" style={{color:"var(--text-primary)"}}>{skill.name}</p>
                                                         <div className="flex items-center gap-1 mt-2.5">
                                                             <span className="text-[8px] tracking-wider font-mono text-slate-400 uppercase font-bold">PROFICIENCY LEVEL:</span>
                                                             <span className="text-xs font-mono font-black text-emerald-400 bg-emerald-500/10 px-1.5 rounded pr-2">{mapping.level} / 5</span>
@@ -584,13 +584,13 @@ export default function ResourceManagement({
                         <div className="space-y-8 animate-fade-in duration-200">
                             {/* 1. Resource Pools Section */}
                             <div className="space-y-4">
-                                <div className="bg-[#0b1021]/60 border border-white/5 rounded-2xl p-5 space-y-4">
-                                    <h2 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono flex items-center gap-2 border-b border-white/5 pb-3">
+                                <div className="rounded-2xl p-5 space-y-4" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                    <h2 className="text-sm font-extrabold uppercase tracking-wider font-mono flex items-center gap-2 pb-3" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>
                                         <Layers className="w-4.5 h-4.5 text-cyan-400" />
                                         <span>Configure Resource Pool Definitions</span>
                                     </h2>
 
-                                    <form onSubmit={handleCreatePool} className="bg-black/30 p-4 border border-white/5 rounded-xl flex flex-col md:flex-row items-end gap-3.5">
+                                    <form onSubmit={handleCreatePool} className="p-4 rounded-xl flex flex-col md:flex-row items-end gap-3.5" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
                                         <div className="flex-1 space-y-1 w-full">
                                             <label className="text-[10px] font-bold font-mono tracking-wider text-slate-400 uppercase">Pool Name</label>
                                             <input
@@ -599,7 +599,7 @@ export default function ResourceManagement({
                                                 placeholder="e.g. Mechanical Equipment and Rental Division"
                                                 value={newPoolName}
                                                 onChange={e => setNewPoolName(e.target.value)}
-                                                className="w-full bg-[#11162a]/90 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                                                className="w-full rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                             />
                                         </div>
                                         <div className="flex-2 space-y-1 w-full">
@@ -609,7 +609,7 @@ export default function ResourceManagement({
                                                 placeholder="Resource categories, allocation capacity rules, subcontracts..."
                                                 value={newPoolDesc}
                                                 onChange={e => setNewPoolDesc(e.target.value)}
-                                                className="w-full bg-[#11162a]/90 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                                                className="w-full rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                             />
                                         </div>
                                         <button
@@ -625,17 +625,17 @@ export default function ResourceManagement({
                                         {pools.map(p => {
                                             const count = resources.filter(res => res.poolId === p.id).length;
                                             return (
-                                                <div key={p.id} className="bg-[#11162a]/40 border border-white/15 p-4 rounded-xl flex flex-col justify-between hover:border-cyan-500/20 transition-all shadow shadow-inner">
+                                                <div key={p.id} className="p-4 rounded-xl flex flex-col justify-between transition-all shadow" style={{backgroundColor:"var(--bg-tertiary)",border:"1px solid var(--border-medium)"}}>
                                                     <div className="min-w-0">
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs font-bold text-white block truncate">{p.name}</span>
+                                                            <span className="text-xs font-bold block truncate" style={{color:"var(--text-primary)"}}>{p.name}</span>
                                                             <span className="text-[10px] bg-cyan-400/10 text-cyan-400 px-2 rounded-full font-mono font-bold capitalize select-none shrink-0 border border-cyan-400/20">
                                 {count} assigned
                               </span>
                                                         </div>
                                                         <p className="text-[11px] text-slate-400 leading-normal mt-2.5 font-sans h-10 overflow-y-auto">{p.description || "No description provided."}</p>
                                                     </div>
-                                                    <div className="flex items-center justify-between border-t border-white/5 mt-4 pt-3 text-[10px] font-mono text-slate-400">
+                                                    <div className="flex items-center justify-between mt-4 pt-3 text-[10px] font-mono" style={{borderTop:"1px solid var(--border-subtle)",color:"var(--text-tertiary)"}}>
                                                         <span>Created on: {p.createdAt ? p.createdAt.split('T')[0] : '-'}</span>
                                                         <button
                                                             onClick={() => handleDeletePool(p.id)}
@@ -654,19 +654,19 @@ export default function ResourceManagement({
                             {/* 2. Side-by-side Roles and Skills structure setup */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Roles setup */}
-                                <div className="bg-[#0b1021]/60 border border-white/5 rounded-2xl p-5 space-y-4">
-                                    <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-white flex items-center gap-1.5 border-b border-white/5 pb-2.5">
+                                <div className="rounded-2xl p-5 space-y-4" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                    <h3 className="text-xs font-mono font-bold tracking-widest uppercase flex items-center gap-1.5 pb-2.5" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>
                                         <Briefcase className="w-4 h-4 text-cyan-400" />
                                         <span>Resource Roles Definition</span>
                                     </h3>
-                                    <form onSubmit={handleCreateRole} className="space-y-3 bg-black/20 p-3.5 border border-white/5 rounded-xl">
+                                    <form onSubmit={handleCreateRole} className="space-y-3 p-3.5 rounded-xl" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             <div className="space-y-1">
                                                 <label className="text-[9px] font-bold text-slate-400 uppercase font-mono">Role Name</label>
                                                 <input
                                                     type="text" required placeholder="e.g. Excavator Lead Operator"
                                                     value={newRoleName} onChange={e => setNewRoleName(e.target.value)}
-                                                    className="w-full bg-[#11162a]/90 border border-white/10 focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none"
+                                                    className="w-full focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                                 />
                                             </div>
                                             <div className="space-y-1">
@@ -674,7 +674,7 @@ export default function ResourceManagement({
                                                 <input
                                                     type="text" placeholder="Competencies & bounds..."
                                                     value={newRoleDesc} onChange={e => setNewRoleDesc(e.target.value)}
-                                                    className="w-full bg-[#11162a]/90 border border-white/10 focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none"
+                                                    className="w-full focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                                 />
                                             </div>
                                         </div>
@@ -683,14 +683,14 @@ export default function ResourceManagement({
                                         </button>
                                     </form>
 
-                                    <div className="divide-y divide-white/5 bg-black/10 border border-white/5 rounded-xl overflow-hidden h-60 overflow-y-auto scrollbar-thin">
+                                    <div className="rounded-xl overflow-hidden h-60 overflow-y-auto scrollbar-thin" style={{border:"1px solid var(--border-subtle)",backgroundColor:"var(--overlay-bg)"}}>
                                         {roles.length === 0 ? (
                                             <div className="p-8 text-center text-xs italic text-slate-500">No organizational roles set.</div>
                                         ) : (
                                             roles.map(r => (
-                                                <div key={r.id} className="p-3.5 flex items-start justify-between gap-3 hover:bg-white/[0.01]">
+                                                <div key={r.id} className="p-3.5 flex items-start justify-between gap-3" style={{transition:"background-color 0.15s"}}>
                                                     <div className="min-w-0">
-                                                        <span className="text-xs font-bold text-white block">{r.name}</span>
+                                                        <span className="text-xs font-bold block" style={{color:"var(--text-primary)"}}>{r.name}</span>
                                                         <span className="text-[10px] text-slate-400 leading-normal block mt-1">{r.description || 'No description provided.'}</span>
                                                     </div>
                                                     <button onClick={() => handleDeleteRole(r.id)} className="p-1 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 rounded cursor-pointer transition-colors shrink-0">
@@ -703,18 +703,18 @@ export default function ResourceManagement({
                                 </div>
 
                                 {/* Skills definition setup */}
-                                <div className="bg-[#0b1021]/60 border border-white/5 rounded-2xl p-5 space-y-4">
-                                    <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-white flex items-center gap-1.5 border-b border-white/5 pb-2.5">
+                                <div className="rounded-2xl p-5 space-y-4" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                    <h3 className="text-xs font-mono font-bold tracking-widest uppercase flex items-center gap-1.5 pb-2.5" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>
                                         <Award className="w-4 h-4 text-cyan-400" />
                                         <span>Strategic Resource Skills</span>
                                     </h3>
-                                    <form onSubmit={handleCreateSkill} className="space-y-3 bg-black/20 p-3.5 border border-white/5 rounded-xl">
+                                    <form onSubmit={handleCreateSkill} className="space-y-3 p-3.5 rounded-xl" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
                                         <div className="space-y-1">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase font-mono">Skill Name / Standard Qualifier</label>
                                             <input
                                                 type="text" required placeholder="e.g. Reinforced Masonry & Steel Gutter Assembly"
                                                 value={newSkillName} onChange={e => setNewSkillName(e.target.value)}
-                                                className="w-full bg-[#11162a]/90 border border-white/10 focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none"
+                                                className="w-full focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                             />
                                         </div>
                                         <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-1.5 rounded-lg text-[10px] cursor-pointer">
@@ -722,13 +722,13 @@ export default function ResourceManagement({
                                         </button>
                                     </form>
 
-                                    <div className="divide-y divide-white/5 bg-black/10 border border-white/5 rounded-xl overflow-hidden h-60 overflow-y-auto scrollbar-thin">
+                                    <div className="rounded-xl overflow-hidden h-60 overflow-y-auto scrollbar-thin" style={{border:"1px solid var(--border-subtle)",backgroundColor:"var(--overlay-bg)"}}>
                                         {skills.length === 0 ? (
                                             <div className="p-8 text-center text-xs italic text-slate-500">No skill categories configured.</div>
                                         ) : (
                                             skills.map(s => (
-                                                <div key={s.id} className="p-3.5 flex items-center justify-between gap-3 hover:bg-white/[0.01]">
-                                                    <span className="text-xs font-bold text-white truncate max-w-[80%]">{s.name}</span>
+                                                <div key={s.id} className="p-3.5 flex items-center justify-between gap-3" style={{transition:"background-color 0.15s"}}>
+                                                    <span className="text-xs font-bold truncate max-w-[80%]" style={{color:"var(--text-primary)"}}>{s.name}</span>
                                                     <button onClick={() => handleDeleteSkill(s.id)} className="p-1 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 rounded cursor-pointer transition-colors shrink-0">
                                                         <Trash2 className="w-3.5 h-3.5" />
                                                     </button>
@@ -747,9 +747,9 @@ export default function ResourceManagement({
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                                 {/* Rates List */}
-                                <div className="bg-[#0b1021]/60 border border-white/5 rounded-2xl p-5 space-y-4">
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                                        <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-white flex items-center gap-1.5">
+                                <div className="rounded-2xl p-5 space-y-4" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                    <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                                        <h3 className="text-xs font-mono font-bold tracking-widest uppercase flex items-center gap-1.5" style={{color:"var(--text-primary)"}}>
                                             <DollarSign className="w-4 h-4 text-cyan-400" />
                                             <span>Workforce Regular & Overtime Rates</span>
                                         </h3>
@@ -763,7 +763,7 @@ export default function ResourceManagement({
                                                 });
                                                 setShowRateModal(true);
                                             }}
-                                            className="bg-white/5 hover:bg-white/10 text-white font-bold px-3 py-1 rounded text-[10px] flex items-center gap-1 cursor-pointer border border-white/10"
+                                            className="font-bold px-3 py-1 rounded text-[10px] flex items-center gap-1 cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                         >
                                             <Plus className="w-3.5 h-3.5" /> Add Standard Rate
                                         </button>
@@ -772,7 +772,7 @@ export default function ResourceManagement({
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left text-xs border-collapse">
                                             <thead>
-                                            <tr className="bg-black/30 border-b border-white/5 text-slate-400 pb-2 text-[10px] font-mono tracking-wide uppercase">
+                                            <tr className="pb-2 text-[10px] font-mono tracking-wide uppercase" style={{backgroundColor:"var(--overlay-bg)",borderBottom:"1px solid var(--border-subtle)",color:"var(--text-tertiary)"}}>
                                                 <th className="p-2.5">Resource Target</th>
                                                 <th className="p-2.5">Effective Date</th>
                                                 <th className="p-2.5 text-right">Regular Rate</th>
@@ -780,7 +780,7 @@ export default function ResourceManagement({
                                                 <th className="p-2.5 text-center">Delete</th>
                                             </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-white/5">
+                                            <tbody className="divide-y divide-[var(--border-subtle)]">
                                             {rates.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={5} className="p-6 text-center text-slate-500 italic">No resource rates assigned.</td>
@@ -789,8 +789,8 @@ export default function ResourceManagement({
                                                 rates.map(r => {
                                                     const target = resources.find(res => res.id === r.resourceId);
                                                     return (
-                                                        <tr key={r.id} className="hover:bg-white/[0.01]">
-                                                            <td className="p-2.5 text-white font-bold">{target?.name || 'Unknown resource'}</td>
+                                                        <tr key={r.id} className="transition-colors" onMouseEnter={e=>(e.currentTarget.style.backgroundColor="var(--bg-hover)")} onMouseLeave={e=>(e.currentTarget.style.backgroundColor="")}>
+                                                            <td className="p-2.5 font-bold" style={{color:"var(--text-primary)"}}>{target?.name || 'Unknown resource'}</td>
                                                             <td className="p-2.5 font-mono text-slate-400">{r.effectiveFrom}</td>
                                                             <td className="p-2.5 text-right font-mono font-extrabold text-cyan-400">${r.regularRate}/hr</td>
                                                             <td className="p-2.5 text-right font-mono text-indigo-400">${r.overtimeRate}/hr</td>
@@ -819,9 +819,9 @@ export default function ResourceManagement({
                                 </div>
 
                                 {/* Exception Calendars */}
-                                <div className="bg-[#0b1021]/60 border border-white/5 rounded-2xl p-5 space-y-4">
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                                        <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-white flex items-center gap-1.5">
+                                <div className="rounded-2xl p-5 space-y-4" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                    <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                                        <h3 className="text-xs font-mono font-bold tracking-widest uppercase flex items-center gap-1.5" style={{color:"var(--text-primary)"}}>
                                             <Calendar className="w-4 h-4 text-cyan-400" />
                                             <span>Lockouts & Exception Calendars</span>
                                         </h3>
@@ -836,7 +836,7 @@ export default function ResourceManagement({
                                                 });
                                                 setShowExceptionModal(true);
                                             }}
-                                            className="bg-white/5 hover:bg-white/10 text-white font-bold px-3 py-1 rounded text-[10px] flex items-center gap-1 cursor-pointer border border-white/10"
+                                            className="font-bold px-3 py-1 rounded text-[10px] flex items-center gap-1 cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                         >
                                             <Plus className="w-3.5 h-3.5" /> Log Absence / Rule
                                         </button>
@@ -853,7 +853,7 @@ export default function ResourceManagement({
                                             exceptions.map(exc => {
                                                 const res = resources.find(r => r.id === exc.resourceId);
                                                 return (
-                                                    <div key={exc.id} className="bg-black/30 border border-white/5 p-3.5 rounded-xl flex items-start justify-between shadow-sm hover:border-cyan-500/15 group">
+                                                    <div key={exc.id} className="p-3.5 rounded-xl flex items-start justify-between shadow-sm group transition-all" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
                                                         <div>
                                                             <div className="flex items-center gap-2">
                                                                 <span className="text-xs font-black text-cyan-400">{res?.name || 'Unknown resource'}</span>
@@ -895,7 +895,7 @@ export default function ResourceManagement({
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-base font-extrabold text-white tracking-tight">Active Schedule Task Assignments</h2>
+                                    <h2 className="text-base font-extrabold tracking-tight" style={{color:"var(--text-primary)"}}>Active Schedule Task Assignments</h2>
                                     <p className="text-[11px] text-slate-400 mt-1">Allocate specific workforce pools or equipment to active tasks in current revision workspace.</p>
                                 </div>
                                 <button
@@ -915,10 +915,10 @@ export default function ResourceManagement({
                                 </button>
                             </div>
 
-                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+                            <div className="rounded-2xl overflow-hidden shadow-xl" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
                                 <table className="w-full text-left text-xs border-collapse">
                                     <thead>
-                                    <tr className="bg-white/5 border-b border-white/10 text-slate-400 font-mono tracking-wider text-[10px] uppercase">
+                                    <tr className="font-mono tracking-wider text-[10px] uppercase" style={{backgroundColor:"var(--overlay-bg)",borderBottom:"1px solid var(--border-medium)",color:"var(--text-tertiary)"}}>
                                         <th className="p-3 pl-4">Schedule Task Target</th>
                                         <th className="p-3">Assigned Resource Item</th>
                                         <th className="p-3">Resource Type</th>
@@ -929,7 +929,7 @@ export default function ResourceManagement({
                                         <th className="p-3 pr-4 text-center">Remove</th>
                                     </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/5">
+                                    <tbody style={{borderColor:"var(--border-subtle)"}}>
                                     {assignments.length === 0 ? (
                                         <tr>
                                             <td colSpan={8} className="p-12 text-center text-slate-500 italic">No manual resource assignments registered. Allocation rules default to task roles executor.</td>
@@ -944,11 +944,11 @@ export default function ResourceManagement({
                                             const burnedRatio = asg.plannedHours > 0 ? Math.round((asg.actualHours / asg.plannedHours) * 100) : 0;
 
                                             return (
-                                                <tr key={asg.id} className="hover:bg-white/[0.01]">
+                                                <tr key={asg.id} className="transition-colors" onMouseEnter={e=>(e.currentTarget.style.backgroundColor="var(--bg-hover)")} onMouseLeave={e=>(e.currentTarget.style.backgroundColor="")}>
                                                     <td className="p-3 pl-4">
                                                         <div className="min-w-0">
                                                             <span className="text-[10px] font-mono text-cyan-400 font-bold block">{taskObj.code}</span>
-                                                            <span className="text-white font-bold leading-none mt-1 select-none block max-w-sm truncate" title={taskObj.name}>{taskObj.name}</span>
+                                                            <span className="font-bold leading-none mt-1 select-none block max-w-sm truncate" style={{color:"var(--text-primary)"}} title={taskObj.name}>{taskObj.name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="p-3">
@@ -956,7 +956,7 @@ export default function ResourceManagement({
                                                         <span className="text-[9px] font-mono text-slate-400 uppercase mt-0.5 block">{resourceObj.code}</span>
                                                     </td>
                                                     <td className="p-3">
-                                                        <span className="text-[10px] border border-white/10 bg-white/5 px-2 py-0.5 rounded font-mono font-bold leading-normal text-slate-300">{resourceObj.resourceType}</span>
+                                                        <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold leading-normal" style={{border:"1px solid var(--border-medium)",backgroundColor:"var(--overlay-bg)",color:"var(--text-secondary)"}}>{resourceObj.resourceType}</span>
                                                     </td>
                                                     <td className="p-3 text-center font-mono font-extrabold text-slate-300">{asg.unitsPercent}%</td>
                                                     <td className="p-3 text-center font-mono text-slate-300">{asg.plannedHours} hrs</td>
@@ -969,16 +969,16 @@ export default function ResourceManagement({
                                                                 const nextValue = Number(e.target.value);
                                                                 setAssignments(assignments.map(a => a.id === asg.id ? { ...a, actualHours: nextValue } : a));
                                                             }}
-                                                            className="w-16 bg-black/40 border border-white/10 rounded px-2.5 py-1 font-mono text-right text-xs text-white outline-none focus:border-cyan-500 font-bold text-cyan-400"
+                                                            className="w-16 bg-[var(--bg-input)] border border-[var(--border-medium)] rounded px-2.5 py-1 font-mono text-right text-xs text-[var(--text-primary)] outline-none focus:border-cyan-500 font-bold"
                                                         />
                                                     </td>
                                                     <td className="p-3 text-center min-w-[120px]">
                                                         <div className="space-y-1 max-w-[130px] mx-auto">
                                                             <div className="flex justify-between text-[9px] font-mono text-slate-400">
                                                                 <span>Spent</span>
-                                                                <span className="text-white font-bold">{burnedRatio}%</span>
+                                                                <span className="font-bold" style={{color:"var(--text-primary)"}}>{burnedRatio}%</span>
                                                             </div>
-                                                            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{backgroundColor:"var(--border-medium)"}}>
                                                                 <div
                                                                     className={`h-full rounded-full ${burnedRatio > 100 ? 'bg-rose-500' : 'bg-cyan-500'}`}
                                                                     style={{ width: `${Math.min(burnedRatio, 100)}%` }}
@@ -1017,15 +1017,15 @@ export default function ResourceManagement({
             {/* GLOBAL RESOURCE CREATION / EDITING DIALOG MODAL */}
             {/* ======================================================== */}
             {showResourceModal && (
-                <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm animate-fade-in">
-                    <div className="bg-[#0b1021] border border-white/10 rounded-3xl w-full max-w-lg p-6 shadow-2xl relative">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm animate-fade-in" style={{backgroundColor:"rgba(0,0,0,0.65)"}}>
+                    <div className="rounded-3xl w-full max-w-lg p-6 shadow-2xl relative" style={{backgroundColor:"var(--bg-elevated)",border:"1px solid var(--border-medium)"}}>
                         <button
                             onClick={() => setShowResourceModal(false)}
                             className="absolute right-4 top-4 p-1 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white cursor-pointer select-none"
                         >
                             <X className="w-5 h-5" />
                         </button>
-                        <h3 className="text-sm font-extrabold font-mono text-white tracking-wider uppercase border-b border-white/5 pb-3">
+                        <h3 className="text-sm font-extrabold font-mono tracking-wider uppercase pb-3" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>
                             {editingResource ? 'Edit Resource ledger Parameters' : 'Add New Pool Resource Asset'}
                         </h3>
 
@@ -1038,7 +1038,7 @@ export default function ResourceManagement({
                                         required
                                         value={resForm.code}
                                         onChange={e => setResForm({ ...resForm, code: e.target.value })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white outline-none focus:border-cyan-500 font-mono font-bold"
+                                        className="w-full rounded-xl px-3.5 py-2 text-xs outline-none focus:border-cyan-500 font-mono font-bold" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -1049,7 +1049,7 @@ export default function ResourceManagement({
                                         placeholder="e.g. Excavation Crane operator / Rebar Mix"
                                         value={resForm.name}
                                         onChange={e => setResForm({ ...resForm, name: e.target.value })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white outline-none focus:border-cyan-500 font-bold"
+                                        className="w-full rounded-xl px-3.5 py-2 text-xs outline-none focus:border-cyan-500 font-bold" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                             </div>
@@ -1060,7 +1060,7 @@ export default function ResourceManagement({
                                     <select
                                         value={resForm.resourceType}
                                         onChange={e => setResForm({ ...resForm, resourceType: e.target.value as ResourceType })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                                        className="w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     >
                                         <option value="LABOR">Labor</option>
                                         <option value="EQUIPMENT">Equipment</option>
@@ -1074,7 +1074,7 @@ export default function ResourceManagement({
                                     <select
                                         value={resForm.poolId}
                                         onChange={e => setResForm({ ...resForm, poolId: e.target.value })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                                        className="w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     >
                                         <option value="">No Active Pool</option>
                                         {pools.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -1088,7 +1088,7 @@ export default function ResourceManagement({
                                     <select
                                         value={resForm.roleId}
                                         onChange={e => setResForm({ ...resForm, roleId: e.target.value })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs focus:outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                         disabled={resForm.resourceType !== 'LABOR'}
                                     >
                                         <option value="">No Specified Role Unit</option>
@@ -1105,7 +1105,7 @@ export default function ResourceManagement({
                                         max="1000"
                                         value={resForm.maxUnits}
                                         onChange={e => setResForm({ ...resForm, maxUnits: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                             </div>
@@ -1117,11 +1117,11 @@ export default function ResourceManagement({
                                         type="number"
                                         value={resForm.priority}
                                         onChange={e => setResForm({ ...resForm, priority: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
 
-                                <div className="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-white/5 mt-3.5">
+                                <div className="flex items-center justify-between p-3 rounded-xl mt-3.5" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
                                     <span className="text-[10px] font-bold font-mono uppercase text-slate-300">Active status</span>
                                     <input
                                         type="checkbox"
@@ -1132,11 +1132,11 @@ export default function ResourceManagement({
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
+                            <div className="flex gap-3 justify-end pt-4" style={{borderTop:"1px solid var(--border-subtle)"}}>
                                 <button
                                     type="button"
                                     onClick={() => setShowResourceModal(false)}
-                                    className="bg-black/30 border border-white/10 text-slate-300 hover:text-white font-bold py-2 px-4 rounded-xl text-xs cursor-pointer select-none"
+                                    className="font-bold py-2 px-4 rounded-xl text-xs cursor-pointer select-none" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}
                                 >
                                     Cancel
                                 </button>
@@ -1156,12 +1156,12 @@ export default function ResourceManagement({
             {/* PERFORMANCE SKILL QUALIFICATION MAP DIALOG MODAL */}
             {/* ======================================================== */}
             {showSkillModal && (
-                <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm">
-                    <div className="bg-[#0b1021] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl relative animate-scale-up">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm" style={{backgroundColor:"rgba(0,0,0,0.65)"}}>
+                    <div className="rounded-3xl w-full max-w-md p-6 shadow-2xl relative animate-scale-up" style={{backgroundColor:"var(--bg-elevated)",border:"1px solid var(--border-medium)"}}>
                         <button onClick={() => setShowSkillModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white cursor-pointer select-none">
                             <X className="w-5 h-5" />
                         </button>
-                        <h3 className="text-sm font-extrabold font-mono text-white tracking-wider uppercase border-b border-white/5 pb-3">
+                        <h3 className="text-sm font-extrabold font-mono tracking-wider uppercase pb-3" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>
                             Map Labor Skill Qualification
                         </h3>
 
@@ -1171,7 +1171,7 @@ export default function ResourceManagement({
                                 <select
                                     value={skillForm.resourceId}
                                     onChange={e => setSkillForm({ ...skillForm, resourceId: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 >
                                     {resources.filter(r => r.resourceType === 'LABOR').map(r => (
                                         <option key={r.id} value={r.id}>{r.name} ({r.code})</option>
@@ -1184,7 +1184,7 @@ export default function ResourceManagement({
                                 <select
                                     value={skillForm.skillId}
                                     onChange={e => setSkillForm({ ...skillForm, skillId: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 >
                                     {skills.map(s => (
                                         <option key={s.id} value={s.id}>{s.name}</option>
@@ -1207,10 +1207,10 @@ export default function ResourceManagement({
                                 />
                             </div>
 
-                            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
+                            <div className="flex gap-3 justify-end pt-4" style={{borderTop:"1px solid var(--border-subtle)"}}>
                                 <button
                                     type="button" onClick={() => setShowSkillModal(false)}
-                                    className="bg-black/30 border border-white/10 text-slate-300 py-2 px-4 rounded-xl text-xs cursor-pointer"
+                                    className="py-2 px-4 rounded-xl text-xs cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}
                                 >
                                     Cancel
                                 </button>
@@ -1230,12 +1230,12 @@ export default function ResourceManagement({
             {/* WORKFORCE RATES CREATION MODAL */}
             {/* ======================================================== */}
             {showRateModal && (
-                <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm">
-                    <div className="bg-[#0b1021] border border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm" style={{backgroundColor:"rgba(0,0,0,0.65)"}}>
+                    <div className="rounded-3xl w-full max-w-sm p-6 shadow-2xl relative" style={{backgroundColor:"var(--bg-elevated)",border:"1px solid var(--border-medium)"}}>
                         <button onClick={() => setShowRateModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white cursor-pointer">
                             <X className="w-5 h-5" />
                         </button>
-                        <h3 className="text-sm font-extrabold font-mono text-white tracking-wider uppercase border-b border-white/5 pb-3">Add Custom Standard Rate</h3>
+                        <h3 className="text-sm font-extrabold font-mono tracking-wider uppercase pb-3" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>Add Custom Standard Rate</h3>
 
                         <form onSubmit={handleAddRate} className="mt-4 space-y-4">
                             <div className="space-y-1">
@@ -1243,7 +1243,7 @@ export default function ResourceManagement({
                                 <select
                                     value={rateForm.resourceId}
                                     onChange={e => setRateForm({ ...rateForm, resourceId: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
+                                    className="w-full rounded-xl px-3 py-2 text-xs" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 >
                                     {resources.map(r => <option key={r.id} value={r.id}>{r.name} ({r.code})</option>)}
                                 </select>
@@ -1255,7 +1255,8 @@ export default function ResourceManagement({
                                     required
                                     value={rateForm.effectiveFrom}
                                     onChange={(iso) => setRateForm({ ...rateForm, effectiveFrom: iso })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white font-mono flex items-center justify-between gap-2"
+                                    className="w-full border rounded-xl px-3 py-1.5 text-xs font-mono flex items-center justify-between gap-2"
+                                    style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 />
                             </div>
 
@@ -1268,7 +1269,7 @@ export default function ResourceManagement({
                                         min="1"
                                         value={rateForm.regularRate}
                                         onChange={e => setRateForm({ ...rateForm, regularRate: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
 
@@ -1280,13 +1281,13 @@ export default function ResourceManagement({
                                         min="1"
                                         value={rateForm.overtimeRate}
                                         onChange={e => setRateForm({ ...rateForm, overtimeRate: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
-                                <button type="button" onClick={() => setShowRateModal(false)} className="bg-black/30 border border-white/10 text-slate-300 py-2 px-4 rounded-xl text-xs cursor-pointer">Cancel</button>
+                            <div className="flex gap-3 justify-end pt-4" style={{borderTop:"1px solid var(--border-subtle)"}}>
+                                <button type="button" onClick={() => setShowRateModal(false)} className="py-2 px-4 rounded-xl text-xs cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}>Cancel</button>
                                 <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 px-5 rounded-xl text-xs cursor-pointer shadow">Save Standard Rate</button>
                             </div>
                         </form>
@@ -1298,12 +1299,12 @@ export default function ResourceManagement({
             {/* CALENDAR EXCEPTION LOCKOUTS MODAL */}
             {/* ======================================================== */}
             {showExceptionModal && (
-                <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm animate-fade-in">
-                    <div className="bg-[#0b1021] border border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm animate-fade-in" style={{backgroundColor:"rgba(0,0,0,0.65)"}}>
+                    <div className="rounded-3xl w-full max-w-sm p-6 shadow-2xl relative" style={{backgroundColor:"var(--bg-elevated)",border:"1px solid var(--border-medium)"}}>
                         <button onClick={() => setShowExceptionModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white cursor-pointer select-none">
                             <X className="w-5 h-5" />
                         </button>
-                        <h3 className="text-sm font-extrabold font-mono text-white tracking-wider uppercase border-b border-white/5 pb-3">Log Calendar Unavailability</h3>
+                        <h3 className="text-sm font-extrabold font-mono tracking-wider uppercase pb-3" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>Log Calendar Unavailability</h3>
 
                         <form onSubmit={handleAddException} className="mt-4 space-y-4">
                             <div className="space-y-1">
@@ -1311,7 +1312,7 @@ export default function ResourceManagement({
                                 <select
                                     value={excForm.resourceId}
                                     onChange={e => setExcForm({ ...excForm, resourceId: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 >
                                     {resources.map(r => <option key={r.id} value={r.id}>{r.name} ({r.code})</option>)}
                                 </select>
@@ -1325,7 +1326,7 @@ export default function ResourceManagement({
                                         required
                                         value={excForm.startDatetime}
                                         onChange={e => setExcForm({ ...excForm, startDatetime: e.target.value })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-2.5 py-1.5 text-[10px] text-white font-mono"
+                                        className="w-full border rounded-xl px-2.5 py-1.5 text-[10px] font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -1335,7 +1336,7 @@ export default function ResourceManagement({
                                         required
                                         value={excForm.finishDatetime}
                                         onChange={e => setExcForm({ ...excForm, finishDatetime: e.target.value })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-2.5 py-1.5 text-[10px] text-white font-mono"
+                                        className="w-full border rounded-xl px-2.5 py-1.5 text-[10px] font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                             </div>
@@ -1348,12 +1349,12 @@ export default function ResourceManagement({
                                     placeholder="e.g. Mandatory Annual Crane Safety Certification"
                                     value={excForm.reason}
                                     onChange={e => setExcForm({ ...excForm, reason: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none placeholder-slate-500"
+                                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none placeholder-slate-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 />
                             </div>
 
-                            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
-                                <button type="button" onClick={() => setShowExceptionModal(false)} className="bg-black/30 border border-white/10 text-slate-300 py-2 px-4 rounded-xl text-xs cursor-pointer">Cancel</button>
+                            <div className="flex gap-3 justify-end pt-4" style={{borderTop:"1px solid var(--border-subtle)"}}>
+                                <button type="button" onClick={() => setShowExceptionModal(false)} className="py-2 px-4 rounded-xl text-xs cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}>Cancel</button>
                                 <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 px-5 rounded-xl text-xs cursor-pointer shadow">Confirm Exception</button>
                             </div>
                         </form>
@@ -1365,12 +1366,12 @@ export default function ResourceManagement({
             {/* TASK WORKFORCE RESOURCE ALLOCATION PLAN MODAL */}
             {/* ======================================================== */}
             {showAsgModal && (
-                <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm animate-fade-in">
-                    <div className="bg-[#0b1021] border border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-[9999] backdrop-blur-sm animate-fade-in" style={{backgroundColor:"rgba(0,0,0,0.65)"}}>
+                    <div className="rounded-3xl w-full max-w-md p-6 shadow-2xl relative" style={{backgroundColor:"var(--bg-elevated)",border:"1px solid var(--border-medium)"}}>
                         <button onClick={() => setShowAsgModal(false)} className="absolute right-4 top-4 text-slate-400 hover:text-white cursor-pointer select-none">
                             <X className="w-5 h-5" />
                         </button>
-                        <h3 className="text-sm font-extrabold font-mono text-white tracking-wider uppercase border-b border-white/5 pb-3">Create Schedule Resource Assignment</h3>
+                        <h3 className="text-sm font-extrabold font-mono tracking-wider uppercase pb-3" style={{color:"var(--text-primary)",borderBottom:"1px solid var(--border-subtle)"}}>Create Schedule Resource Assignment</h3>
 
                         <form onSubmit={handleCreateAssignment} className="mt-4 space-y-4">
                             <div className="space-y-1">
@@ -1378,7 +1379,7 @@ export default function ResourceManagement({
                                 <select
                                     value={asgForm.taskId}
                                     onChange={e => setAsgForm({ ...asgForm, taskId: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 >
                                     {activities.map(act => (
                                         <option key={act.id} value={act.id}>[{act.code}] {act.name}</option>
@@ -1391,7 +1392,7 @@ export default function ResourceManagement({
                                 <select
                                     value={asgForm.resourceId}
                                     onChange={e => setAsgForm({ ...asgForm, resourceId: e.target.value })}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                                    className="w-full border rounded-xl px-3 py-2 text-xs focus:outline-none" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                 >
                                     {resources.map(r => (
                                         <option key={r.id} value={r.id}>{r.name} ({r.code}) — {r.resourceType}</option>
@@ -1409,7 +1410,7 @@ export default function ResourceManagement({
                                         max="1000"
                                         value={asgForm.unitsPercent}
                                         onChange={e => setAsgForm({ ...asgForm, unitsPercent: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white text-right font-mono"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs text-right font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
 
@@ -1421,7 +1422,7 @@ export default function ResourceManagement({
                                         min="1"
                                         value={asgForm.plannedHours}
                                         onChange={e => setAsgForm({ ...asgForm, plannedHours: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white text-right font-mono"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs text-right font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
 
@@ -1433,13 +1434,13 @@ export default function ResourceManagement({
                                         min="0"
                                         value={asgForm.actualHours}
                                         onChange={e => setAsgForm({ ...asgForm, actualHours: Number(e.target.value) })}
-                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white text-right font-mono"
+                                        className="w-full rounded-xl px-3 py-1.5 text-xs text-right font-mono" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 justify-end pt-4 border-t border-white/5">
-                                <button type="button" onClick={() => setShowAsgModal(false)} className="bg-black/30 border border-white/10 text-slate-300 py-2 px-4 rounded-xl text-xs cursor-pointer">Cancel</button>
+                            <div className="flex gap-3 justify-end pt-4" style={{borderTop:"1px solid var(--border-subtle)"}}>
+                                <button type="button" onClick={() => setShowAsgModal(false)} className="py-2 px-4 rounded-xl text-xs cursor-pointer" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-medium)",color:"var(--text-secondary)"}}>Cancel</button>
                                 <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 px-5 rounded-xl text-xs cursor-pointer shadow">Assign Resource Target</button>
                             </div>
                         </form>

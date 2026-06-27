@@ -288,7 +288,7 @@ export default function MyTasks({
                     {metrics.blocked > 0 && <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block" />}
                   </div>
                 </div>
-                <div className="dark:bg-black border border-white/5 p-2 rounded-xl">
+                <div className=" border border-white/5 p-2 rounded-xl">
                   <div className="text-[9px] text-slate-500 uppercase font-mono font-bold">Fully Completed</div>
                   <div className="text-base font-black text-emerald-400 font-mono mt-0.5">{metrics.completed}</div>
                 </div>
@@ -584,7 +584,8 @@ export default function MyTasks({
                                       <div key={msg.id} className={`max-w-xl p-4 rounded-2xl shadow-md border ${isMe ? 'self-end bg-white/10 border-cyan-500/30' : isReportNode ? 'self-start bg-white/5 border-indigo-500/30 w-full' : 'self-start bg-white/5 border-white/10'}`}>
                                         <div className="flex items-center justify-between gap-6 mb-2">
                                           <div className="flex items-center gap-1.5">
-                                            <div className={`w-4 h-4 text-[9px] font-black font-mono rounded flex items-center justify-center ${isMe ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700 text-slate-300'}`}>
+                                            <div className={`w-4 h-4 tFully Completed
+ext-[9px] font-black font-mono rounded flex items-center justify-center ${isMe ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700 text-slate-300'}`}>
                                               {sender?.username.substring(0,2).toUpperCase() || 'U'}
                                             </div>
                                             <span className={`text-xs font-bold ${isMe ? 'text-cyan-300' : 'text-slate-350'}`}>{sender?.username || 'System Pool'} {isMe && '(You)'}</span>

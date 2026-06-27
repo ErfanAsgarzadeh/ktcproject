@@ -175,7 +175,7 @@ function ResourceRow({ user, roles, isExpanded, onToggle }: {
   );
 
   return (
-    <div className="rounded-2xl border border-white/5 overflow-hidden bg-slate-900/50 backdrop-blur-sm">
+    <div className="rounded-2xl border border-white/5 overflow-hidden bg-slate-900/50 backdrop-blur-sm flex flex-col ">
       {/* Header */}
       <button
         onClick={onToggle}
@@ -253,11 +253,11 @@ function ResourceRow({ user, roles, isExpanded, onToggle }: {
 
       {/* Task grid */}
       {isExpanded && (
-        <div className="border-t border-white/5 px-5 py-4">
+        <div className="border-t border-white/5 px-5 py-4 overflow-y-auto flex-1 ">
           {roles.length === 0 ? (
             <p className="text-xs text-slate-500 italic">No tasks assigned.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 ">
               {roles.map(role => (
                 <TaskCard key={role.id} role={role} />
               ))}
@@ -358,25 +358,13 @@ export default function ResourcePlan({
   return (
     <div className="h-full w-full overflow-y-auto font-sans" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
-      {/* ── Background glows ── */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[700px] h-[400px] bg-cyan-500/5 blur-[120px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-indigo-500/5 blur-[100px] rounded-full" />
-      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
         {/* ── Header ── */}
         <div className="flex items-center justify-between gap-4 pb-4 border-b border-white/5">
           <div className="flex items-center gap-4">
-            {onExit && (
-              <button
-                onClick={onExit}
-                className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-            )}
+
             <div>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center">
@@ -492,7 +480,7 @@ export default function ResourcePlan({
           </div>
         ) : viewMode === 'grouped' ? (
           /* Grouped view */
-          <div className="space-y-3">
+          <div className="space-y-3 scrollbar-thumb-white/5 ">
             {grouped.map(({ uid, user, roles }) => (
               user ? (
                 <ResourceRow

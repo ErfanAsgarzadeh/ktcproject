@@ -14,7 +14,7 @@ export default function RootLayout({
     return (
         // اگر سایت فارسی است dir="rtl" بگذارید، اگر انگلیسی است dir="ltr"
         <html lang="en" suppressHydrationWarning>
-        <body className="h-screen">
+        <body className="h-screen ">
         <ThemeProvider attribute="class" defaultTheme="dark">
             {/* تمام صفحات برنامه (لاگین، داشبورد و...) اینجا رندر می‌شوند */}
             {children}

@@ -220,7 +220,7 @@ export default function JalaliDatePicker({
           className="text-[10px] font-mono px-3 py-1 rounded-lg transition-colors"
           style={{ color: 'var(--text-accent)', backgroundColor: 'var(--overlay-bg)' }}
         >
-          امروز
+          Today
         </button>
       </div>
     </div>,
@@ -234,15 +234,15 @@ export default function JalaliDatePicker({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setOpen((o) => !o)}
-        className={`w-full flex items-center justify-between gap-2 text-left ${className}`}
-        style={!className ? {
+        className={`w-full flex items-center justify-between gap-2 text-left  ${className}`}
+        style={{
           backgroundColor: 'var(--bg-input)',
           border: '1px solid var(--border-medium)',
           borderRadius: '0.5rem',
           padding: '0.5rem 0.75rem',
           fontSize: '0.75rem',
           color: 'var(--text-primary)',
-        } : undefined}
+        }}
       >
         <span className={displayText ? '' : 'opacity-50'} style={{ fontFamily: 'var(--font-mono)' }}>
           {displayText || placeholder}

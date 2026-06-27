@@ -589,9 +589,9 @@ export default function GanttChart({
                             {/* Black brackets bar */}
                             <div className="absolute left-0 right-0 top-1 h-1.5 bg-cyan-400 rounded-sm shadow-[0_0_10px_rgba(6,182,212,0.4)]" />
                             {/* Left diamond end bracket */}
-                            <div className="absolute left-0 top-0 w-3 h-3 bg-cyan-200 rotate-45 border border-cyan-500" />
+                            <div className="absolute left-0 top-0 w-3 h-3 rounded-4xl bg-cyan-200  border border-cyan-500" />
                             {/* Right diamond end bracket */}
-                            <div className="absolute right-0 top-1.5 w-3 h-3 bg-cyan-205 rotate-45 border border-cyan-500" />
+                            <div className="absolute right-0 top-0 w-3 h-3 rounded-4xl bg-cyan-205  border border-cyan-500" />
                             {/* Rollup Name flag inside or next */}
                             <span className="absolute left-1.5 -top-5.5 text-[10px] font-sans font-semibold text-slate-300 whitespace-nowrap scale-95 uppercase tracking-wide">
                         {node.code} ({node.progress}%)

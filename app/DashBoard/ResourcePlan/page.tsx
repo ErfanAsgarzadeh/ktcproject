@@ -14,11 +14,10 @@ export default function ResourcePlanPage() {
   const [activeRevisionId, setActiveRevisionId] = useState<string | null>(null);
   const [isLoading, setIsLoading]   = useState(true);
   const [error, setError]           = useState<string | null>(null);
-
   useEffect(() => {
     const load = async () => {
       try {
-        // Load projects, users, and revisions in parallel
+        // ۱. بارگذاری لیست پروژه‌ها، کاربران و تمام ریویژن‌ها به صورت موازی
         const [projRes, userRes, revRes] = await Promise.all([
           apiClient.get('/planning/projects/'),
           apiClient.get('/auth/users/'),
@@ -33,32 +32,49 @@ export default function ResourcePlanPage() {
         setUsers(userList);
         setRevisions(revisionList);
 
-        // Use the most recent approved revision, or just the latest one
-        const latestRev = revisionList.sort((a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )[0];
+        // ۲. پیدا کردن آخرین ریویژن فعال برای "تک تک پروژه‌ها"
+        const latestRevisionsPerProject = projectList.map(proj => {
+          const projRevs = revisionList.filter(r => String(r.projectId) === String(proj.id));
+          return projRevs.sort((a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )[0];
+        }).filter(Boolean); // حذف مقادیر تهی برای پروژه‌هایی که هنوز ریویژن ندارند
 
-        if (!latestRev) {
+        if (latestRevisionsPerProject.length === 0) {
           setIsLoading(false);
           return;
         }
 
-        const revId = latestRev.id;
-        setActiveRevisionId(revId);
+        // استخراج آرایه‌ای از IDهای تمام ریویژن‌های فعال
+        const activeRevIds = latestRevisionsPerProject.map(r => r.id);
 
-        // Load task roles and nodes for that revision
-        const [rolesRes, ganttRes] = await Promise.all([
-          apiClient.get('/planning/task-roles/'),
-          apiClient.get(`/planning/revisions/${revId}/gantt-data/`),
+        // ۳. درخواست موازی برای دریافت دیتای گانت (Nodes) تمام ریویژن‌های فعال + نقش‌ها
+        const rolesPromise = apiClient.get('/planning/task-roles/');
+        const ganttPromises = activeRevIds.map(revId =>
+            apiClient.get(`/planning/revisions/${revId}/gantt-data/`)
+        );
+
+        const [rolesRes, ...ganttResponses] = await Promise.all([
+          rolesPromise,
+          ...ganttPromises
         ]);
 
-        const roleList: TaskRole[] = rolesRes.data.results ?? rolesRes.data;
-        setTaskRoles(roleList);
+        // ۴. فیلتر کردن نقش‌ها در فرانت‌اند (فقط نقش‌های مربوط به ریویژن‌های فعالِ پروژه‌ها حفظ شوند)
+        const allRoles: TaskRole[] = rolesRes.data.results ?? rolesRes.data;
+        const filteredRoles = allRoles.filter(role => activeRevIds.includes(role.revisionId));
+        setTaskRoles(filteredRoles);
 
-        // gantt-data typically returns { nodes, dependencies }
-        const ganttData = ganttRes.data;
-        const nodeList: ProjectNode[] = ganttData.nodes ?? ganttData;
-        setNodes(nodeList);
+        // ۵. ترکیب (Combine) تمام گره‌های دریافتی از پروژه‌های مختلف در یک آرایه واحد
+        const combinedNodes = ganttResponses.reduce((acc: ProjectNode[], res) => {
+          const ganttData = res.data;
+          const nodeList: ProjectNode[] = ganttData.nodes ?? ganttData;
+          return [...acc, ...nodeList];
+        }, []);
+
+        setNodes(combinedNodes);
+
+        // به عنوان پیش‌فرض، ID اولین ریویژن را ست می‌کنیم (یا کلا null پاس بدهید)
+        setActiveRevisionId(activeRevIds[0] || null);
 
       } catch (err: any) {
         console.error('ResourcePlan load error:', err);
@@ -70,7 +86,6 @@ export default function ResourcePlanPage() {
 
     load();
   }, []);
-
   if (isLoading) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center gap-4" style={{ backgroundColor: 'var(--bg-primary)' }}>

@@ -173,10 +173,9 @@ export default function ProjectHub({
     };
 
     return (
-        <div className="h-full w-full flex flex-col font-sans relative overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        <div className="h-screen w-full flex flex-col font-sans relative overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             {/* Background radial glowing gradients */}
-            <div className="absolute top-0 left-1/4 w-full h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none z-0" />
-            <div className="absolute bottom-12 right-1/4 w-full h-[500px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
+
 
             <div className="w-full mx-auto space-y-8 z-10 p-6 md:p-8 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
 

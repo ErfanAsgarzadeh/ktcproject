@@ -181,7 +181,7 @@ export default function OrganizationPage() {
 
                     {/* ─── Units column ─── */}
                     <div className="lg:col-span-2 space-y-4">
-                        <div className="rounded-2xl p-5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
+                        <div className="rounded-2xl p-5 max-h-[calc(100vh-260px)]" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
                             <h2 className="text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: 'var(--text-accent)' }}>
                                 <Building2 className="w-4 h-4" /> New Unit
                             </h2>
@@ -197,7 +197,7 @@ export default function OrganizationPage() {
                             </form>
                         </div>
 
-                        <div className="rounded-2xl p-5 space-y-2" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
+                        <div className="rounded-2xl p-5 space-y-2 " style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-sm)' }}>
                             <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-accent)' }}>Defined Units</h2>
                             {units.length === 0 && <div className="text-xs italic py-4 text-center" style={{ color: 'var(--text-tertiary)' }}>No units defined.</div>}
                             {units.map(unit => (

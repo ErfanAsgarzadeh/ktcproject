@@ -53,7 +53,17 @@ export default function LoginPage({
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setUtcTime(now.toUTCString());
+      const localTime = now.toLocaleString("en-US", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
+      setUtcTime(localTime);
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
@@ -163,13 +173,7 @@ export default function LoginPage({
         {/* Top Notification Status Bar */}
         <header className="z-10 w-full px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/5 bg-slate-950/20 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-xl border border-white/10 shadow-lg flex items-center justify-center">
-              <CodeSquare className="w-5 h-5 text-cyan-400" />
-            </div>
-            <div>
-              <span className="text-xs uppercase font-bold tracking-wider text-cyan-400 font-mono">Operations Portal v3.7</span>
-              <h1 className="text-base font-extrabold text-white tracking-tight">NOVIRA Workspace CPM</h1>
-            </div>
+
           </div>
 
           <div className="flex items-center gap-4">
@@ -203,21 +207,21 @@ export default function LoginPage({
 
                 <div className="space-y-3">
                   <h2 className="text-2xl font-black text-white tracking-tight leading-tight">
-                    Next-Gen Critical Path Scheduler.
+                    See everything. Miss nothing.
                   </h2>
                   <p className="text-sm text-slate-400 leading-relaxed">
                     Real-time network diagram engine, automated baseline tracking, multi-user project allocations, and collaborative task logs unified on a high-fidelity visual slate.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="bg-black/20 border border-white/5 p-3.5 rounded-xl">
+                <div className=" gap-3 pt-4 flex flex-col">
+                  <div className="bg-black/20 border border-white/5 p-2 rounded-xl">
                     <span className="text-xs text-slate-500 block uppercase font-mono font-bold tracking-wide">ALGORITHMS</span>
-                    <span className="text-lg font-extrabold text-cyan-400 font-mono">F9 CPM PASSED</span>
+                    <span className="text-lg font-extrabold text-cyan-400 font-mono">PERSONAL AL/AI</span>
                   </div>
-                  <div className="bg-black/20 border border-white/5 p-3.5 rounded-xl">
+                  <div className="bg-black/20 border border-white/5 p-2 rounded-xl justify-center">
                     <span className="text-xs text-slate-500 block uppercase font-mono font-bold tracking-wide">DATABASES</span>
-                    <span className="text-lg font-extrabold text-indigo-400 font-mono">SQL-DJANGO READY</span>
+                    <span className="text-lg font-extrabold text-indigo-400 font-mono">POSTGRESQL 18</span>
                   </div>
                 </div>
               </div>
@@ -246,36 +250,13 @@ export default function LoginPage({
                             : 'text-slate-400 hover:text-slate-200'
                     }`}
                 >
-                  Join Team Roster
+                  Join Team
                 </button>
               </div>
 
               {tab === 'login' ? (
                   <div className="space-y-6">
-                    <div className="flex items-center gap-4 border-b border-white/5 pb-4 mb-2">
-                      <button
-                          type="button"
-                          onClick={() => setLoginMethod('credentials')}
-                          className={`text-xs font-bold font-mono uppercase tracking-wider transition-all pb-1.5 border-b-2 ${
-                              loginMethod === 'credentials'
-                                  ? 'border-cyan-500 text-cyan-400'
-                                  : 'border-transparent text-slate-500 hover:text-slate-300'
-                          }`}
-                      >
-                        Credentials
-                      </button>
-                      <button
-                          type="button"
-                          onClick={() => setLoginMethod('roster')}
-                          className={`text-xs font-bold font-mono uppercase tracking-wider transition-all pb-1.5 border-b-2 ${
-                              loginMethod === 'roster'
-                                  ? 'border-cyan-500 text-cyan-400'
-                                  : 'border-transparent text-slate-500 hover:text-slate-300'
-                          }`}
-                      >
-                        Quick-Access ({users.length})
-                      </button>
-                    </div>
+
 
                     {loginMethod === 'credentials' ? (
                         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
@@ -395,7 +376,7 @@ export default function LoginPage({
                               value={regName}
                               onChange={e => setRegName(e.target.value)}
                               placeholder="Username"
-                              className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
+                              className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
                           />
                         </div>
                       </div>
@@ -410,7 +391,7 @@ export default function LoginPage({
                               value={regJob}
                               onChange={e => setRegJob(e.target.value)}
                               placeholder="Job Title"
-                              className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
+                              className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
                           />
                         </div>
                       </div>
@@ -425,7 +406,7 @@ export default function LoginPage({
                             value={regCode}
                             onChange={e => setRegCode(e.target.value)}
                             placeholder="e.g. EMP-120"
-                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner font-mono"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner font-mono"
                         />
                       </div>
 
@@ -437,7 +418,7 @@ export default function LoginPage({
                             placeholder="••••••••"
                             value={regPassword}
                             onChange={e => setRegPassword(e.target.value)}
-                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 shadow-inner"
                         />
                       </div>
                     </div>

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const navPages = [
-    { title: 'Home', href: '/DashBoard/Home', icon: Home, color: '#0d9488' },
+    { title: 'Home', href: '/Home', icon: Home, color: '#0d9488' },
     { title: 'Project Workspace', href: '/DashBoard', icon: LayoutDashboard, color: '#0d9488' },
     { title: 'My Tasks', href: '/DashBoard/MyTask', icon: ListTodo, color: '#6366f1' },
     { title: 'Approve Tasks', href: '/DashBoard/ApproveTask', icon: ClipboardCheck, color: '#059669' },
@@ -29,7 +29,7 @@ export const navPages = [
 ];
 
 // صفحاتی که همیشه در دسترس‌اند (تا کاربر قفل نشود)
-const ALWAYS_ALLOWED = ['/DashBoard/Home'];
+const ALWAYS_ALLOWED = ['/Home'];
 
 export default function Navbar() {
     const [user, setUser] = useState<CustomUser | null>(null);

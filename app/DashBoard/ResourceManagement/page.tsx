@@ -96,26 +96,7 @@ export default function ResourceManagementPage() {
         <div className="h-full w-full flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
             {/* هدر صفحه */}
-            <header className="px-6 py-4 border-b border-white/5 flex justify-between items-center shrink-0" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                        <span className="text-white font-bold text-lg leading-none">R</span>
-                    </div>
-                    <div>
-                        <h1 className="text-white font-bold text-lg">Project Resource Matrix</h1>
-                        <p className="text-xs text-slate-400">
-                            Active Revision: <span className="text-cyan-400 font-mono font-bold">Rev {currentRevision?.number || 0}</span>
-                        </p>
-                    </div>
-                </div>
 
-                <button
-                    onClick={() => setIsLightMode(!isLightMode)}
-                    className="text-[10px] uppercase font-mono font-bold text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition-colors cursor-pointer"
-                >
-                    {isLightMode ? 'Dark Mode' : 'Light Mode'}
-                </button>
-            </header>
 
             {/* ناحیه اصلی و تزریق کامپوننت مدیریت منابع */}
             <main className="flex-1 overflow-hidden relative">
