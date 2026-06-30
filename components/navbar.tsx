@@ -9,7 +9,7 @@ import { CustomUser } from '../types/types';
 import {
     User, Settings, LogOut, ChevronDown, Menu,
     LayoutDashboard, ListTodo, ClipboardCheck, UserCheck, UserPlus,
-    CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays, Building2, ShieldCheck
+    CalendarRange, BarChart3, Users, TrendingUp, Home, CalendarDays, Building2, ShieldCheck, BarChart
 } from 'lucide-react';
 
 export const navPages = [
@@ -26,6 +26,8 @@ export const navPages = [
     { title: 'Resource Load Map', href: '/DashBoard/ResourceLoadMap', icon: BarChart3, color: '#ec4899' },
     { title: 'Resource Management', href: '/DashBoard/ResourceManagement', icon: Users, color: '#8b5cf6' },
     { title: 'Variance Control', href: '/DashBoard/Variance', icon: TrendingUp, color: '#ef4444' },
+    { title: 'Management Report', href: '/ManagementDashboard', icon: BarChart, color: '#5C6BC0' },
+
 ];
 
 // صفحاتی که همیشه در دسترس‌اند (تا کاربر قفل نشود)

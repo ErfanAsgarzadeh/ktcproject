@@ -12,7 +12,7 @@ import {
     CalendarRange,
     TrendingUp,
     CalendarDays,
-    Building2,
+    Building2, BarChart,
 } from 'lucide-react';
 
 const pages = [
@@ -106,6 +106,16 @@ const pages = [
         bgColor: 'rgba(239, 68, 68, 0.08)',
         borderColor: 'rgba(239, 68, 68, 0.2)',
     },
+    {
+        title: 'Management Report',
+        description: 'Curated project health & bottleneck reports.',
+        href: '/ManagementDashboard',
+        icon: BarChart,
+        color: '#5C6BC0',
+        bgColor: 'rgb(99, 102, 241,0.1)',
+        borderColor: 'rgb(99, 102, 241,0.2)',
+
+    }
 ];
 
 export default function HomePage() {

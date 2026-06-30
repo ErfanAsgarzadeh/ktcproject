@@ -15,10 +15,10 @@ import {
     ResourceType
 } from '@/types/types';
 import {
-    Users, Layers, DollarSign, Calendar, Clock, Award, Plus, Trash2, Edit3, X, Briefcase, Loader2
+    Users, Layers, DollarSign, Calendar, Clock, Award, Plus, Trash2, Edit3, X, Briefcase, Loader2, Receipt,Database
 } from 'lucide-react';
 
-// ایمپورت کردن apiClient از فایل api.tsx (آدرس را در صورت نیاز اصلاح کنید)
+// ایمپورت کردن apiClient از فایل api.tsx
 import { apiClient } from '@/lib/api';
 import JalaliDatePicker from './JalaliDatePicker';
 
@@ -39,7 +39,7 @@ export default function ResourceManagement({
                                                handleUpdateNode,
                                                isLightMode
                                            }: ResourceManagementProps) {
-    const [managerSubModule, setManagerSubModule] = useState<'resources' | 'pools' | 'rates' | 'assignments'>('resources');
+    const [managerSubModule, setManagerSubModule] = useState<'resources' | 'pools' | 'rates' | 'assignments' | 'expenses'>('resources');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     // Core lists driven by Backend API
@@ -51,6 +51,8 @@ export default function ResourceManagement({
     const [exceptions, setExceptions] = useState<ResourceException[]>([]);
     const [rates, setRates] = useState<ResourceRate[]>([]);
     const [assignments, setAssignments] = useState<Assignment[]>([]);
+    const [expenseTypes, setExpenseTypes] = useState<any[]>([]);
+    const [units, setUnits] = useState<any[]>([]);
 
     // Form states
     const [showResourceModal, setShowResourceModal] = useState(false);
@@ -77,6 +79,8 @@ export default function ResourceManagement({
     const [showAsgModal, setShowAsgModal] = useState(false);
     const [asgForm, setAsgForm] = useState({ taskId: '', resourceId: '', unitsPercent: 100, plannedHours: 40, actualHours: 0 });
 
+    const [expForm, setExpForm] = useState({ name: '', description: '', unitId: '', isActive: true });
+
     const activities = useMemo(() => nodes.filter(n => n.type === 'activity'), [nodes]);
 
     // =========================================================================
@@ -87,7 +91,7 @@ export default function ResourceManagement({
             setIsLoading(true);
             try {
                 const [
-                    resPools, resRoles, resSkills, resItems, resMappings, resExceptions, resRates
+                    resPools, resRoles, resSkills, resItems, resMappings, resExceptions, resRates, resExpenseTypes, resUnits
                 ] = await Promise.all([
                     apiClient.get('planning/resource-pools/'),
                     apiClient.get('planning/resource-roles/'),
@@ -95,7 +99,9 @@ export default function ResourceManagement({
                     apiClient.get('planning/resources/'),
                     apiClient.get('planning/resource-skill-mappings/'),
                     apiClient.get('planning/resource-exceptions/'),
-                    apiClient.get('planning/resource-rates/')
+                    apiClient.get('planning/resource-rates/'),
+                    apiClient.get('planning/expense-types/'),
+                    apiClient.get('planning/units-of-measure/')
                 ]);
 
                 setPools(resPools.data);
@@ -105,6 +111,8 @@ export default function ResourceManagement({
                 setSkillMappings(resMappings.data);
                 setExceptions(resExceptions.data);
                 setRates(resRates.data);
+                setExpenseTypes(resExpenseTypes.data);
+                setUnits(resUnits.data);
 
                 // Fetch assignments based on active revision
                 if (currentRevision?.id) {
@@ -323,6 +331,39 @@ export default function ResourceManagement({
         }
     };
 
+    // =========================================================================
+    // 6. Expense Type Handlers
+    // =========================================================================
+    const handleCreateExpenseType = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!expForm.name.trim() || !expForm.unitId) return;
+
+        try {
+            const payload = {
+                name: expForm.name,
+                description: expForm.description,
+                unit: expForm.unitId,
+                is_active: expForm.isActive
+            };
+            const response = await apiClient.post('planning/expense-types/', payload);
+            setExpenseTypes([...expenseTypes, response.data]);
+            setExpForm({ name: '', description: '', unitId: '', isActive: true });
+        } catch (error) {
+            alert('Error creating Expense Type.');
+        }
+    };
+
+    const handleDeleteExpenseType = async (id: string) => {
+        if (confirm('Are you sure you want to delete this Expense Type?')) {
+            try {
+                await apiClient.delete(`planning/expense-types/${id}/`);
+                setExpenseTypes(expenseTypes.filter(e => e.id !== id));
+            } catch (error) {
+                alert('Error deleting Expense Type.');
+            }
+        }
+    };
+
 
     if (isLoading) {
         return (
@@ -355,13 +396,13 @@ export default function ResourceManagement({
 
                     <button
                         onClick={() => setManagerSubModule('resources')}
-                        className={`w-full text-left p-3.5 rounded-xl transition-all flex items-center gap-2.5 text-xs font-bold leading-none cursor-pointer ${
+                        className={`w-full text-left p-3.5 rounded-xl transition-all flex items-center gap-2.5 text-xs font-bold leading-none cursor-pointer  ${
                             managerSubModule === 'resources'
                                 ? 'bg-cyan-500/10 border border-cyan-500/15 text-white'
-                                : 'text-slate-400 hover:text-white hover:bg-white/[0.02]'
+                                : 'text-slate-400 hover:text-white '
                         }`}
                     >
-                        <Users className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <Database className="w-4 h-4 text-cyan-400 shrink-0" />
                         <span>Resources Index</span>
                     </button>
 
@@ -370,7 +411,7 @@ export default function ResourceManagement({
                         className={`w-full text-left p-3.5 rounded-xl transition-all flex items-center gap-2.5 text-xs font-bold leading-none cursor-pointer ${
                             managerSubModule === 'pools'
                                 ? 'bg-cyan-500/10 border border-cyan-500/15 text-white'
-                                : 'text-slate-400 hover:text-white hover:bg-white/[0.02]'
+                                : 'text-slate-400 hover:text-white '
                         }`}
                     >
                         <Layers className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -382,7 +423,7 @@ export default function ResourceManagement({
                         className={`w-full text-left p-3.5 rounded-xl transition-all flex items-center gap-2.5 text-xs font-bold leading-none cursor-pointer ${
                             managerSubModule === 'rates'
                                 ? 'bg-cyan-500/10 border border-cyan-500/15 text-white'
-                                : 'text-slate-400 hover:text-white hover:bg-white/[0.02]'
+                                : 'text-slate-400 hover:text-white '
                         }`}
                     >
                         <DollarSign className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -394,11 +435,23 @@ export default function ResourceManagement({
                         className={`w-full text-left p-3.5 rounded-xl transition-all flex items-center gap-2.5 text-xs font-bold leading-none cursor-pointer ${
                             managerSubModule === 'assignments'
                                 ? 'bg-cyan-500/10 border border-cyan-500/15 text-white'
-                                : 'text-slate-400 hover:text-white hover:bg-white/[0.02]'
+                                : 'text-slate-400 hover:text-white '
                         }`}
                     >
                         <Clock className="w-4 h-4 text-cyan-400 shrink-0" />
                         <span>Task Assignments</span>
+                    </button>
+
+                    <button
+                        onClick={() => setManagerSubModule('expenses')}
+                        className={`w-full text-left p-3.5 rounded-xl transition-all flex items-center gap-2.5 text-xs font-bold leading-none cursor-pointer ${
+                            managerSubModule === 'expenses'
+                                ? 'bg-cyan-500/10 border border-cyan-500/15 text-white'
+                                : 'text-slate-400 hover:text-white '
+                        }`}
+                    >
+                        <Receipt className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <span>Expense Types</span>
                     </button>
 
                     <div className="mt-auto p-4 rounded-2xl text-[10px] space-y-1 shadow-sm leading-relaxed select-none" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)",color:"var(--text-tertiary)"}}>
@@ -1007,6 +1060,114 @@ export default function ResourceManagement({
                                     )}
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* SUB-MODULE E: EXPENSE TYPES MANAGEMENT */}
+                    {managerSubModule === 'expenses' && (
+                        <div className="space-y-6 animate-fade-in duration-200">
+                            <div className="rounded-2xl p-5 space-y-4" style={{backgroundColor:"var(--bg-secondary)",border:"1px solid var(--border-subtle)"}}>
+                                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                                    <h3 className="text-xs font-mono font-bold tracking-widest uppercase flex items-center gap-1.5" style={{color:"var(--text-primary)"}}>
+                                        <Receipt className="w-4 h-4 text-cyan-400" />
+                                        <span>Expense Types Configuration</span>
+                                    </h3>
+                                </div>
+
+                                <form onSubmit={handleCreateExpenseType} className="p-4 rounded-xl flex flex-col md:flex-row items-end gap-3.5" style={{backgroundColor:"var(--overlay-bg)",border:"1px solid var(--border-subtle)"}}>
+                                    <div className="flex-1 space-y-1 w-full">
+                                        <label className="text-[10px] font-bold font-mono tracking-wider text-slate-400 uppercase">Expense Name</label>
+                                        <input
+                                            type="text" required placeholder="e.g. Travel, Software License"
+                                            value={expForm.name} onChange={e => setExpForm({...expForm, name: e.target.value})}
+                                            className="w-full rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
+                                        />
+                                    </div>
+                                    <div className="flex-1 space-y-1 w-full">
+                                        <label className="text-[10px] font-bold font-mono tracking-wider text-slate-400 uppercase">Description</label>
+                                        <input
+                                            type="text" placeholder="Additional details..."
+                                            value={expForm.description} onChange={e => setExpForm({...expForm, description: e.target.value})}
+                                            className="w-full rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
+                                        />
+                                    </div>
+                                    <div className="flex-1 space-y-1 w-full">
+                                        <label className="text-[10px] font-bold font-mono tracking-wider text-slate-400 uppercase">Unit of Measure</label>
+                                        <select
+                                            required
+                                            value={expForm.unitId} onChange={e => setExpForm({...expForm, unitId: e.target.value})}
+                                            className="w-full rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-cyan-500" style={{backgroundColor:"var(--bg-input)",border:"1px solid var(--border-medium)",color:"var(--text-primary)"}}
+                                        >
+                                            <option value="">Select Unit...</option>
+                                            {units.map((u: any) => (
+                                                <option key={u.id} value={u.id}>{u.name} ({u.code})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-2 px-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={expForm.isActive}
+                                            onChange={e => setExpForm({...expForm, isActive: e.target.checked})}
+                                            className="accent-cyan-500 w-3.5 h-3.5"
+                                        />
+                                        <span className="text-[10px] font-bold font-mono text-slate-300 uppercase">Active</span>
+                                    </div>
+                                    <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs cursor-pointer select-none whitespace-nowrap active:scale-95 transition-all">
+                                        Add Expense
+                                    </button>
+                                </form>
+
+                                <div className="overflow-x-auto rounded-xl shadow-sm" style={{border:"1px solid var(--border-subtle)"}}>
+                                    <table className="w-full text-left text-xs border-collapse">
+                                        <thead>
+                                        <tr className="text-[10px] font-mono tracking-wide uppercase" style={{backgroundColor:"var(--overlay-bg)",borderBottom:"1px solid var(--border-subtle)",color:"var(--text-tertiary)"}}>
+                                            <th className="p-3 pl-4">Expense Name</th>
+                                            <th className="p-3">Description</th>
+                                            <th className="p-3">Unit</th>
+                                            <th className="p-3 text-center">Status</th>
+                                            <th className="p-3 pr-4 text-center">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody className="divide-y" style={{borderColor:"var(--border-subtle)"}}>
+                                        {expenseTypes.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} className="p-8 text-center text-slate-500 italic">No expense types defined. Add one above.</td>
+                                            </tr>
+                                        ) : (
+                                            expenseTypes.map((exp: any) => {
+                                                const unitObj = units.find((u: any) => u.id === exp.unit);
+                                                return (
+                                                    <tr key={exp.id} className="transition-colors" onMouseEnter={e=>(e.currentTarget.style.backgroundColor="var(--bg-hover)")} onMouseLeave={e=>(e.currentTarget.style.backgroundColor="")}>
+                                                        <td className="p-3 pl-4 font-bold" style={{color:"var(--text-primary)"}}>{exp.name}</td>
+                                                        <td className="p-3 text-slate-400">{exp.description || '-'}</td>
+                                                        <td className="p-3">
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold border" style={{borderColor:"var(--border-medium)",backgroundColor:"var(--overlay-bg)",color:"var(--text-secondary)"}}>
+                                                                {unitObj ? unitObj.code : 'Unknown'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-center">
+                                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${exp.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                                                                {exp.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 pr-4 text-center">
+                                                            <button
+                                                                onClick={() => handleDeleteExpenseType(exp.id)}
+                                                                className="p-1.5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 rounded-lg transition-colors cursor-pointer"
+                                                                title="Delete Expense Type"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     )}
