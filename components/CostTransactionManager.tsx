@@ -59,6 +59,7 @@ interface CostTransaction {
     resource_name?: string | null;
     expense_type_name?: string | null;
     task_title?: string | null;
+    budget_consumptions?: BudgetConsumption[];
 }
 
 interface BudgetAllocation {
@@ -73,6 +74,14 @@ interface BudgetAllocation {
     actual_amount: string;
     remaining_amount: string;
     description?: string;
+}
+
+interface BudgetConsumption {
+    id: string;
+    budget_allocation: string;
+    budget_allocation_label?: string;
+    funding_source_title?: string;
+    amount: string;
 }
 
 type TransactionType = 'LABOR' | 'MATERIAL' | 'EQUIPMENT' | 'EXPENSE' | 'COST';
@@ -155,6 +164,7 @@ export default function CostTransactionManager() {
     const [selectedAssignment, setSelectedAssignment] = useState('');
 
     const isExpense = form.transaction_type === 'EXPENSE';
+    const isCostResource = form.transaction_type === 'COST';
     const liveAmount = form.quantity * (isExpense ? form.expense_rate : form.unit_rate);
 
     const projectNameById = useMemo(() => {
@@ -190,10 +200,12 @@ export default function CostTransactionManager() {
         return { total, taskLinked, direct, count: filteredLedger.length };
     }, [filteredLedger]);
 
-    const allocationOptions = useMemo(() => {
+    const projectBudgetSummary = useMemo(() => {
         if (!form.project) return [];
-        return budgetAllocations.filter((item) => String(item.project) === String(form.project));
-    }, [budgetAllocations, form.project]);
+        return budgetAllocations
+            .filter((item) => String(item.project) === String(form.project) && item.cost_type === form.transaction_type)
+            .sort((a, b) => Number(b.remaining_amount) - Number(a.remaining_amount));
+    }, [budgetAllocations, form.project, form.transaction_type]);
 
     const selectedTaskLabel = useMemo(() => {
         const task = tasks.find((item) => item.id === selectedTask);
@@ -281,7 +293,7 @@ export default function CostTransactionManager() {
     }, [form.transaction_type, isExpense, selectedTask]);
 
     useEffect(() => {
-        if (!selectedAssignment || isExpense) return;
+        if (!selectedAssignment || isExpense || isCostResource) return;
 
         const assignment = assignments.find((item) => String(item.id) === String(selectedAssignment));
         if (!assignment) return;
@@ -299,7 +311,7 @@ export default function CostTransactionManager() {
                     setForm((prev) => ({ ...prev, unit_rate: Number(selected.regularRate) }));
                 }
             });
-    }, [assignments, form.transaction_date, isExpense, selectedAssignment]);
+    }, [assignments, form.transaction_date, isCostResource, isExpense, selectedAssignment]);
 
     const resetForm = () => {
         setSelectedTask('');
@@ -334,7 +346,11 @@ export default function CostTransactionManager() {
             alert('Select an expense type.');
             return;
         }
-        if (!isExpense && (!selectedTask || !selectedAssignment || !selectedRate)) {
+        if (!isExpense && (!selectedTask || !selectedAssignment)) {
+            alert('Select task and assigned resource.');
+            return;
+        }
+        if (!isExpense && !isCostResource && !selectedRate) {
             alert('Select task, assigned resource, and a valid resource rate.');
             return;
         }
@@ -348,18 +364,16 @@ export default function CostTransactionManager() {
                 quantity: form.quantity,
                 description: form.description,
             };
-            if (form.budget_allocation) {
-                payload.budget_allocation = form.budget_allocation;
-            }
-
             if (isExpense) {
                 payload.expense_type = form.expense_type;
                 payload.expense_rate = form.expense_rate;
             } else {
                 payload.task = selectedTask;
                 payload.assignment = selectedAssignment;
-                payload.resource_rate = selectedRate!.id;
                 payload.unit_rate = form.unit_rate;
+                if (!isCostResource) {
+                    payload.resource_rate = selectedRate!.id;
+                }
             }
 
             await apiClient.post('planning/cost-transactions/', payload);
@@ -449,8 +463,10 @@ export default function CostTransactionManager() {
                                 onChange={(event) => {
                                     const nextType = event.target.value as TransactionType;
                                     setForm((prev) => ({ ...prev, transaction_type: nextType, expense_type: '', unit_rate: 0 }));
-                                    setTasks([]);
-                                    setSelectedTask('');
+                                    if (nextType === 'EXPENSE') {
+                                        setTasks([]);
+                                        setSelectedTask('');
+                                    }
                                     setAssignments([]);
                                     setSelectedAssignment('');
                                     setSelectedRate(null);
@@ -462,21 +478,26 @@ export default function CostTransactionManager() {
                             </select>
                         </Field>
 
-                        <Field label="Budget Allocation">
-                            <select
-                                value={form.budget_allocation}
-                                onChange={(event) => setForm((prev) => ({ ...prev, budget_allocation: event.target.value }))}
-                                disabled={!form.project}
-                                className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-cyan-500"
-                                style={inputStyle}
-                            >
-                                <option value="">No allocation link</option>
-                                {allocationOptions.map((allocation) => (
-                                    <option key={allocation.id} value={allocation.id}>
-                                        {(allocation.funding_source_title ?? 'Source')} / {allocation.cost_type} / {money(allocation.remaining_amount)} left
-                                    </option>
-                                ))}
-                            </select>
+                        <Field label="Budget Draw">
+                            <div className="rounded-lg px-3 py-2 text-xs space-y-2" style={{ backgroundColor: 'var(--overlay-bg)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="font-bold text-cyan-300">Automatic by scope</span>
+                                    <span className="font-mono text-[10px] text-slate-400">{projectBudgetSummary.length} eligible</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 leading-relaxed">
+                                    Uses task budget first, then WBS parents, then project budget. Older allocations are consumed first.
+                                </p>
+                                {form.project && projectBudgetSummary.length > 0 && (
+                                    <div className="max-h-20 overflow-y-auto space-y-1 pr-1">
+                                        {projectBudgetSummary.slice(0, 4).map((allocation) => (
+                                            <div key={allocation.id} className="flex items-center justify-between gap-2 text-[10px] font-mono">
+                                                <span className="truncate text-slate-400">{allocation.funding_source_title ?? 'Source'} / {allocation.scope_type}</span>
+                                                <strong className="text-emerald-300">{money(allocation.remaining_amount)}</strong>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </Field>
                     </div>
 
@@ -545,7 +566,9 @@ export default function CostTransactionManager() {
                                     onChange={(event) => {
                                         setSelectedAssignment(event.target.value);
                                         setSelectedRate(null);
-                                        setForm((prev) => ({ ...prev, unit_rate: 0 }));
+                                        if (!isCostResource) {
+                                            setForm((prev) => ({ ...prev, unit_rate: 0 }));
+                                        }
                                     }}
                                     className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"
                                     style={inputStyle}
@@ -555,7 +578,7 @@ export default function CostTransactionManager() {
                                 </select>
                             </Field>
 
-                            {selectedAssignment && (
+                            {selectedAssignment && !isCostResource && (
                                 <div className="rounded-lg px-3 py-2 flex items-center gap-3" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-subtle)' }}>
                                     <User className="w-4 h-4 text-emerald-400" />
                                     <div>
@@ -614,7 +637,7 @@ export default function CostTransactionManager() {
                             <JalaliDatePicker
                                 value={form.transaction_date}
                                 onChange={(date) => {
-                                    setForm((prev) => ({ ...prev, transaction_date: date, unit_rate: isExpense ? prev.unit_rate : 0 }));
+                                    setForm((prev) => ({ ...prev, transaction_date: date, unit_rate: isExpense || isCostResource ? prev.unit_rate : 0 }));
                                     if (!isExpense) setSelectedRate(null);
                                 }}
                             />
@@ -685,7 +708,7 @@ export default function CostTransactionManager() {
                     </div>
 
                     <div className="overflow-auto min-h-0 flex-1">
-                        <table className="w-full text-xs min-w-[760px]">
+                        <table className="w-full text-xs min-w-[920px]">
                             <thead>
                             <tr className="text-[10px] uppercase font-mono text-slate-400" style={{ backgroundColor: 'var(--overlay-bg)' }}>
                                 <th className="text-left p-3">Date</th>
@@ -695,13 +718,14 @@ export default function CostTransactionManager() {
                                 <th className="text-right p-3">Qty</th>
                                 <th className="text-right p-3">Rate</th>
                                 <th className="text-right p-3">Amount</th>
+                                <th className="text-left p-3">Budget Draw</th>
                             </tr>
                             </thead>
                             <tbody>
                             {isLedgerLoading ? (
-                                <tr><td colSpan={7} className="p-8 text-center text-slate-400"><Loader2 className="w-5 h-5 animate-spin inline mr-2" />Loading ledger...</td></tr>
+                                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-5 h-5 animate-spin inline mr-2" />Loading ledger...</td></tr>
                             ) : filteredLedger.length === 0 ? (
-                                <tr><td colSpan={7} className="p-8 text-center text-slate-500">No transactions found.</td></tr>
+                                <tr><td colSpan={8} className="p-8 text-center text-slate-500">No transactions found.</td></tr>
                             ) : filteredLedger.map((tx) => {
                                 const rate = tx.transaction_type === 'EXPENSE' ? tx.expense_rate : tx.unit_rate;
                                 return (
@@ -718,6 +742,20 @@ export default function CostTransactionManager() {
                                         <td className="p-3 text-right font-mono">{money(tx.quantity)}</td>
                                         <td className="p-3 text-right font-mono">{money(rate)}</td>
                                         <td className="p-3 text-right font-black font-mono text-cyan-400">${money(tx.amount)}</td>
+                                        <td className="p-3">
+                                            {tx.budget_consumptions && tx.budget_consumptions.length > 0 ? (
+                                                <div className="space-y-1">
+                                                    {tx.budget_consumptions.map((draw) => (
+                                                        <div key={draw.id} className="flex items-center justify-between gap-2 rounded-md bg-emerald-500/5 border border-emerald-500/10 px-2 py-1">
+                                                            <span className="truncate text-[10px] text-slate-300">{draw.budget_allocation_label || draw.funding_source_title || draw.budget_allocation}</span>
+                                                            <strong className="font-mono text-[10px] text-emerald-300">${money(draw.amount)}</strong>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-[10px] text-slate-500">No budget draw</span>
+                                            )}
+                                        </td>
                                     </tr>
                                 );
                             })}
