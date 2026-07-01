@@ -12,7 +12,7 @@ import { gregorianToJalaliDateTime } from '../utils/jalali';
 import {
     ArrowLeft, CheckCircle, XCircle, AlertTriangle, Clock,
     FileText, Compass, ClipboardCheck, Search, Briefcase,
-    Hourglass, Check, X, Sparkles, Trash2, Edit, AlertOctagon
+    Hourglass, Check, X, Sparkles, Trash2, Edit, AlertOctagon, Paperclip, Download
 } from 'lucide-react';
 
 interface ApprovalsPageProps {
@@ -28,6 +28,16 @@ interface ApprovalsPageProps {
     onToggleTheme?: () => void;
     currentUser?: CustomUser | null;
 }
+
+type BackendReportAttachment = {
+    id: string;
+    file?: string;
+    file_url?: string;
+    file_name?: string;
+    file_type?: string;
+    file_size?: number;
+    uploaded_at?: string;
+};
 
 // === Helper برای نمایش زیباتر زمان ===
 const formatDecimalTime = (decimalHours?: number) => {
@@ -94,6 +104,15 @@ export default function ApprovalsPage({
         isApproved: data.is_approved,
         approvedBy: data.approved_by,
         approvedAt: data.approved_at,
+        attachments: (data.attachments || []).map((attachment: BackendReportAttachment) => ({
+            id: attachment.id,
+            file: attachment.file,
+            fileUrl: attachment.file_url,
+            fileName: attachment.file_name || 'Attachment',
+            fileType: attachment.file_type,
+            fileSize: attachment.file_size,
+            uploadedAt: attachment.uploaded_at,
+        })),
     });
 
     // === Fetch All Reports (Pending & Historic) ===
@@ -457,7 +476,7 @@ export default function ApprovalsPage({
                                             </div>
                                         </div>
 
-                                        <div className="text-right leading-relaxed shrink-0 self-start md:self-auto font-mono text-[11px] text-slate-400 bg-black/25 px-3 py-1.5 rounded-xl border border-white/5">
+                                        <div className="text-right leading-relaxed shrink-0 self-start md:self-auto font-mono text-[11px] text-slate-400  px-3 py-1.5 rounded-xl  " style={{ color: 'var(--bg-primary)' }}>
                                             <div className="flex items-center gap-1.5 justify-start md:justify-end text-[10px]">
                                                 <Briefcase className="w-3 w-3 text-indigo-400" />
                                                 <span className="text-slate-300 font-semibold">{rep.proj?.name || 'Unknown Project'}</span>
@@ -578,6 +597,28 @@ export default function ApprovalsPage({
                                                                 <AlertTriangle className="w-4 h-4 text-rose-500 animate-pulse shrink-0" /> CRITICAL CONSTRAINTS & BLOCKERS DECLARED:
                                                             </strong>
                                                             <p className="text-xs text-rose-200 italic font-sans pl-1 leading-normal">"{rep.blockers}"</p>
+                                                        </div>
+                                                    )}
+                                                    {rep.attachments && rep.attachments.length > 0 && (
+                                                        <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-xl p-3.5 space-y-2">
+                                                            <strong className="text-[10px] text-cyan-300 font-mono font-bold tracking-widest uppercase flex items-center gap-1.5 justify-start">
+                                                                <Paperclip className="w-4 h-4 text-cyan-400 shrink-0" /> Report Attachments
+                                                            </strong>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {rep.attachments.map(file => (
+                                                                    <a
+                                                                        key={file.id}
+                                                                        href={file.fileUrl || file.file}
+                                                                        target="_blank"
+                                                                        rel="noreferrer"
+                                                                        download
+                                                                        className="max-w-full inline-flex items-center gap-1.5 rounded-lg border  px-2.5 py-1.5 text-[10px] font-mono text-slate-300 hover:text-cyan-300 hover:border-cyan-500/30 transition-colors"
+                                                                    >
+                                                                        <Download className="w-3.5 h-3.5 shrink-0" />
+                                                                        <span className="truncate">{file.fileName}</span>
+                                                                    </a>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>

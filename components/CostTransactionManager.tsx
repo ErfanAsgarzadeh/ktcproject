@@ -384,8 +384,8 @@ export default function CostTransactionManager() {
     }
 
     return (
-        <div className="w-full min-h-screen p-5 space-y-5" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b pb-4" style={{ borderColor: 'var(--border-subtle)' }}>
+        <div className="w-full h-full min-h-0 p-4 flex flex-col gap-4 overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b pb-3 shrink-0" style={{ borderColor: 'var(--border-subtle)' }}>
                 <div>
                     <h2 className="text-lg font-extrabold tracking-tight flex items-center gap-2">
                         <Receipt className="w-5 h-5 text-cyan-400" />
@@ -404,15 +404,15 @@ export default function CostTransactionManager() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 shrink-0">
                 <StatCard label="Visible Total" value={`$${money(ledgerTotals.total)}`} icon={<DollarSign className="w-4 h-4 text-cyan-400" />} />
                 <StatCard label="Task Linked" value={`$${money(ledgerTotals.taskLinked)}`} icon={<Layers className="w-4 h-4 text-emerald-400" />} />
                 <StatCard label="Direct Expense" value={`$${money(ledgerTotals.direct)}`} icon={<Receipt className="w-4 h-4 text-amber-400" />} />
                 <StatCard label="Records" value={String(ledgerTotals.count)} icon={<Hash className="w-4 h-4 text-indigo-400" />} />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-[minmax(360px,480px)_1fr] gap-5 items-start">
-                <form onSubmit={handleSubmit} className="rounded-lg p-5 space-y-5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(340px,460px)_1fr] gap-4 min-h-0 flex-1 items-stretch">
+                <form onSubmit={handleSubmit} className="rounded-lg p-4 space-y-4 max-h-full overflow-y-auto" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Save className="w-4 h-4 text-cyan-400" />
@@ -656,8 +656,8 @@ export default function CostTransactionManager() {
                     </div>
                 </form>
 
-                <div className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-                    <div className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="rounded-lg overflow-hidden min-h-0 flex flex-col" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+                    <div className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <div className="flex items-center gap-2">
                             <Layers className="w-4 h-4 text-cyan-400" />
                             <span className="text-xs font-mono font-bold uppercase">Transaction Ledger</span>
@@ -684,8 +684,8 @@ export default function CostTransactionManager() {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
+                    <div className="overflow-auto min-h-0 flex-1">
+                        <table className="w-full text-xs min-w-[760px]">
                             <thead>
                             <tr className="text-[10px] uppercase font-mono text-slate-400" style={{ backgroundColor: 'var(--overlay-bg)' }}>
                                 <th className="text-left p-3">Date</th>
@@ -726,7 +726,7 @@ export default function CostTransactionManager() {
                     </div>
 
                     {filteredLedger.some((tx) => !tx.task) && (
-                        <div className="p-3 text-xs text-amber-400 flex items-center gap-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                        <div className="p-3 text-xs text-amber-400 flex items-center gap-2 shrink-0" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                             <AlertCircle className="w-4 h-4" />
                             Direct project-level expenses are tracked in this ledger but do not affect task-level EVM until assigned to a task.
                         </div>

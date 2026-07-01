@@ -147,6 +147,17 @@ export interface TaskReport {
   approvedBy?: string;
   approvedAt?: string;
   rejectionReason?: string;
+  attachments?: TaskReportAttachment[];
+}
+
+export interface TaskReportAttachment {
+  id: string;
+  file?: string;
+  fileUrl?: string;
+  fileName: string;
+  fileType?: string;
+  fileSize?: number;
+  uploadedAt?: string;
 }
 
 

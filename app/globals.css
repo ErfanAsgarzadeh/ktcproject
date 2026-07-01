@@ -31,6 +31,7 @@
   --border-strong: rgba(139, 92, 246, 0.25);
 
   --overlay-bg: rgba(139, 92, 246, 0.06);
+  --overlay-bg2: rgba(139, 92, 246, 0.1);
   --overlay-hover: rgba(139, 92, 246, 0.12);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -103,7 +104,8 @@ html.light {
   --border-strong: rgba(120, 113, 108, 0.30);   /* Strong warm divider */
 
   /* ── Overlays (warm tint for glass-morphism in light mode) ── */
-  --overlay-bg: rgba(120, 113, 108, 0.04);      /* Barely-there warm glass */
+  --overlay-bg: rgb(120 113 108 / 0.1);      /* Barely-there warm glass */
+  --overlay-bg2: rgba(120, 113, 108, 0.2);
   --overlay-hover: rgba(120, 113, 108, 0.08);   /* Subtle hover feedback */
 
   /* ── Shadows (warm-tinted for natural depth perception) ── */

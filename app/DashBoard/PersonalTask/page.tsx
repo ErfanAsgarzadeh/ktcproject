@@ -51,7 +51,7 @@ export default function PersonalTasksRoute() {
 
     if (isLoading) {
         return (
-            <div className="h-screen w-full flex items-center justify-center bg-[#070b19]">
+            <div className="h-full min-h-0 w-full flex items-center justify-center " style={{ color: 'var(--bg-primary)' }}>
                 <div className="flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
                     <span className="text-cyan-400 font-mono text-xs uppercase tracking-widest">Initializing Environment...</span>
@@ -61,7 +61,7 @@ export default function PersonalTasksRoute() {
     }
 
     return (
-        <div className="h-screen w-full">
+        <div className="h-full min-h-0 w-full overflow-hidden">
             <PersonalTasksPage
                 users={users}
                 currentUser={currentUser}

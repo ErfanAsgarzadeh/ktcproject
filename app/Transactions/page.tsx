@@ -1,20 +1,14 @@
 'use client'
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowRight, ChevronLeft } from 'lucide-react';
 import CostTransactionManager from '@/components/CostTransactionManager';
 
 export default function CostTransactionsPage() {
-    const router = useRouter();
-
     return (
-        <div className="min-h-screen w-full flex flex-col " style={{ backgroundColor: 'var(--bg-primary)' }}>
-           {/* بخش اصلی نمایش فرم و لایه مدیریت هزینه‌ها */}
-            <div className="flex-1  relative">
+        <div className="h-full min-h-0 w-full flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
+            <div className="flex-1 min-h-0 relative overflow-hidden">
                 <CostTransactionManager />
             </div>
-
         </div>
     );
 }

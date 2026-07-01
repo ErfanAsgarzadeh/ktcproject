@@ -13,8 +13,6 @@ import {
   CheckCircle2,
   Trash2,
   Sparkles,
-  ArrowLeft,
-  ShieldCheck,
   Check,
   AlertCircle,
   Loader2,
@@ -37,7 +35,6 @@ interface PersonalTasksPageProps {
 
 export default function PersonalTasksPage({
                                             users,
-                                            onExit,
                                             currentUser
                                           }: PersonalTasksPageProps) {
   const [selectedUserId, setSelectedUserId] = useState<string>(users[0]?.id || '');
@@ -53,7 +50,7 @@ export default function PersonalTasksPage({
 
   // State مربوط به حالت ویرایش
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editingRevisionId, setEditingRevisionId] = useState<string | null>(null); // Add this
+  const [, setEditingRevisionId] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -250,9 +247,9 @@ export default function PersonalTasksPage({
   };
 
   return (
-      <div className=" flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div className="h-full min-h-0 w-full flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         {/* Header */}
-        <header className="bg-white/5 backdrop-blur-md border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl shrink-0 z-25">
+        <header className="bg-white/5 backdrop-blur-md border-b border-white/10 px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl shrink-0 z-25">
           <div className="flex items-center gap-4">
 
 
@@ -263,7 +260,7 @@ export default function PersonalTasksPage({
                 <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono">Personal Task Transaction Center</h1>
+                <h1 className="text-sm font-extrabold uppercase tracking-wider font-mono" style={{ color: 'var(--text-primary)' }}>Personal Task Transaction Center</h1>
                 <p className="text-[10px] text-slate-400 font-sans">Commit and audit atomic user tasks.</p>
               </div>
             </div>
@@ -273,12 +270,12 @@ export default function PersonalTasksPage({
         </header>
 
         {/* Main Container Workspace */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
 
           {/* Left Side: Create / Edit form */}
-          <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 p-6  space-y-6" style={{ backgroundColor: 'var(--overlay-bg)' }}>
+          <div className="w-full lg:w-[400px] xl:w-[430px] max-h-[44%] lg:max-h-none lg:h-full shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 p-4 overflow-y-auto" style={{ backgroundColor: 'var(--overlay-bg)' }}>
 
-            <form onSubmit={handleSubmitTask} className="space-y-4 scrollbar-thin scrollbar-thumb-white/5">
+            <form onSubmit={handleSubmitTask} className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className={`text-xs font-bold uppercase font-mono tracking-wider ${editingTaskId ? 'text-amber-400' : 'text-slate-300'}`}>
                   {editingTaskId ? 'Edit Personal Task' : 'Commit Personal Task'}
@@ -407,8 +404,8 @@ export default function PersonalTasksPage({
                     placeholder="e.g. Audit regional compliance permits documentation"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
-                    className="w-full  border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-sans"
-                    style={{background:"--bg-input"}}
+                    className="w-full border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs placeholder-slate-500 focus:outline-none transition-all font-sans"
+                    style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
                 />
               </div>
 
@@ -419,8 +416,8 @@ export default function PersonalTasksPage({
                     placeholder="Description..."
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    className="w-full resize-y  border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-sans"
-                    style={{background:"--bg-input"}}
+                    className="w-full min-h-20 max-h-36 resize-y border border-white/10 hover:border-cyan-500/30 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-xs placeholder-slate-500 focus:outline-none transition-all font-sans"
+                    style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
                 />
               </div>
 
@@ -489,28 +486,30 @@ export default function PersonalTasksPage({
           </div>
 
           {/* Right Side: Server Tasks List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
-            <div className="flex items-center justify-between">
+          <div className="flex-1 min-h-0 overflow-hidden p-4 flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0">
               <div>
-                <h2 className="text-base font-extrabold text-white tracking-tight">Active Tasks Audit Ledger</h2>
+                <h2 className="text-base font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>Active Tasks Audit Ledger</h2>
                 <p className="text-[11px] text-slate-400">Live data fetched directly from Django backend.</p>
               </div>
 
-              <div className="flex items-center gap-2 bg-[#11162a] border border-white/5 px-3.5 py-1.5 rounded-xl font-mono text-[10px]">
+              <div className="flex items-center gap-2  px-3.5 py-1.5 rounded-xl font-mono text-[10px]"
+                   style={{ color: 'var(--text-primary)' }} >
                 <span className="text-slate-400">Total committed count:</span>
                 <strong className="text-cyan-400 font-extrabold">{personalTasks.length}</strong>
               </div>
             </div>
 
-            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden shadow-xl flex-1 min-h-0 flex flex-col">
               {isLoading ? (
                   <div className="p-16 flex flex-col items-center justify-center text-slate-500">
                     <Loader2 className="w-8 h-8 animate-spin mb-4 text-cyan-500" />
                     <p className="text-xs">Loading tasks from server via Axios...</p>
                   </div>
               ) : (
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
+                  <div className="overflow-auto min-h-0 flex-1">
+                  <table className="w-full min-w-[880px] text-left text-xs border-collapse">
+                    <thead className="sticky top-0 z-10">
                     <tr className="bg-white/5 border-b border-white/10 text-slate-400 font-mono tracking-wider text-[10px] uppercase">
                       <th className="p-3 pl-4">System ID</th>
                       <th className="p-3">Personal Task Title</th>
@@ -548,7 +547,7 @@ export default function PersonalTasksPage({
                                     backgroundColor: isEditing ? 'var(--overlay-bg)' : undefined,
                                   }}                             >
                                 <td className="p-3 pl-4 font-mono font-bold text-cyan-400 text-[10px] tracking-wide">{task.code}</td>
-                                <td className="p-3 font-bold text-white max-w-sm truncate" title={task.name}>{task.name}</td>
+                                <td className="p-3 font-bold max-w-sm truncate" style={{ color: 'var(--text-primary)' }} title={task.name}>{task.name}</td>
                                 <td className="p-3">
                                   <div className="flex flex-wrap items-center gap-1.5">
                                     {(() => {
@@ -598,6 +597,7 @@ export default function PersonalTasksPage({
                     )}
                     </tbody>
                   </table>
+                  </div>
               )}
             </div>
           </div>

@@ -24,6 +24,16 @@ interface MyTasksProps {
   currentUser?: CustomUser | null;
 }
 
+type BackendReportAttachment = {
+  id: string;
+  file?: string;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
+  file_size?: number;
+  uploaded_at?: string;
+};
+
 // === Helper برای نمایش زیباتر زمان ===
 const formatDecimalTime = (decimalHours: number) => {
   const h = Math.floor(decimalHours);
@@ -71,6 +81,8 @@ export default function MyTasks({
   const [chatFile, setChatFile] = useState<File | null>(null);
   const [chatFilePreview, setChatFilePreview] = useState<string | null>(null);
   const chatFileInputRef = useRef<HTMLInputElement>(null);
+  const reportFileInputRef = useRef<HTMLInputElement>(null);
+  const [reportFiles, setReportFiles] = useState<File[]>([]);
   const [formSuccess, setFormSuccess] = useState(false);
 
   // API Data States
@@ -91,6 +103,15 @@ export default function MyTasks({
     isApproved: data.is_approved,
     approvedBy: data.approved_by,
     approvedAt: data.approved_at,
+    attachments: (data.attachments || []).map((attachment: BackendReportAttachment) => ({
+      id: attachment.id,
+      file: attachment.file,
+      fileUrl: attachment.file_url,
+      fileName: attachment.file_name || 'Attachment',
+      fileType: attachment.file_type,
+      fileSize: attachment.file_size,
+      uploadedAt: attachment.uploaded_at,
+    })),
   });
 
   // === Fetch Task Reports from API ===
@@ -213,17 +234,19 @@ export default function MyTasks({
     const totalDecimalHours = Number(timeSpentHours) + (Number(timeSpentMinutes) / 60);
     const actualStatus = reportProgress === 100 ? 'completed' : reportStatus;
 
-    const payload = {
-      task: selectedTaskObj.task.id,
-      status: actualStatus,
-      progress_percent: reportProgress,
-      time_spent_hours: totalDecimalHours,
-      blockers: (actualStatus === 'blocked' || actualStatus === 'at-risk') ? blockersText.trim() : '',
-      notes: notesText.trim() || 'Logged status progress update.',
-    };
+    const payload = new FormData();
+    payload.append('task', String(selectedTaskObj.task.id));
+    payload.append('status', actualStatus);
+    payload.append('progress_percent', String(reportProgress));
+    payload.append('time_spent_hours', String(totalDecimalHours));
+    payload.append('blockers', (actualStatus === 'blocked' || actualStatus === 'at-risk') ? blockersText.trim() : '');
+    payload.append('notes', notesText.trim() || 'Logged status progress update.');
+    reportFiles.forEach(file => payload.append('attachments', file));
 
     try {
-      const res = await apiClient.post('/planning/task-reports/', payload);
+      const res = await apiClient.post('/planning/task-reports/', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       const newReport = mapBackendToReport(res.data);
       setReports(prev => [newReport, ...prev]);
 
@@ -242,6 +265,8 @@ export default function MyTasks({
 
       onAddChatMessage(selectedTaskObj.task.id, userId, reportMessage);
 
+      setReportFiles([]);
+      if (reportFileInputRef.current) reportFileInputRef.current.value = '';
       setFormSuccess(true);
       setTimeout(() => {
         setFormSuccess(false);
@@ -551,6 +576,50 @@ export default function MyTasks({
                                   <textarea required value={notesText} onChange={e => setNotesText(e.target.value)} rows={4} placeholder="Type a verbose log of kpi achievements, files edited..." className="w-full bg-black/40 border border-white/10 focus:border-cyan-400 text-slate-200 placeholder-slate-650 rounded-xl px-4 py-3 text-xs focus:outline-none transition-all font-sans" />
                                 </div>
 
+                                <div className="space-y-2 bg-black/25 border border-white/5 rounded-2xl p-4">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <label className="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                      <Paperclip className="w-4 h-4 text-cyan-400" /> Report Attachments
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => reportFileInputRef.current?.click()}
+                                        className="px-3 py-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/15 text-[11px] font-bold flex items-center gap-1.5"
+                                    >
+                                      <File className="w-3.5 h-3.5" /><span>Add Files</span>
+                                    </button>
+                                  </div>
+                                  <input
+                                      ref={reportFileInputRef}
+                                      type="file"
+                                      multiple
+                                      className="hidden"
+                                      onChange={e => setReportFiles(Array.from(e.target.files || []))}
+                                  />
+                                  {reportFiles.length > 0 ? (
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {reportFiles.map((file, index) => (
+                                            <div key={`${file.name}-${file.size}-${index}`} className="flex items-center justify-between gap-2 rounded-xl border border-white/5 bg-black/30 px-3 py-2">
+                                              <div className="min-w-0 flex items-center gap-2">
+                                                <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                                                <span className="truncate text-xs text-slate-300">{file.name}</span>
+                                              </div>
+                                              <button
+                                                  type="button"
+                                                  onClick={() => setReportFiles(prev => prev.filter((_, fileIndex) => fileIndex !== index))}
+                                                  className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10"
+                                                  title="Remove file"
+                                              >
+                                                <X className="w-3.5 h-3.5" />
+                                              </button>
+                                            </div>
+                                        ))}
+                                      </div>
+                                  ) : (
+                                      <p className="text-[10px] text-slate-500 font-mono">Optional files: images, PDF, Office documents, text, archives.</p>
+                                  )}
+                                </div>
+
                                 <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-xl shadow-cyan-500/10 flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 duration-155">
                                   <CheckCircle className="w-5 h-5 text-white" /><span>Submit Report to Project Board</span>
                                 </button>
@@ -787,6 +856,28 @@ ext-[9px] font-black font-mono rounded flex items-center justify-center ${isMe ?
                                                   <div className="bg-rose-500/5 border border-rose-500/20 rounded-xl p-3 space-y-1">
                                                     <span className="text-[9px] font-mono font-bold text-rose-450 text-rose-300 uppercase tracking-widest flex items-center gap-1.5"><AlertOctagon className="w-3.5 h-3.5 text-rose-500" /> Critical Blockers Filed:</span>
                                                     <p className="text-xs text-slate-400 font-sans italic pl-1 leading-normal">"{rep.blockers}"</p>
+                                                  </div>
+                                              )}
+                                              {rep.attachments && rep.attachments.length > 0 && (
+                                                  <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-xl p-3 space-y-2">
+                                                    <span className="text-[9px] font-mono font-bold text-cyan-300 uppercase tracking-widest flex items-center gap-1.5">
+                                                      <Paperclip className="w-3.5 h-3.5 text-cyan-400" /> Attached Files
+                                                    </span>
+                                                    <div className="flex flex-wrap gap-2">
+                                                      {rep.attachments.map(file => (
+                                                          <a
+                                                              key={file.id}
+                                                              href={file.fileUrl || file.file}
+                                                              target="_blank"
+                                                              rel="noreferrer"
+                                                              download
+                                                              className="max-w-full inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/25 px-2.5 py-1.5 text-[10px] font-mono text-slate-300 hover:text-cyan-300 hover:border-cyan-500/30"
+                                                          >
+                                                            <Download className="w-3.5 h-3.5 shrink-0" />
+                                                            <span className="truncate">{file.fileName}</span>
+                                                          </a>
+                                                      ))}
+                                                    </div>
                                                   </div>
                                               )}
                                             </div>
